@@ -2,11 +2,15 @@
 
 # Install production dependencies
 install:
-	pip install -r requirements.txt -r requirements-server.txt
+	pip install -e .
+
+# Install with server dependencies
+install-server:
+	pip install -e ".[server]"
 
 # Install development dependencies
 dev:
-	pip install -r requirements.txt -r requirements-server.txt -r requirements-dev.txt
+	pip install -e ".[dev]"
 	pre-commit install
 
 # Format code

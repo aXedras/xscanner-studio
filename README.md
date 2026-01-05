@@ -76,13 +76,11 @@ git clone https://github.com/aXedras/BullionBarRecognition.git
 cd BullionBarRecognition
 
 # Install dependencies
-pip install -r requirements.txt        # Core OCR
-pip install -r requirements-server.txt # REST API
-pip install -r requirements-dev.txt    # Development tools
+pip install -e ".[dev]"  # Core OCR + REST API + Development tools
 
 # Configure API keys (optional, for cloud strategies)
-cp config/config.json.template config/config.json
-# Edit config.json with your OpenAI/Google API keys
+cp .env.example .env
+# Edit .env with your OpenAI/Google API keys
 ```
 
 ### Running the REST API Server
@@ -332,7 +330,8 @@ BullionBarRecognition/
 ├── .github/workflows/            # CI/CD pipelines
 ├── Dockerfile                    # Container definition
 ├── test_ocr_strategies.py        # Benchmark runner
-├── requirements*.txt             # Python dependencies
+├── pyproject.toml                # Python package configuration
+├── .env.example                  # Environment variable template
 └── README.md                     # This file
 ```
 
