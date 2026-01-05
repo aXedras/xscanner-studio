@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+barPictures/
+invoices/
+reports/
+ocr_comparison_results*.json
+config/config.json
+config/config_image.json
+*.log
+
+# Git
+.git/
+.gitignore
+
+# CI/CD
+.github/
+
+# Documentation (keep README)
+docs/
+
+# Development
+*.ipynb_checkpoints
+.mypy_cache/
+.ruff_cache/
+
+# Test data (keep structure, ignore large images)
+*.jpg
+*.jpeg
+*.png
+*.pdf
+!barPictures/.gitkeep
