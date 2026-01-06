@@ -1,4 +1,4 @@
-.PHONY: install dev format lint test server docker-build docker-run clean
+.PHONY: install dev format lint test ci-local pre-commit-all server docker-build docker-run clean
 
 # Install production dependencies
 install:
@@ -23,6 +23,14 @@ lint:
 	ruff check .
 	ruff format --check .
 	mypy src/ ocr_strategies/ --ignore-missing-imports
+
+# Run ALL CI checks locally (exactly what CI runs)
+ci-local: lint test
+	@echo "✅ All CI checks passed locally!"
+
+# Run pre-commit on all files (what pre-commit hook does)
+pre-commit-all:
+	pre-commit run --all-files
 
 # Run tests
 test:
