@@ -1,28 +1,34 @@
-# Dockerfile for xScanner API Server
-FROM python:3.11-slim
+# Default xScanner Dockerfile - Cloud APIs Only (Lightweight)
+# For full version with PaddleOCR, see Dockerfile.full
+# For cloud-only lightweight version, see Dockerfile.cloud (this is it!)
+#
+# This is the RECOMMENDED production image:
+# - Only ChatGPT Vision + Gemini Flash strategies
+# - Final image: ~300MB
+# - Fast startup, low memory footprint
+# - Perfect for cloud deployment
+#
+# To build: docker build -t xscanner:cloud .
+# To build full version: docker build -f Dockerfile.full -t xscanner:full .
 
-# Install system dependencies for OCR
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    tesseract-ocr \
-    tesseract-ocr-deu \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender-dev \
-    libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install Python dependencies first (better layer caching)
-COPY pyproject.toml ./
-RUN pip install --no-cache-dir -e ".[server]"
+# Install minimal system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy application code
 COPY src/ ./src/
 COPY ocr_strategies/ ./ocr_strategies/
 COPY config/prompt_template_image.txt config/system_prompt_image.txt ./config/
+COPY pyproject.toml ./
+
+# Install only cloud dependencies (no ML libraries!)
+RUN pip install --no-cache-dir -e ".[server,cloud]" && \
+    pip cache purge
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app

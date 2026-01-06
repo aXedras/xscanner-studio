@@ -18,22 +18,33 @@ classifiers = [
 ]
 
 dependencies = [
-    "PyPDF2==3.0.1",
-    "openai==1.35.0",  # Don't upgrade to 2.x - breaking changes
-    "google-generativeai>=0.3.0",
-    "requests==2.32.5",  # Security update
-    "Pillow==10.1.0",  # Keep stable version
-    "opencv-python==4.6.0.66",
-    "numpy<2.0",  # Intentionally pinned - v2.0+ breaks compatibility
-    "pytesseract==0.3.13",  # Minor update
-    "easyocr==1.7.2",  # Minor update
-    "paddleocr==2.7.3",  # Keep v2 - v3 not tested
-    "paddlepaddle==2.6.2",  # Keep v2 - v3 not tested
-    "ultralytics==8.0.227",  # Keep stable version
+    # Core dependencies - always needed
+    "requests==2.32.5",
+    "Pillow==10.1.0",
     "python-dotenv>=1.0.0",
+    "PyPDF2==3.0.1",  # PDF handling if needed
 ]
 
 [project.optional-dependencies]
+# Cloud-based OCR strategies (lightweight)
+cloud = [
+    "openai==1.35.0",  # ChatGPT Vision
+    "google-generativeai>=0.3.0",  # Gemini Flash
+]
+
+# Local OCR strategies (heavy dependencies)
+local = [
+    "paddleocr==2.7.3",
+    "paddlepaddle==2.6.2",
+    "opencv-python==4.6.0.66",
+    "numpy<2.0",
+]
+
+# All OCR strategies (for development/testing)
+all-strategies = [
+    "xScanner[cloud,local]",
+]
+
 server = [
     "fastapi>=0.104.0",
     "uvicorn[standard]>=0.24.0",
@@ -42,6 +53,7 @@ server = [
     "redis>=5.0.0",
     "aiofiles>=23.2.0",
 ]
+
 dev = [
     "ruff>=0.1.8",
     "mypy>=1.7.0",
@@ -56,6 +68,8 @@ dev = [
 [tool.ruff]
 target-version = "py310"
 line-length = 100
+
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -70,7 +84,7 @@ ignore = [
     "B008",  # function call in default arg (FastAPI dependency injection)
 ]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["src", "ocr_strategies"]
 
 [tool.ruff.format]
