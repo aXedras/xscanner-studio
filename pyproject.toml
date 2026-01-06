@@ -34,8 +34,8 @@ cloud = [
 
 # Local OCR strategies (heavy dependencies)
 local = [
-    "paddleocr==2.7.3",
-    "paddlepaddle==2.6.2",
+    "paddleocr>=3.3.0",  # Updated for opencv-python compatibility
+    "paddlepaddle>=2.6.2",
     "opencv-python>=4.8.1.78",  # Fixed CVE-2023-4863 (libwebp)
     "numpy<2.0",
 ]
