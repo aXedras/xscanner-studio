@@ -1,4 +1,4 @@
-# BullionBarRecognition
+# xScanner
 
 **AI-powered OCR and Vision API for extracting structured data from bullion bar images**
 
@@ -72,8 +72,8 @@ This project provides a REST API and CLI tools for automated extraction of metad
 
 ```bash
 # Clone repository
-git clone https://github.com/aXedras/BullionBarRecognition.git
-cd BullionBarRecognition
+git clone https://github.com/aXedras/xScanner.git
+cd xScanner
 
 # Install dependencies
 pip install -e ".[dev]"  # Core OCR + REST API + Development tools
@@ -251,10 +251,10 @@ graph LR
 - Release published
 
 **Docker Image Tags:**
-- Branch: `ghcr.io/axedras/bullionbarrecognition:main`
-- PR: `ghcr.io/axedras/bullionbarrecognition:pr-123`
-- Release: `ghcr.io/axedras/bullionbarrecognition:v1.0.0`
-- SHA: `ghcr.io/axedras/bullionbarrecognition:sha-abc123`
+- Branch: `ghcr.io/axedras/xScanner:main`
+- PR: `ghcr.io/axedras/xScanner:pr-123`
+- Release: `ghcr.io/axedras/xScanner:v1.0.0`
+- SHA: `ghcr.io/axedras/xScanner:sha-abc123`
 
 ---
 
@@ -288,7 +288,7 @@ services:
       - "11434:11434"
 
   bullion-ocr:
-    image: ghcr.io/axedras/bullionbarrecognition:latest
+    image: ghcr.io/axedras/xScanner:latest
     ports:
       - "8000:8000"
     environment:
@@ -305,7 +305,7 @@ volumes:
 ## 📁 Project Structure
 
 ```
-BullionBarRecognition/
+xScanner/
 ├── src/                          # Core application
 │   ├── server.py                 # FastAPI REST API
 │   ├── extraction.py             # Extraction service

@@ -1,4 +1,4 @@
-# Dockerfile for BullionBarRecognition API Server
+# Dockerfile for xScanner API Server
 FROM python:3.11-slim
 
 # Install system dependencies for OCR
