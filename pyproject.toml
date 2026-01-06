@@ -105,8 +105,8 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]  # Root directory
-include = ["src*", "ocr_strategies*"]  # Include both packages
-exclude = ["tests*", "scripts*", "build*", "dist*"]
+include = ["src*", "ocr_strategies*", "scripts*"]  # Include src, ocr_strategies, and scripts
+exclude = ["tests*", "build*", "dist*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
