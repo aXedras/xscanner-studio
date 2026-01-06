@@ -4,6 +4,14 @@
 
 Extract serial numbers, metal type, weight, fineness, and producer information from gold, silver, platinum, and palladium bar images using state-of-the-art OCR and Vision LLM technologies.
 
+## 📚 Documentation
+
+- **[API Documentation](docs/API_DOCUMENTATION.md)** - Complete REST API reference with React Native examples
+- **[Docker Deployment](docs/DOCKER.md)** - Container setup and deployment guide
+- **[Development Backlog](docs/BACKLOG.md)** - Feature roadmap and technical debt
+- **[Contributing Guidelines](docs/CONTRIBUTING.md)** - How to contribute to the project
+- **[Changelog](docs/CHANGELOG.md)** - Version history and release notes
+
 ## 🎯 Overview
 
 This project provides a REST API and CLI tools for automated extraction of metadata from precious metal bar images. It combines traditional OCR (PaddleOCR) with modern Vision Language Models (LLMs) to achieve high accuracy even on difficult-to-read serial numbers and text.
@@ -184,17 +192,21 @@ Report created at: `reports/ocr_report.html`
 
 | Script | Purpose | Usage |
 |--------|---------|-------|
-| **`test_ocr_strategies.py`** | Benchmark all OCR strategies | `python test_ocr_strategies.py` |
+| **`tests/test_ocr_strategies.py`** | Benchmark all OCR strategies | `python tests/test_ocr_strategies.py` |
 | **`src/server.py`** | REST API server | `python -m src.server` |
 | **`scripts/generate_report.py`** | Generate HTML comparison report | `python scripts/generate_report.py` |
-| **`chatgpt_image_extractor.py`** | Standalone ChatGPT Vision extraction | `python chatgpt_image_extractor.py <image>` |
-| **`callerAxedras.py`** | Integration with aXedras BIL | `python callerAxedras.py` |
+| **`scripts/chatgpt_image_extractor.py`** | Standalone ChatGPT Vision extraction | `python scripts/chatgpt_image_extractor.py <image>` |
+| **`src/callerAxedras.py`** | Integration with aXedras BIL | `python -m src.callerAxedras` |
 
-### Deprecated/Legacy Scripts
+### Windows Scripts
 
-- ~~`chatgpt_extractor.py`~~ - Text-only extraction (superseded by Vision)
-- ~~`invoiceExtractor.py`~~ - Similar to chatgpt_image_extractor (redundant)
-- ~~`ocr_comparator.py`~~ - Now imported as module by test_ocr_strategies.py
+For Windows users, PowerShell and batch scripts are available in `scripts/`:
+- **`run_parallel_tests.ps1`** - Parallel OCR testing (Windows)
+- **`start_ollama_parallel.bat`** - Start Ollama with parallel support (Windows)
+
+For macOS/Linux users, equivalent shell scripts are provided:
+- **`scripts/run_parallel_tests.sh`** - Parallel OCR testing (Unix)
+- **`scripts/start_ollama_parallel.sh`** - Start Ollama with parallel support (Unix)
 
 ---
 
@@ -310,7 +322,7 @@ xScanner/
 │   ├── server.py                 # FastAPI REST API
 │   ├── extraction.py             # Extraction service
 │   ├── config.py                 # Configuration management
-│   └── axedras_client.py         # BIL integration
+│   └── callerAxedras.py          # BIL integration
 ├── ocr_strategies/               # OCR strategy implementations
 │   ├── base.py                   # Strategy interface
 │   ├── paddleocr_strategy.py     # PaddleOCR implementation
@@ -319,17 +331,33 @@ xScanner/
 │   ├── ollama_vision_strategy.py # Llama 3.2 Vision
 │   └── paddle_llama_hybrid_strategy.py
 ├── scripts/                      # Utility scripts
-│   └── generate_report.py        # HTML report generator
+│   ├── generate_report.py        # HTML report generator
+│   ├── chatgpt_image_extractor.py # Standalone ChatGPT Vision CLI
+│   ├── ocr_comparator.py         # OCR comparison utilities
+│   ├── run_parallel_tests.sh     # Parallel testing (Unix)
+│   ├── run_parallel_tests.ps1    # Parallel testing (Windows)
+│   ├── start_ollama_parallel.sh  # Ollama setup (Unix)
+│   └── start_ollama_parallel.bat # Ollama setup (Windows)
+├── tests/                        # Unit tests
+│   ├── test_basic.py             # Basic smoke tests
+│   ├── test_config.py            # Configuration tests
+│   └── test_ocr_strategies.py    # OCR strategy benchmarks
+├── docs/                         # Documentation
+│   ├── API_DOCUMENTATION.md      # REST API reference
+│   ├── DOCKER.md                 # Docker deployment guide
+│   ├── BACKLOG.md                # Development roadmap
+│   ├── CONTRIBUTING.md           # Contribution guidelines
+│   └── CHANGELOG.md              # Version history
 ├── config/                       # Configuration files
 │   ├── config.json.template
 │   ├── prompt_template_image.txt
 │   └── system_prompt_image.txt
-├── tests/                        # Unit tests
+├── logs/                         # Application logs
 ├── reports/                      # Generated HTML reports
-├── barPictures/                  # Test images
+├── invoices/                     # Test images
 ├── .github/workflows/            # CI/CD pipelines
-├── Dockerfile                    # Container definition
-├── test_ocr_strategies.py        # Benchmark runner
+├── Dockerfile                    # Default cloud image
+├── Dockerfile.full               # Full image with local OCR
 ├── pyproject.toml                # Python package configuration
 ├── .env.example                  # Environment variable template
 └── README.md                     # This file
