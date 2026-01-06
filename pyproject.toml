@@ -20,7 +20,7 @@ classifiers = [
 dependencies = [
     # Core dependencies - always needed
     "requests==2.32.5",
-    "Pillow==10.1.0",
+    "Pillow>=10.3.0",  # Image processing (fixed CVE-2023-50447, CVE-2024-28219)
     "python-dotenv>=1.0.0",
     "PyPDF2==3.0.1",  # PDF handling if needed
 ]
@@ -36,7 +36,7 @@ cloud = [
 local = [
     "paddleocr==2.7.3",
     "paddlepaddle==2.6.2",
-    "opencv-python==4.6.0.66",
+    "opencv-python>=4.8.1.78",  # Fixed CVE-2023-4863 (libwebp)
     "numpy<2.0",
 ]
 
