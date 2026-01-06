@@ -30,6 +30,7 @@ dependencies = [
     "paddleocr==2.7.3",
     "paddlepaddle==2.6.2",
     "ultralytics==8.0.227",
+    "python-dotenv>=1.0.0",
 ]
 
 [project.optional-dependencies]
