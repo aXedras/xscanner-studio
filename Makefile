@@ -1,4 +1,4 @@
-.PHONY: install dev format lint test test-unit test-integration test-coverage test-quick ci-local pre-commit-all server docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report
+.PHONY: install dev format lint test test-unit test-integration test-coverage test-quick ci-local pre-commit-all server docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-full cli-benchmark-quick cli-report
 
 # Install production dependencies
 install:
@@ -81,7 +81,8 @@ cli:
 	@echo "    make cli-list-strategies     List available OCR strategies"
 	@echo ""
 	@echo "  Benchmarking:"
-	@echo "    make cli-benchmark           Full benchmark (all strategies, all images)"
+	@echo "    make cli-benchmark           Full benchmark + HTML report (recommended)"
+	@echo "    make cli-benchmark-full      Run benchmark only (no report)"
 	@echo "    make cli-benchmark-quick     Quick benchmark (3 random images)"
 	@echo "    make cli-report              Generate HTML report from benchmark results"
 	@echo ""
@@ -105,6 +106,15 @@ cli-list-strategies:
 	@python -m tools.cli.cli --list-strategies
 
 cli-benchmark:
+	@echo "🔬 Running full benchmark + generating report..."
+	@python -m tools.cli.cli
+	@echo ""
+	@echo "📊 Generating HTML report..."
+	@python -m tools.cli.report
+	@echo ""
+	@echo "✅ Benchmark complete! View report at: reports/strategy_benchmark_report.html"
+
+cli-benchmark-full:
 	@echo "🔬 Running full benchmark..."
 	@python -m tools.cli.cli
 	@echo ""
