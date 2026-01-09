@@ -317,7 +317,7 @@ HTML_TEMPLATE = """
         {image_sections}
     </main>
     <footer>
-        Bullion Bar Recognition &mdash; Automated report generated from ocr_comparison_results.json
+        Bullion Bar Recognition &mdash; Automated report generated from reports/strategy_benchmark_results.json
     </footer>
     <script>
         document.addEventListener('DOMContentLoaded', () => {{

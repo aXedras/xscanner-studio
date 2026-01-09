@@ -1,4 +1,4 @@
-"""CLI entry point for OCR strategy benchmarking and testing tool."""
+"""CLI entry point for strategy benchmarking and testing tool."""
 
 import argparse
 from pathlib import Path
@@ -14,7 +14,7 @@ from .runner import run_benchmark
 
 
 def run_single_test(image_path: Path, strategy_name: str, verbose: bool = False) -> int:
-    """Run OCR test on single image with one strategy."""
+    """Run a single extraction test on one image with one strategy."""
     if not image_path.exists():
         print(f"❌ Image not found: {image_path}")
         return 1
@@ -124,7 +124,7 @@ def interactive_mode() -> int:
 def main():
     """Main entry point for benchmark and test tool."""
     parser = argparse.ArgumentParser(
-        description="🔬 OCR Strategy Benchmarking and Testing Tool",
+        description="🔬 Strategy Benchmarking and Testing Tool",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Modes:
@@ -148,14 +148,14 @@ Examples:
         "--workers",
         type=int,
         default=None,
-        help="Number of parallel workers (benchmark mode)",
+        help="Number of parallel strategy workers per image (benchmark mode)",
     )
 
     parser.add_argument(
         "--image-workers",
         type=int,
         default=None,
-        help="Number of workers per image (benchmark mode)",
+        help="Number of images to process in parallel (benchmark mode)",
     )
 
     parser.add_argument(
@@ -168,7 +168,7 @@ Examples:
     parser.add_argument(
         "--strategy",
         choices=["chatgpt", "gemini", "hybrid"],
-        help="OCR strategy to use (single test mode)",
+        help="Strategy to use (single test mode)",
     )
 
     parser.add_argument(

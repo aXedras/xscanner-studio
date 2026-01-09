@@ -1,10 +1,9 @@
 """Benchmark runner logic."""
 
 import random
-from datetime import datetime
 from pathlib import Path
 
-from .comparator import OCRComparator, _shutdown_requested
+from .comparator import StrategyComparator
 
 
 def run_benchmark(args) -> int:
@@ -19,13 +18,25 @@ def run_benchmark(args) -> int:
     strategies = []
 
     if config.openai.api_key:
-        strategies.append(ChatGPTVisionStrategy(config))
+        strategies.append(
+            ChatGPTVisionStrategy(
+                api_key=config.openai.api_key,
+                model=config.openai.model,
+                temperature=config.openai.temperature,
+                max_output_tokens=config.openai.max_output_tokens,
+            )
+        )
 
     if config.google.api_key:
-        strategies.append(GeminiFlashStrategy(config))
+        strategies.append(
+            GeminiFlashStrategy(
+                api_key=config.google.api_key,
+                model=config.google.model,
+            )
+        )
 
     if not strategies:
-        print("❌ No OCR strategies available!")
+        print("❌ No strategies available!")
         print("💡 Set OPENAI_API_KEY or GOOGLE_API_KEY in .env.local")
         return 1
 
@@ -54,7 +65,7 @@ def run_benchmark(args) -> int:
         test_images = all_images
         mode = "FULL"
 
-    print("🔬 Starting OCR Strategy Benchmark")
+    print("🔬 Starting strategy benchmark")
     print("=" * 60)
     print(f"Mode: {mode}")
     print(f"Strategies: {len(strategies)}")
@@ -67,37 +78,22 @@ def run_benchmark(args) -> int:
         print("\n📸 Selected images:")
         for img in test_images:
             print(f"  - {img.name}")
-
     # Run benchmark
-    comparator = OCRComparator(
+    comparator = StrategyComparator(
         strategies=strategies, max_workers=args.workers, image_workers=args.image_workers
     )
 
     print("\n🚀 Starting benchmark...\n")
 
-    for img_path in test_images:
-        if _shutdown_requested:
-            print("\n⚠️  Benchmark interrupted by user")
-            break
-
-        results = comparator.test_image(img_path)
-
-        # Store results in format expected by report
-        comparator.results.append(
-            {
-                "image": str(img_path),
-                "timestamp": datetime.now().isoformat(),
-                "results": {name: result.__dict__ for name, result in results.items()},
-            }
-        )
+    # Let comparator manage sequential vs parallel processing and result ordering.
+    comparator.test_multiple_images(test_images)
 
     # Save results
     output_file = Path("reports/strategy_benchmark_results.json")
     output_file.parent.mkdir(parents=True, exist_ok=True)
     comparator.save_results(output_file)
 
-    print("\n✅ Benchmark complete!")
     print(f"📊 Results saved to: {output_file}")
-    print("\n💡 Generate report: make benchmark-report")
+    print("\n💡 Generate report: make cli-report")
 
     return 0

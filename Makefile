@@ -1,4 +1,4 @@
-.PHONY: install dev format lint test test-unit test-integration test-coverage test-quick ci-local pre-commit-all server docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-full cli-benchmark-quick cli-report
+.PHONY: install dev format lint test test-unit test-integration test-coverage test-quick ci-local pre-commit-all server docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick
 
 # Install production dependencies
 install:
@@ -78,13 +78,11 @@ cli:
 	@echo ""
 	@echo "  List & Info:"
 	@echo "    make cli-list-images         List all available test images"
-	@echo "    make cli-list-strategies     List available OCR strategies"
+	@echo "    make cli-list-strategies     List available strategies"
 	@echo ""
 	@echo "  Benchmarking:"
-	@echo "    make cli-benchmark           Full benchmark + HTML report (recommended)"
-	@echo "    make cli-benchmark-full      Run benchmark only (no report)"
-	@echo "    make cli-benchmark-quick     Quick benchmark (3 random images)"
-	@echo "    make cli-report              Generate HTML report from benchmark results"
+	@echo "    make cli-benchmark           Full benchmark + HTML report"
+	@echo "    make cli-benchmark-quick     Quick benchmark (3 images) + HTML report"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make cli-interactive"
@@ -114,23 +112,16 @@ cli-benchmark:
 	@echo ""
 	@echo "✅ Benchmark complete! View report at: reports/strategy_benchmark_report.html"
 
-cli-benchmark-full:
-	@echo "🔬 Running full benchmark..."
-	@python -m tools.cli.cli
-	@echo ""
-	@echo "✅ Benchmark complete! Generate report with: make cli-report"
-
 cli-benchmark-quick:
-	@echo "⚡ Running quick benchmark (3 random images)..."
+	@echo "⚡ Running quick benchmark (3 random images) + generating report..."
 	@python -m tools.cli.cli --quick
 	@echo ""
-	@echo "✅ Quick benchmark complete!"
-
-cli-report:
 	@echo "📊 Generating HTML report..."
 	@python -m tools.cli.report
 	@echo ""
-	@echo "✅ Report generated: reports/strategy_benchmark_report.html"
+	@echo "✅ Quick benchmark complete! View report at: reports/strategy_benchmark_report.html"
+
+
 
 # Build Docker image
 docker-build:

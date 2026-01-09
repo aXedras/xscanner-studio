@@ -1,7 +1,7 @@
 [project]
 name = "xscanner"
 version = "1.0.0"
-description = "OCR and LLM-based bullion bar data extraction"
+description = "LLM and vision-based bullion bar data extraction"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "aXedras"}
@@ -26,13 +26,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Cloud-based OCR strategies (lightweight)
+# Cloud-based strategies (lightweight)
 cloud = [
     "openai==1.35.0",  # ChatGPT Vision
     "google-generativeai>=0.3.0",  # Gemini Flash
 ]
 
-# Local OCR strategies (heavy dependencies)
+# Local strategies (heavy dependencies)
 local = [
     "paddleocr>=3.3.0",  # Updated for opencv-python compatibility
     "paddlepaddle>=2.6.2",
@@ -40,7 +40,7 @@ local = [
     "numpy<2.0",
 ]
 
-# All OCR strategies (for development/testing)
+# All strategies (for development/testing)
 all-strategies = [
     "xScanner[cloud,local]",
 ]

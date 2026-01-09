@@ -32,19 +32,6 @@ def sample_config() -> AppConfig:
 
 
 @pytest.fixture
-def mock_ocr_response() -> dict:
-    """Mock successful OCR response with all fields."""
-    return {
-        "metal": "gold",
-        "weight_value": 100.0,
-        "weight_unit": "g",
-        "fineness": 0.9999,
-        "producer": "PAMP Suisse",
-        "serial_number": "ABC123456",
-    }
-
-
-@pytest.fixture
 def test_image_path(tmp_path: Path) -> Path:
     """Create a temporary test image file."""
     image_path = tmp_path / "test_image.jpg"

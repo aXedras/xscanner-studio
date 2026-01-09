@@ -4,9 +4,9 @@
 ![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-**AI-powered OCR and Vision API for extracting structured data from bullion bar images**
+**AI-powered data extraction and Vision API for structured data from bullion bar images**
 
-Extract serial numbers, metal type, weight, fineness, and producer information from gold, silver, platinum, and palladium bar images using state-of-the-art OCR and Vision LLM technologies.
+Extract serial numbers, metal type, weight, fineness, and producer information from gold, silver, platinum, and palladium bar images using Vision LLM and text extraction technologies.
 
 ## 📚 Documentation
 
@@ -20,11 +20,11 @@ Extract serial numbers, metal type, weight, fineness, and producer information f
 
 ## 🎯 Overview
 
-REST API and CLI tools for automated extraction of metadata from precious metal bar images. Combines traditional OCR with Vision Language Models for high accuracy.
+REST API and CLI tools for automated extraction of metadata from precious metal bar images. Combines text extraction engines with Vision Language Models for high accuracy.
 
 ### Key Features
 
-- 🤖 **Multiple OCR Strategies**: ChatGPT Vision, Gemini Flash, PaddleOCR, Llama Vision, Hybrid
+- 🤖 **Multiple Strategies**: ChatGPT Vision, Gemini Flash, PaddleOCR engine, Llama Vision, Hybrid
 - 🚀 **REST API**: FastAPI with async support and OpenAPI documentation
 - 📊 **Performance Benchmarking**: Compare strategies with visual reports
 - 🐳 **Docker Support**: Cloud (~300MB) and Full (~3GB) images - see [DOCKER.md](docs/DOCKER.md)
@@ -34,7 +34,7 @@ REST API and CLI tools for automated extraction of metadata from precious metal 
 ### Architecture
 
 **Stateless Design**: No database, images processed on-demand, horizontal scalability
-**Python Stack**: FastAPI, PaddleOCR, OpenCV, OpenAI/Google APIs
+**Python Stack**: FastAPI, PaddleOCR engine, OpenCV, OpenAI/Google APIs
 **Local LLM**: Ollama/Llama 3.2 Vision for privacy-focused deployments
 
 ---
@@ -109,8 +109,8 @@ make test-integration
 # Coverage report
 make test-coverage
 
-# OCR strategy comparison
-python tests/integration/test_strategies.py
+# Strategy comparison / benchmarking
+make cli-benchmark
 ```
 
 See [TESTING.md](docs/TESTING.md) for detailed testing guide.
@@ -172,20 +172,17 @@ xScanner/
 │   │   ├── config.py             # Configuration management
 │   │   ├── extraction.py         # Extraction service
 │   │   └── axedras_client.py     # BIL integration
-│   ├── strategy/                 # OCR strategies
+│   ├── strategy/                 # Extraction strategies
 │   │   ├── base.py               # Strategy interface
 │   │   ├── chatgpt_vision_strategy.py
 │   │   ├── gemini_flash_strategy.py
-│   │   ├── paddleocr_strategy.py
+│   │   ├── paddleocr_strategy.py  # PaddleOCR engine strategy
 │   │   ├── ollama_vision_strategy.py
 │   │   ├── paddle_llama_hybrid_strategy.py
 │   │   └── parser.py             # Data parser
 ├── tools/                        # Development tools (not installed)
-│   ├── cli/                      # CLI testing tools
-│   │   └── test.py               # Interactive OCR testing
-│   └── benchmark/                # Performance benchmarks
-│       ├── comparator.py         # Strategy comparison
-│       └── report.py             # HTML report generator
+│   ├── cli/                      # CLI tools
+│   │   └── cli.py                # Interactive strategy testing
 ├── tests/                        # Test suite
 │   ├── unit/                     # Unit tests (49 tests)
 │   ├── integration/              # Integration tests

@@ -1,1 +1,1 @@
-"""Benchmarking suite for OCR strategy comparison and evaluation."""
+"""Benchmarking suite for strategy comparison and evaluation."""

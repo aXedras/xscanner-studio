@@ -1,5 +1,5 @@
 # Default xScanner Dockerfile - Cloud APIs Only (Lightweight)
-# For full version with PaddleOCR, see Dockerfile.full
+# For full version with local strategies (PaddleOCR + Llama Vision), see Dockerfile.full
 # For cloud-only lightweight version, see Dockerfile.cloud (this is it!)
 #
 # This is the RECOMMENDED production image:
@@ -47,4 +47,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
 
 # Run server
-CMD ["python", "-m", "xscanner.server"]
+CMD ["python", "-m", "xscanner.server.server"]

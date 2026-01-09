@@ -1,4 +1,4 @@
-"""HTML report generator for OCR strategy benchmark results."""
+"""HTML report generator for strategy benchmark results."""
 
 import argparse
 from datetime import datetime
@@ -32,7 +32,7 @@ def build_html(payload: list[dict[str, Any]]) -> str:
         if isinstance(entry.get("expected"), dict) and (entry.get("expected") or {}).get("fields")
     )
     summary_text = (
-        f"{strategy_count} OCR strategies were benchmarked across {image_count} image"
+        f"{strategy_count} strategies were benchmarked across {image_count} image"
         f"{'s' if image_count != 1 else ''}."
     )
     if expected_images:

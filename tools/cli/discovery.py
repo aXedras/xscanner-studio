@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from xscanner.server.config import get_config
-from xscanner.strategy.base import OCRStrategy
+from xscanner.strategy.base import ExtractionStrategy
 from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy
 from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy
 from xscanner.strategy.paddle_llama_hybrid_strategy import PaddleLlamaHybridStrategy
@@ -35,11 +35,11 @@ def find_all_images() -> list[Path]:
     return sorted(images)
 
 
-def get_available_strategies() -> dict[str, type[OCRStrategy]]:
+def get_available_strategies() -> dict[str, type[ExtractionStrategy]]:
     """Get map of strategy names to classes."""
     config = get_config()
 
-    strategies: dict[str, type[OCRStrategy]] = {}
+    strategies: dict[str, type[ExtractionStrategy]] = {}
 
     if config.openai.api_key:
         strategies["chatgpt"] = ChatGPTVisionStrategy
@@ -52,7 +52,7 @@ def get_available_strategies() -> dict[str, type[OCRStrategy]]:
     return strategies
 
 
-def create_strategy(strategy_name: str) -> OCRStrategy:
+def create_strategy(strategy_name: str) -> ExtractionStrategy:
     """Create strategy instance by name."""
     config = get_config()
     strategies = get_available_strategies()
@@ -64,11 +64,11 @@ def create_strategy(strategy_name: str) -> OCRStrategy:
 
     if strategy_name == "chatgpt":
         return ChatGPTVisionStrategy(
-            api_key=config.openai.api_key,
+            api_key=config.openai.api_key or "",
             model=config.openai.model,
         )
     elif strategy_name == "gemini":
-        return GeminiFlashStrategy(api_key=config.google.api_key)
+        return GeminiFlashStrategy(api_key=config.google.api_key or "")
     elif strategy_name == "hybrid":
         return PaddleLlamaHybridStrategy(base_url=config.ollama.base_url)
     else:
@@ -94,7 +94,7 @@ def list_images_info():
 
 
 def list_strategies_info():
-    """List available OCR strategies with configuration status."""
+    """List available extraction strategies with configuration status."""
     strategies = get_available_strategies()
 
     if not strategies:
@@ -103,7 +103,7 @@ def list_strategies_info():
 
     config = get_config()
 
-    print(f"\n🤖 Available OCR Strategies ({len(strategies)}):\n")
+    print(f"\n🤖 Available Strategies ({len(strategies)}):\n")
     for name in strategies:
         print(f"  - {name}")
 

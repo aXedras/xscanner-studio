@@ -1,4 +1,4 @@
-"""OCR strategy comparison and evaluation core logic."""
+"""Strategy comparison and evaluation core logic."""
 
 import os
 import signal
@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from xscanner.strategy.base import OCRResult, OCRStrategy
+from xscanner.strategy.base import ExtractionResult, ExtractionStrategy
 
 from .synonyms import (
     get_producer_candidates,
@@ -36,30 +36,34 @@ signal.signal(signal.SIGINT, signal_handler)
 
 
 def get_image_parallel_workers() -> int:
-    """Get number of parallel image workers from env var OCR_IMAGE_WORKERS.
+    """Get number of parallel image workers from env vars.
 
     Set to 0 (default) to disable image-level parallelization.
-    Recommended: Set to CPU_count / OCR_STRATEGY_WORKERS for optimal throughput.
+    Recommended: Set to CPU_count / STRATEGY_WORKERS for optimal throughput.
     """
     try:
-        return max(0, int(os.getenv("OCR_IMAGE_WORKERS", "0")))
+        raw = os.getenv("STRATEGY_IMAGE_WORKERS")
+        if raw is None:
+            # Legacy env var name (deprecated)
+            raw = os.getenv("OCR_IMAGE_WORKERS", "0")
+        return max(0, int(raw))
     except ValueError:
         return 0
 
 
-class OCRComparator:
-    """Compares multiple OCR strategies on the same images."""
+class StrategyComparator:
+    """Compares multiple extraction strategies on the same images."""
 
     def __init__(
         self,
-        strategies: list[OCRStrategy],
+        strategies: list[ExtractionStrategy],
         max_workers: int | None = None,
         image_workers: int | None = None,
     ):
         """Initialize comparator with strategies.
 
         Args:
-            strategies: List of OCR strategies to test
+            strategies: List of strategies to test
             max_workers: Number of parallel workers per image (strategy-level)
             image_workers: Number of images to process in parallel (0 = sequential)
         """
@@ -70,7 +74,7 @@ class OCRComparator:
             image_workers if image_workers is not None else get_image_parallel_workers()
         )
 
-    def test_image(self, image_path: Path) -> dict[str, OCRResult]:
+    def test_image(self, image_path: Path) -> dict[str, ExtractionResult]:
         """Test all strategies on a single image.
 
         Args:
@@ -193,9 +197,9 @@ class OCRComparator:
 
     # Private methods
 
-    def _run_strategies_sequential(self, image_path: Path) -> dict[str, OCRResult]:
+    def _run_strategies_sequential(self, image_path: Path) -> dict[str, ExtractionResult]:
         """Execute strategies one by one."""
-        results: dict[str, OCRResult] = {}
+        results: dict[str, ExtractionResult] = {}
         print(f"\n{'=' * 80}")
         print(f"Testing: {image_path.name}")
         print(f"{'=' * 80}")
@@ -212,14 +216,16 @@ class OCRComparator:
 
         return results
 
-    def _run_strategies_parallel(self, image_path: Path, worker_count: int) -> dict[str, OCRResult]:
+    def _run_strategies_parallel(
+        self, image_path: Path, worker_count: int
+    ) -> dict[str, ExtractionResult]:
         """Execute strategies in parallel using ThreadPoolExecutor."""
         print(f"\n{'=' * 80}")
         print(f"Testing: {image_path.name}")
         print(f"{'=' * 80}")
         print(f"\n  Executing with {worker_count} parallel workers...")
 
-        completion: dict[str, OCRResult] = {}
+        completion: dict[str, ExtractionResult] = {}
         with ThreadPoolExecutor(max_workers=worker_count) as executor:
             future_map = {
                 executor.submit(self._run_strategy_safe, strategy, image_path): strategy
@@ -231,7 +237,7 @@ class OCRComparator:
                 try:
                     result = future.result()
                 except Exception as exc:
-                    result = OCRResult(
+                    result = ExtractionResult(
                         raw_text="",
                         structured_data={},
                         confidence=None,
@@ -247,9 +253,9 @@ class OCRComparator:
                     print(f"✓ Done ({proc_time:.2f}s)")
 
         # Preserve declared strategy order for downstream consumers
-        ordered_results: dict[str, OCRResult] = {}
+        ordered_results: dict[str, ExtractionResult] = {}
         for strategy in self.strategies:
-            strategy_result: OCRResult | None = completion.get(strategy.name)
+            strategy_result: ExtractionResult | None = completion.get(strategy.name)
             if strategy_result is not None:
                 ordered_results[strategy.name] = strategy_result
         return ordered_results
@@ -365,12 +371,14 @@ class OCRComparator:
             return 0
         return min(self.max_workers, len(self.strategies))
 
-    def _run_strategy_safe(self, strategy: OCRStrategy, image_path: Path) -> OCRResult:
+    def _run_strategy_safe(
+        self, strategy: ExtractionStrategy, image_path: Path
+    ) -> ExtractionResult:
         """Execute strategy with error handling."""
         try:
             return strategy.extract(image_path)
         except Exception as exc:
-            return OCRResult(
+            return ExtractionResult(
                 raw_text="",
                 structured_data={},
                 confidence=None,

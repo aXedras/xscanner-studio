@@ -8,7 +8,7 @@ from typing import Any
 
 @dataclass
 class StrategyAggregate:
-    """Aggregated statistics for a single OCR strategy across multiple runs."""
+    """Aggregated statistics for a single strategy across multiple runs."""
 
     name: str
     runs: int = 0

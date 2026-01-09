@@ -1,4 +1,4 @@
-"""Producer synonym mappings and normalization utilities for OCR comparison."""
+"""Producer synonym mappings and normalization utilities for strategy comparison."""
 
 import re
 
