@@ -7,9 +7,10 @@
 - ✅ Type checking (Mypy)
 - ✅ Security checks (no private keys)
 - ✅ Unit tests (fast, ~0.04s)
+- ✅ Integration tests (mocked APIs, ~0.07s)
 
 **Pre-push (before push):**
-- ✅ Integration tests (requires API keys)
+- ✅ E2E tests (real API calls, only if OPENAI_API_KEY is set)
 
 ## 📦 Installation (required for all developers)
 
@@ -54,13 +55,13 @@ git commit -m "test: pre-commit hook"
 **Commit:**
 ```bash
 git commit -m "feat: new feature"
-# → Runs: formatting, linting, type checking, unit tests
+# → Runs: formatting, linting, type checking, unit tests, integration tests
 ```
 
 **Push:**
 ```bash
 git push
-# → Runs: integration tests (needs API keys)
+# → Runs: e2e tests (only if OPENAI_API_KEY is set, uses real API)
 ```
 
 If auto-fixes are applied, re-stage and commit again.
@@ -83,14 +84,16 @@ git push --no-verify    # Skip pre-push
 
 ## 📊 Test Strategy
 
-| Stage | Tests | Speed | Required |
-|-------|-------|-------|----------|
-| **Commit** | Unit tests | ~0.04s | ✅ Always |
-| **Push** | Integration tests | ~2-5s | ✅ With API keys |
+| Stage | Tests | Speed | API Keys Required |
+|-------|-------|-------|-------------------|
+| **Commit** | Unit + Integration | ~0.11s | ❌ No (mocked) |
+| **Push** | E2E | ~5-15s | ✅ Yes (OPENAI_API_KEY) |
+| **CI/CD** | All tests | ~1-2min | ✅ Yes (from secrets) |
 
-**Why two stages?**
-- Fast feedback on every commit
-- Comprehensive validation before sharing code
+**Test Types:**
+- **Unit**: Business logic, fast, no dependencies
+- **Integration**: Service interfaces with mocked APIs
+- **E2E**: Real ChatGPT API calls with ground truth validation
 
 ## ⚡ Quick Commands
 
