@@ -1,4 +1,4 @@
-.PHONY: install dev format lint test ci-local pre-commit-all server docker-build docker-run clean cli cli-test cli-list-images cli-list-strategies cli-run benchmark benchmark-help benchmark-full benchmark-report benchmark-quick
+.PHONY: install dev format lint test test-unit test-integration test-coverage test-quick ci-local pre-commit-all server docker-build docker-run clean cli cli-test cli-list-images cli-list-strategies cli-run benchmark benchmark-help benchmark-full benchmark-report benchmark-quick
 
 # Install production dependencies
 install:
@@ -22,7 +22,7 @@ format:
 lint:
 	ruff check .
 	ruff format --check .
-	mypy src/ ocr_strategies/ --ignore-missing-imports
+	mypy src/xscanner/ --ignore-missing-imports
 
 # Run ALL CI checks locally (exactly what CI runs)
 ci-local: lint test
@@ -34,7 +34,30 @@ pre-commit-all:
 
 # Run tests
 test:
+	@echo "🧪 Running all tests (unit + integration)..."
 	pytest tests/ -v
+
+# Run only fast unit tests
+test-unit:
+	@echo "⚡ Running unit tests only..."
+	pytest tests/unit/ -v
+
+# Run only integration tests
+test-integration:
+	@echo "🔌 Running integration tests (requires API keys)..."
+	pytest tests/integration/ -v -m integration
+
+# Run tests with coverage report
+test-coverage:
+	@echo "📊 Running tests with coverage..."
+	pytest tests/ --cov=src/xscanner --cov-report=html --cov-report=term
+	@echo ""
+	@echo "✅ Coverage report generated: htmlcov/index.html"
+
+# Run quick tests (unit only, for pre-commit)
+test-quick:
+	@echo "⚡ Running quick tests..."
+	pytest tests/unit/ -q
 
 # Run server locally
 server:
@@ -54,18 +77,18 @@ cli:
 	@echo "  make cli-run IMAGE=barPictures/gold.jpg STRATEGY=chatgpt"
 
 cli-test:
-	@python -m cli.test
+	@python -m xscanner.cli.test
 
 cli-list-images:
-	@python -m cli.test --list-images
+	@python -m xscanner.cli.test --list-images
 
 cli-list-strategies:
-	@python -m cli.test --list-strategies
+	@python -m xscanner.cli.test --list-strategies
 
 # Quick test (requires IMAGE and STRATEGY)
 # Example: make cli-run IMAGE=path.jpg STRATEGY=chatgpt
 cli-run:
-	@python -m cli.test --image "$(IMAGE)" --strategy $(STRATEGY)
+	@python -m xscanner.cli.test --image "$(IMAGE)" --strategy $(STRATEGY)
 
 # Benchmark - Compare all OCR strategies
 benchmark-help:
@@ -82,21 +105,21 @@ benchmark-help:
 
 benchmark:
 	@echo "🔬 Running full benchmark suite..."
-	@python -m benchmark.comparator
+	@python -m xscanner.benchmark.comparator
 	@echo ""
 	@echo "📊 Generating HTML report..."
-	@python -m benchmark.report
+	@python -m xscanner.benchmark.report
 	@echo ""
 	@echo "✅ Benchmark complete! View report at: reports/strategy_benchmark_report.html"
 
 benchmark-full:
-	@python -m benchmark.comparator
+	@python -m xscanner.benchmark.comparator
 
 benchmark-quick:
-	@python -m benchmark.comparator --quick
+	@python -m xscanner.benchmark.comparator --quick
 
 benchmark-report:
-	@python -m benchmark.report
+	@python -m xscanner.benchmark.report
 
 # Build Docker image
 docker-build:

@@ -1,5 +1,5 @@
 [project]
-name = "xScanner"
+name = "xscanner"
 version = "1.0.0"
 description = "OCR and LLM-based bullion bar data extraction"
 readme = "README.md"
@@ -85,7 +85,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["src", "ocr_strategies"]
+known-first-party = ["xscanner"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -104,8 +104,8 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["."]  # Root directory
-include = ["src*", "ocr_strategies*", "scripts*"]  # Include src, ocr_strategies, and scripts
+where = ["src"]  # src directory
+include = ["xscanner*"]  # xscanner package
 exclude = ["tests*", "build*", "dist*"]
 
 [tool.pytest.ini_options]
