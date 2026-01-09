@@ -32,3 +32,24 @@ repos:
           - pydantic
         args: [--ignore-missing-imports]
         files: ^(src|ocr_strategies)/
+
+  # Unit tests (fast, always run)
+  - repo: local
+    hooks:
+      - id: pytest-unit
+        name: pytest unit tests
+        entry: pytest tests/unit -v --tb=short
+        language: system
+        pass_filenames: false
+        always_run: true
+
+  # Integration tests (slower, requires API keys, manual stage)
+  - repo: local
+    hooks:
+      - id: pytest-integration
+        name: pytest integration tests
+        entry: pytest tests/integration -v --tb=short -m integration
+        language: system
+        pass_filenames: false
+        always_run: false
+        stages: [manual]

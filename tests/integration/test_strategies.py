@@ -13,8 +13,8 @@ from typing import Any
 
 import pytest
 
-# Lazy imports to avoid loading all dependencies at once
-from xscanner.benchmark.comparator import OCRComparator
+# Import from new location in tools/
+from tools.benchmark.comparator import OCRComparator
 from xscanner.server.config import get_config
 
 pytestmark = pytest.mark.integration  # Mark all tests in this module as integration
