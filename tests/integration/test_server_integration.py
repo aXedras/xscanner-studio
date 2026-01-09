@@ -146,6 +146,28 @@ class TestServerExtractEndpoint:
 
         assert response.status_code == 422  # Validation error
 
+    def test_extract_with_mock_mode(self, server, test_image_bytes):
+        """Test extraction endpoint with mock mode enabled."""
+        image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
+
+        response = httpx.post(
+            f"{server}/extract",
+            json={
+                "image_base64": image_b64,
+                "strategy": "local",
+                "use_mock": True,
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert data["strategy_used"] == "local_mock"
+        assert "structured_data" in data
+        assert data["structured_data"]["Metal"] in ["Gold", "Silver", "Platinum"]
+        assert "request_id" in data
+
     def test_extract_endpoint_accepts_valid_request(self, server, test_image_bytes):
         """Test that extraction endpoint accepts valid requests.
 
