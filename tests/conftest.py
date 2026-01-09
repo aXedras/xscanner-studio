@@ -1,12 +1,11 @@
 """Pytest configuration and shared fixtures for xScanner tests."""
 
-import os
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 import pytest
 
-from xscanner.server.config import AppConfig, OpenAIConfig, GoogleConfig, ServerConfig
+from xscanner.server.config import AppConfig, GoogleConfig, OpenAIConfig, ServerConfig
 
 
 @pytest.fixture
@@ -84,9 +83,5 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "integration: mark test as integration test (requires external dependencies)"
     )
-    config.addinivalue_line(
-        "markers", "slow: mark test as slow (takes >1s to run)"
-    )
-    config.addinivalue_line(
-        "markers", "requires_api_key: mark test as requiring API credentials"
-    )
+    config.addinivalue_line("markers", "slow: mark test as slow (takes >1s to run)")
+    config.addinivalue_line("markers", "requires_api_key: mark test as requiring API credentials")
