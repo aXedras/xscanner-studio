@@ -113,3 +113,7 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
+markers = [
+    "integration: marks tests as integration tests (may require external services)",
+    "e2e: marks tests as end-to-end tests (require API keys and real services)",
+]
