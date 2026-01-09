@@ -71,6 +71,10 @@ pip install -r requirements-dev.txt
 # Using Python module (recommended)
 python -m xscanner.server.server
 
+# Development tools (outside package)
+python -m tools.cli.test --list-strategies
+python -m tools.benchmark.comparator --quick
+
 # Or with uvicorn
 uvicorn xscanner.server.server:app --reload
 
@@ -176,9 +180,10 @@ xScanner/
 │   │   ├── ollama_vision_strategy.py
 │   │   ├── paddle_llama_hybrid_strategy.py
 │   │   └── parser.py             # Data parser
-│   ├── cli/                      # CLI tools
-│   │   └── test.py               # Interactive testing
-│   └── benchmark/                # Performance comparison
+├── tools/                        # Development tools (not installed)
+│   ├── cli/                      # CLI testing tools
+│   │   └── test.py               # Interactive OCR testing
+│   └── benchmark/                # Performance benchmarks
 │       ├── comparator.py         # Strategy comparison
 │       └── report.py             # HTML report generator
 ├── tests/                        # Test suite
