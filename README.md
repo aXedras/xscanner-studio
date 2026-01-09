@@ -110,7 +110,7 @@ make test-integration
 make test-coverage
 
 # OCR strategy comparison
-python tests/integration/test_ocr_strategies.py
+python tests/integration/test_strategies.py
 ```
 
 See [TESTING.md](docs/TESTING.md) for detailed testing guide.
