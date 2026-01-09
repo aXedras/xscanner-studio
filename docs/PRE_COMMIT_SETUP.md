@@ -1,140 +1,106 @@
-# Pre-commit Hooks Enforcement
+# Code Quality Automation
 
-## 🔒 Warum Pre-commit Hooks?
+## 🔒 Automated Checks
 
-Pre-commit Hooks verhindern, dass Code mit Qualitätsproblemen committed wird:
-- ✅ Automatisches Fixing von Import-Sortierung
-- ✅ Code-Formatierung (Ruff)
-- ✅ Type-Checking (Mypy)
-- ✅ Security-Checks (keine Private Keys)
+**Pre-commit (every commit):**
+- ✅ Code formatting (Ruff)
+- ✅ Type checking (Mypy)
+- ✅ Security checks (no private keys)
+- ✅ Unit tests (fast, ~0.04s)
 
-## 📦 Einmalige Installation (PFLICHT für alle Entwickler!)
+**Pre-push (before push):**
+- ✅ Integration tests (requires API keys)
+
+## 📦 Installation (required for all developers)
 
 ```bash
-# 1. Pre-commit installieren
+# Install pre-commit
 pip install pre-commit
 
-# 2. Hooks aktivieren (läuft automatisch bei jedem commit)
+# Activate hooks
 pre-commit install
-
-# 3. Optional: Auch pre-push hook aktivieren
 pre-commit install --hook-type pre-push
 
-# 4. Testen
+# Test
 pre-commit run --all-files
 ```
 
-## ✅ Verifikation
+## ✅ Verification
 
 ```bash
-# Prüfen, ob Hook installiert ist
-test -f .git/hooks/pre-commit && echo "✅ Installiert" || echo "❌ Fehlt"
+# Check if hook is installed
+test -f .git/hooks/pre-commit && echo "✅ Installed" || echo "❌ Missing"
 
-# Test-Commit machen
+# Test with a commit
 echo "test" > /tmp/test.txt
 git add /tmp/test.txt
 git commit -m "test: pre-commit hook"
-# Du solltest jetzt sehen, dass die Hooks laufen!
+# You should see hooks running!
 ```
 
-## 🚫 Hooks können NICHT umgangen werden (außer explizit)
+## 🚫 Enforcement
 
-**Lokale Enforcement:**
-- Hooks laufen automatisch bei `git commit`
-- Nur mit `--no-verify` übersprungbar (sollte NICHT gemacht werden!)
+**Local:**
+- Hooks run automatically on `git commit` and `git push`
+- Can be skipped with `--no-verify` (not recommended!)
 
-**Server-side Enforcement:**
-1. **GitHub Actions CI** - separate Pre-commit Job (`.github/workflows/pre-commit.yml`)
-   - Läuft IMMER, auch wenn lokale Hooks übersprungen wurden
-   - Blockt PRs automatisch bei Failures
+**CI/CD:**
+- GitHub Actions runs all checks on every PR
+- Blocks PRs automatically if checks fail
+- Cannot be bypassed
 
-2. **Branch Protection Rules** (GitHub Settings):
-   ```
-   Settings → Branches → Branch protection rules
-   ✅ Require status checks to pass before merging
-   ✅ Require "Pre-commit Hooks" job to pass
-   ```
+## 🔧 Workflow
 
-## 🔧 Was passiert beim Commit?
-
+**Commit:**
 ```bash
-git commit -m "feat: neue Funktion"
-
-# Pre-commit läuft automatisch:
-[INFO] Initializing environment...
-[INFO] Running hook: trailing-whitespace...Passed
-[INFO] Running hook: end-of-file-fixer...Passed
-[INFO] Running hook: check-yaml...Passed
-[INFO] Running hook: ruff...Passed (with fixes)
-[INFO] Running hook: ruff-format...Passed
-[INFO] Running hook: mypy...Passed
-
-# Falls Änderungen gemacht wurden (z.B. Import-Sortierung):
-[WARNING] Ruff fixed files, please review changes and commit again
-
-# Du musst dann nochmal committen:
-git add -u
-git commit -m "feat: neue Funktion"
+git commit -m "feat: new feature"
+# → Runs: formatting, linting, type checking, unit tests
 ```
+
+**Push:**
+```bash
+git push
+# → Runs: integration tests (needs API keys)
+```
+
+If auto-fixes are applied, re-stage and commit again.
 
 ## 🚨 Troubleshooting
 
-### Hook läuft nicht?
-
+**Hooks not running:**
 ```bash
-# Neu installieren
 pre-commit uninstall
 pre-commit install
+pre-commit install --hook-type pre-push
+```
 
-# Cache löschen
-pre-commit clean
+**Skip hooks (emergencies only):**
+```bash
+git commit --no-verify  # Skip pre-commit
+git push --no-verify    # Skip pre-push
+# ⚠️ CI will still check!
+```
+
+## 📊 Test Strategy
+
+| Stage | Tests | Speed | Required |
+|-------|-------|-------|----------|
+| **Commit** | Unit tests | ~0.04s | ✅ Always |
+| **Push** | Integration tests | ~2-5s | ✅ With API keys |
+
+**Why two stages?**
+- Fast feedback on every commit
+- Comprehensive validation before sharing code
+
+## ⚡ Quick Commands
+
+```bash
+# Run all hooks manually
 pre-commit run --all-files
-```
 
-### Hooks überspringen (NUR in Notfällen!)
-
-```bash
-git commit --no-verify -m "emergency fix"
-# ⚠️ Aber: CI wird trotzdem prüfen und ggf. blockieren!
-```
-
-### Hooks sind zu langsam?
-
-```bash
-# Nur auf geänderte Dateien laufen lassen
-git commit  # Standard Verhalten
-
-# Alle Dateien (z.B. nach Config-Änderung)
-pre-commit run --all-files
-```
-
-## 📊 Status
-
-| Enforcement Layer | Status | Bypass möglich? |
-|-------------------|--------|-----------------|
-| Lokale Pre-commit Hooks | ✅ Aktiv | ⚠️ Ja mit `--no-verify` |
-| GitHub Actions Pre-commit Job | ✅ Aktiv | ❌ Nein |
-| GitHub Branch Protection | ⏳ TODO | ❌ Nein (wenn aktiviert) |
-
-## 🎯 Nächste Schritte
-
-1. **Alle Entwickler:** Pre-commit installieren (siehe oben)
-2. **Repository Admin:** Branch Protection aktivieren in GitHub Settings
-3. **Team:** Bei jedem PR sicherstellen, dass Pre-commit Job ✅ ist
-
-## ⚡ Pro-Tipps
-
-```bash
-# Nur bestimmte Hooks laufen lassen
-pre-commit run ruff --all-files
-
-# Hook-Updates holen
+# Update hook versions
 pre-commit autoupdate
 
-# Pre-commit in CI simulieren
-pre-commit run --all-files --show-diff-on-failure
+# Run specific hook
+pre-commit run ruff --all-files
 ```
-
----
-
-**Frage?** Siehe [Contributing Guidelines](CONTRIBUTING.md) oder frag im Team-Chat.
