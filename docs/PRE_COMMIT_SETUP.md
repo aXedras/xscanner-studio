@@ -86,14 +86,16 @@ git push --no-verify    # Skip pre-push
 
 | Stage | Tests | Speed | API Keys Required |
 |-------|-------|-------|-------------------|
-| **Commit** | Unit + Integration | ~0.11s | ❌ No (mocked) |
+| **Commit** | Unit + Integration | ~1.1s | ❌ No (mocked) |
 | **Push** | E2E | ~5-15s | ✅ Yes (OPENAI_API_KEY) |
 | **CI/CD** | All tests | ~1-2min | ✅ Yes (from secrets) |
 
 **Test Types:**
-- **Unit**: Business logic, fast, no dependencies
-- **Integration**: Service interfaces with mocked APIs
-- **E2E**: Real ChatGPT API calls with ground truth validation
+- **Unit** (49 tests): Business logic, fast, no dependencies
+- **Integration** (14 tests):
+  - Strategy Integration (8): Service interfaces with mocked APIs
+  - Server Integration (6): Real HTTP calls with FastAPI server
+- **E2E** (1 test): Real ChatGPT API calls with ground truth validation
 
 ## ⚡ Quick Commands
 
