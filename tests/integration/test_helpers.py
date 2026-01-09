@@ -56,8 +56,15 @@ def collect_image_paths() -> list[Path]:
 
     Only returns images from 'Renamed-and-Sorted Au, Ag, Pt' directory
     where filenames contain ground truth data.
+
+    Excludes known corrupted/truncated images.
     """
     images: list[Path] = []
+
+    # Known corrupted/problematic images to exclude
+    excluded_files = {
+        "Gold_01000g_9999_174967_JM.jpg",  # Truncated image file
+    }
 
     # Only use structured directory with ground truth in filenames
     structured_dir = Path("barPictures") / "Renamed-and-Sorted Au, Ag, Pt"
@@ -66,6 +73,8 @@ def collect_image_paths() -> list[Path]:
 
     # Collect all images with parseable filenames
     for image_path in sorted(structured_dir.rglob("*.jpg")):
+        if image_path.name in excluded_files:
+            continue  # Skip corrupted images
         if is_image_file(image_path) and parse_filename_ground_truth(image_path):
             images.append(image_path)
 

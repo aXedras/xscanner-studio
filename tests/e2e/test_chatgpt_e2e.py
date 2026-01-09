@@ -121,23 +121,28 @@ def test_chatgpt_e2e(chatgpt_strategy, test_image_with_ground_truth):
 
     # 5. Producer must contain expected name (allow variations and expansions)
     if "Producer" in data:
-        extracted_producer = data["Producer"].lower().replace("-", " ").replace("_", " ")
-        expected_producer = ground_truth["Producer"].lower().replace("-", " ").replace("_", " ")
-        # Allow both directions: expected in extracted OR extracted in expected
-        # Also check for common abbreviations (CS = Credit Suisse)
-        producer_aliases = {
-            "cs": "credit suisse",
-            "ah": "argor heraeus",
-        }
-        expected_full = producer_aliases.get(expected_producer, expected_producer)
-        extracted_full = producer_aliases.get(extracted_producer, extracted_producer)
+        extracted_producer = data["Producer"].lower().replace("-", " ").replace("_", " ").strip()
+        expected_producer = (
+            ground_truth["Producer"].lower().replace("-", " ").replace("_", " ").strip()
+        )
 
-        if not (
-            expected_producer in extracted_producer
-            or extracted_producer in expected_producer
-            or expected_full in extracted_producer
-            or extracted_full in expected_producer
-        ):
+        # Define known producer mappings (both directions)
+        producer_mappings = {
+            "cs": ["credit suisse", "cs"],
+            "ah": ["argor heraeus", "ah"],
+            "valcambi": ["valcambi", "cs"],  # Valcambi = Credit Suisse subsidiary
+        }
+
+        # Get all valid names for expected producer
+        expected_variants = producer_mappings.get(expected_producer, [expected_producer])
+
+        # Check if extracted producer matches any expected variant
+        match_found = any(
+            variant in extracted_producer or extracted_producer in variant
+            for variant in expected_variants
+        )
+
+        if not match_found:
             errors.append(
                 f"Producer mismatch: expected '{ground_truth['Producer']}', got '{data['Producer']}'"
             )
