@@ -1,4 +1,4 @@
-.PHONY: install dev format lint test test-unit test-integration test-coverage test-quick ci-local pre-commit-all server docker-build docker-run clean cli cli-test cli-list-images cli-list-strategies cli-run benchmark benchmark-help benchmark-full benchmark-report benchmark-quick
+.PHONY: install dev format lint test test-unit test-integration test-coverage test-quick ci-local pre-commit-all server docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report
 
 # Install production dependencies
 install:
@@ -63,63 +63,64 @@ test-quick:
 server:
 	@bash scripts/start-server.sh $(PORT)
 
-# CLI Tools - Interactive OCR testing
+# CLI Tools - Unified tool for testing and benchmarking
 cli:
-	@echo "📋 Available CLI commands:"
+	@echo "🔧 xScanner CLI Tools"
 	@echo ""
-	@echo "  make cli-test              Interactive OCR testing mode"
-	@echo "  make cli-list-images       List available test images"
-	@echo "  make cli-list-strategies   List available OCR strategies"
-	@echo "  make cli-run               Run single test (requires IMAGE and STRATEGY)"
+	@echo "📋 Available modes:"
+	@echo ""
+	@echo "  Interactive Testing:"
+	@echo "    make cli-interactive         Interactive menu-driven test mode"
+	@echo ""
+	@echo "  Single Image Test:"
+	@echo "    make cli-test IMAGE=path.jpg STRATEGY=chatgpt"
+	@echo "    Available strategies: chatgpt, gemini, hybrid"
+	@echo ""
+	@echo "  List & Info:"
+	@echo "    make cli-list-images         List all available test images"
+	@echo "    make cli-list-strategies     List available OCR strategies"
+	@echo ""
+	@echo "  Benchmarking:"
+	@echo "    make cli-benchmark           Full benchmark (all strategies, all images)"
+	@echo "    make cli-benchmark-quick     Quick benchmark (3 random images)"
+	@echo "    make cli-report              Generate HTML report from benchmark results"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make cli-test"
-	@echo "  make cli-run IMAGE=barPictures/gold.jpg STRATEGY=chatgpt"
+	@echo "  make cli-interactive"
+	@echo "  make cli-test IMAGE=barPictures/gold.jpg STRATEGY=chatgpt"
+	@echo "  make cli-benchmark-quick"
+
+cli-help: cli
+
+cli-interactive:
+	@python -m tools.cli.cli --interactive
 
 cli-test:
-	@python -m xscanner.cli.test
+	@python -m tools.cli.cli --image "$(IMAGE)" --strategy $(STRATEGY) -v
 
 cli-list-images:
-	@python -m xscanner.cli.test --list-images
+	@python -m tools.cli.cli --list-images
 
 cli-list-strategies:
-	@python -m xscanner.cli.test --list-strategies
+	@python -m tools.cli.cli --list-strategies
 
-# Quick test (requires IMAGE and STRATEGY)
-# Example: make cli-run IMAGE=path.jpg STRATEGY=chatgpt
-cli-run:
-	@python -m xscanner.cli.test --image "$(IMAGE)" --strategy $(STRATEGY)
+cli-benchmark:
+	@echo "🔬 Running full benchmark..."
+	@python -m tools.cli.cli
+	@echo ""
+	@echo "✅ Benchmark complete! Generate report with: make cli-report"
 
-# Benchmark - Compare all OCR strategies
-benchmark-help:
-	@echo "🔬 Available Benchmark commands:"
+cli-benchmark-quick:
+	@echo "⚡ Running quick benchmark (3 random images)..."
+	@python -m tools.cli.cli --quick
 	@echo ""
-	@echo "  make benchmark             Run full benchmark + generate report"
-	@echo "  make benchmark-full        Run full benchmark (all images)"
-	@echo "  make benchmark-quick       Quick benchmark (3 random images)"
-	@echo "  make benchmark-report      Generate HTML report from results"
-	@echo ""
-	@echo "Examples:"
-	@echo "  make benchmark-quick       # Fast test with 3 images"
-	@echo "  make benchmark             # Full suite with report"
+	@echo "✅ Quick benchmark complete!"
 
-benchmark:
-	@echo "🔬 Running full benchmark suite..."
-	@python -m xscanner.benchmark.comparator
-	@echo ""
+cli-report:
 	@echo "📊 Generating HTML report..."
-	@python -m xscanner.benchmark.report
+	@python -m tools.cli.report
 	@echo ""
-	@echo "✅ Benchmark complete! View report at: reports/strategy_benchmark_report.html"
-
-benchmark-full:
-	@python -m xscanner.benchmark.comparator
-
-benchmark-quick:
-	@python -m xscanner.benchmark.comparator --quick
-
-benchmark-report:
-	@python -m xscanner.benchmark.report
+	@echo "✅ Report generated: reports/strategy_benchmark_report.html"
 
 # Build Docker image
 docker-build:

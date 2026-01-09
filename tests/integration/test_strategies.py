@@ -11,8 +11,8 @@ from pathlib import Path
 
 import pytest
 
-# Import from new location in tools/
-from tools.benchmark.comparator import OCRComparator
+# Import from tools/cli
+from tools.cli.comparator import OCRComparator
 from xscanner.server.config import get_config
 
 from .test_helpers import (
