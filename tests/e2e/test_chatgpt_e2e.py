@@ -119,27 +119,16 @@ def test_chatgpt_e2e(chatgpt_strategy, test_image_with_ground_truth):
     else:
         errors.append("SerialNumber field missing in extracted data")
 
-    # 5. Producer must contain expected name (allow variations and expansions)
+    # 5. Producer must match (allow case and spacing variations)
     if "Producer" in data:
         extracted_producer = data["Producer"].lower().replace("-", " ").replace("_", " ").strip()
         expected_producer = (
             ground_truth["Producer"].lower().replace("-", " ").replace("_", " ").strip()
         )
 
-        # Define known producer mappings (both directions)
-        producer_mappings = {
-            "cs": ["credit suisse", "cs"],
-            "ah": ["argor heraeus", "ah"],
-            "valcambi": ["valcambi", "cs"],  # Valcambi = Credit Suisse subsidiary
-        }
-
-        # Get all valid names for expected producer
-        expected_variants = producer_mappings.get(expected_producer, [expected_producer])
-
-        # Check if extracted producer matches any expected variant
-        match_found = any(
-            variant in extracted_producer or extracted_producer in variant
-            for variant in expected_variants
+        # Check if producers match (allow partial matches for multi-word names)
+        match_found = (
+            expected_producer in extracted_producer or extracted_producer in expected_producer
         )
 
         if not match_found:
