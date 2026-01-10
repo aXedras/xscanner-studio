@@ -103,7 +103,7 @@ curl -X POST "http://localhost:8000/extract/upload" \
 # Unit tests (fast, no external dependencies)
 make test-unit
 
-# Integration tests (requires API keys)
+# Integration tests (mocked APIs, no API keys needed)
 make test-integration
 
 # Coverage report
