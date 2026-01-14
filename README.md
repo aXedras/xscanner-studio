@@ -1,70 +1,41 @@
 # xScanner
 
-**AI-powered OCR and Vision API for extracting structured data from bullion bar images**
+![CI/CD](https://github.com/aXedras/xScanner/workflows/CI/badge.svg)
+![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-Extract serial numbers, metal type, weight, fineness, and producer information from gold, silver, platinum, and palladium bar images using state-of-the-art OCR and Vision LLM technologies.
+**AI-powered data extraction and Vision API for structured data from bullion bar images**
+
+Extract serial numbers, metal type, weight, fineness, and producer information from gold, silver, platinum, and palladium bar images using Vision LLM and text extraction technologies.
 
 ## 📚 Documentation
 
-- **[API Documentation](docs/API_DOCUMENTATION.md)** - Complete REST API reference with React Native examples
-- **[Docker Deployment](docs/DOCKER.md)** - Container setup and deployment guide
+- **[API Documentation](docs/API_DOCUMENTATION.md)** - Complete REST API reference
+- **[Testing Guide](docs/TESTING.md)** - Testing strategy and conventions
+- **[Docker Deployment](docs/DOCKER.md)** - Container setup and deployment
+- **[Pre-commit Setup](docs/PRE_COMMIT_SETUP.md)** - Code quality enforcement
 - **[Development Backlog](docs/BACKLOG.md)** - Feature roadmap and technical debt
 - **[Contributing Guidelines](docs/CONTRIBUTING.md)** - How to contribute to the project
 - **[Changelog](docs/CHANGELOG.md)** - Version history and release notes
 
 ## 🎯 Overview
 
-This project provides a REST API and CLI tools for automated extraction of metadata from precious metal bar images. It combines traditional OCR (PaddleOCR) with modern Vision Language Models (LLMs) to achieve high accuracy even on difficult-to-read serial numbers and text.
+REST API and CLI tools for automated extraction of metadata from precious metal bar images. Combines text extraction engines with Vision Language Models for high accuracy.
 
 ### Key Features
 
-- 🤖 **Multiple OCR Strategies**: PaddleOCR, ChatGPT Vision, Gemini Flash, Hybrid approaches
-- 🚀 **REST API**: FastAPI-based service with async support
+- 🤖 **Multiple Strategies**: ChatGPT Vision, Gemini Flash, PaddleOCR engine, Llama Vision, Hybrid
+- 🚀 **REST API**: FastAPI with async support and OpenAPI documentation
 - 📊 **Performance Benchmarking**: Compare strategies with visual reports
-- 🐳 **Docker Support**: Containerized deployment ready
-- 🔄 **CI/CD Pipeline**: Automated testing and Docker builds
-- 📝 **OpenAPI/Swagger**: Interactive API documentation
+- 🐳 **Docker Support**: Cloud (~300MB) and Full (~3GB) images - see [DOCKER.md](docs/DOCKER.md)
+- 🔄 **CI/CD Pipeline**: Automated testing, linting, and Docker builds
+- 🧪 **Comprehensive Testing**: 49 unit tests, integration tests - see [TESTING.md](docs/TESTING.md)
 
----
+### Architecture
 
-## 🏗️ Architecture
-
-### Technology Choices
-
-**Why Python?**
-- Rich ecosystem for ML/OCR libraries (PaddleOCR, OpenCV, Pillow)
-- Excellent API frameworks (FastAPI)
-- Native support for AI/ML APIs (OpenAI, Google Gemini)
-
-**Why No Persistence?**
-- Stateless design for horizontal scalability
-- Images processed on-demand, results returned immediately
-- Optional integration with external systems (e.g., aXedras Bullion Integrity Ledger)
-
-**Why Ollama/Llama Vision?**
-- **Privacy**: Local inference, no data leaves your infrastructure
-- **Cost**: No per-request API charges
-- **Speed**: On GPU hardware, competitive with cloud APIs
-- **Accuracy**: Llama 3.2 Vision 11B delivers excellent results on structured extraction
-
-### OCR Strategy Insights
-
-| Strategy | Accuracy | Speed | Notes |
-|----------|----------|-------|-------|
-| **ChatGPT Vision (gpt-4o-mini)** | ⭐⭐⭐⭐⭐ | ⚡⚡⚡ | Best overall, fast, requires API key |
-| **Gemini Flash 2.0** | ⭐⭐⭐⭐⭐ | ⚡⚡⚡⚡ | Fastest, excellent accuracy, requires API key |
-| **Hybrid (PaddleOCR + Llama 11B)** | ⭐⭐⭐⭐⭐ | ⚡ | Best for privacy, CPU slow (5min/image), GPU fast (15-30s/image) |
-| **PaddleOCR alone** | ⭐⭐⭐ | ⚡⚡⚡ | Good for serial numbers, struggles with fineness |
-
-**Key Insight**: Llama Vision has difficulty detecting small serial numbers on bars, while PaddleOCR excels at this. The **Hybrid strategy** combines both: PaddleOCR extracts the serial number, Llama Vision handles the rest.
-
-**Not Tested**: Azure Computer Vision, AWS Rekognition Custom Labels (could be evaluated in future)
-
-**Deprecated Strategies** (removed for poor performance):
-- Tesseract OCR - lowest accuracy
-- EasyOCR - unreliable timeouts
-- Regex/NLP - insufficient standalone accuracy
-- YOLOv8 - not suitable for this use case
+**Stateless Design**: No database, images processed on-demand, horizontal scalability
+**Python Stack**: FastAPI, PaddleOCR engine, OpenCV, OpenAI/Google APIs
+**Local LLM**: Ollama/Llama 3.2 Vision for privacy-focused deployments
 
 ---
 
@@ -83,375 +54,193 @@ This project provides a REST API and CLI tools for automated extraction of metad
 git clone https://github.com/aXedras/xScanner.git
 cd xScanner
 
-# Install dependencies
-pip install -e ".[dev]"  # Core OCR + REST API + Development tools
+# Install as package (recommended - new structure)
+pip install -e ".[dev]"
 
-# Configure API keys (optional, for cloud strategies)
-cp .env.example .env
-# Edit .env with your OpenAI/Google API keys
+# Or install from requirements files
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+
+# Configure API keys (create .env.local file)
+# See docs/API_DOCUMENTATION.md for details
 ```
 
-### Running the REST API Server
+### Running the Server
 
 ```bash
-# Start the FastAPI server
-python -m src.server
+# Using Python module (recommended)
+python -m xscanner.server.server
 
-# Or with uvicorn directly
-uvicorn src.server:app --host 0.0.0.0 --port 8000 --reload
+# Development tools (outside package)
+python -m tools.cli.test --list-strategies
+python -m tools.benchmark.comparator --quick
+
+# Or with uvicorn
+uvicorn xscanner.server.server:app --reload
+
+# Or with Make
+make run
 ```
 
-Server runs at: `http://localhost:8000`
+Server: `http://localhost:8000` | Docs: `http://localhost:8000/docs`
 
-**API Documentation:**
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
-- OpenAPI JSON: `http://localhost:8000/openapi.json`
+### Quick API Example
 
-### Using the API
+See [API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for complete reference.
 
-**Upload Image (Multipart):**
 ```bash
+# Extract from uploaded image
 curl -X POST "http://localhost:8000/extract/upload" \
-  -F "file=@path/to/bullion_bar.jpg" \
+  -F "file=@bullion_bar.jpg" \
   -F "strategy=cloud"
 ```
 
-**Base64 Image:**
-```bash
-curl -X POST "http://localhost:8000/extract" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "image_base64": "...",
-    "strategy": "local",
-    "register_on_bil": false
-  }'
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "request_id": "uuid",
-  "structured_data": {
-    "SerialNumber": "715562",
-    "Metal": "Gold",
-    "Weight": "100",
-    "WeightUnit": "g",
-    "Fineness": "999.9",
-    "Producer": "Argor Heraeus"
-  },
-  "confidence": 0.95,
-  "processing_time": 5.2,
-  "strategy_used": "ChatGPT Vision (gpt-4o-mini)"
-}
-```
-
 ---
 
-## 📊 Benchmarking & Reports
-
-### Run OCR Strategy Comparison
+## 📊 Testing & Benchmarking
 
 ```bash
-# Test on first 10 images
-MAX_TEST_IMAGES=10 python test_ocr_strategies.py
+# Unit tests (fast, no external dependencies)
+make test-unit
 
-# Test on half of available images (default)
-python test_ocr_strategies.py
+# Integration tests (requires API keys)
+make test-integration
 
-# Test on all images
-MAX_TEST_IMAGES=86 python test_ocr_strategies.py
+# Coverage report
+make test-coverage
+
+# Strategy comparison / benchmarking
+make cli-benchmark
 ```
 
-Results saved to: `ocr_comparison_results.json`
-
-### Generate Visual Report
-
-```bash
-python scripts/generate_report.py
-```
-
-Report created at: `reports/ocr_report.html`
-
-**View Report:**
-- Open in browser: `file:///.../reports/ocr_report.html`
-- Or via API: `http://localhost:8000/report` (when server running)
-
-**Report Features:**
-- Performance summary: Accuracy vs. Speed comparison
-- Per-image results with confidence scores
-- Ground truth validation (for filenames with metadata)
-- Strategy leaderboard
-
----
-
-## 🛠️ CLI Tools
-
-### Main Executables
-
-| Script | Purpose | Usage |
-|--------|---------|-------|
-| **`tests/test_ocr_strategies.py`** | Benchmark all OCR strategies | `python tests/test_ocr_strategies.py` |
-| **`src/server.py`** | REST API server | `python -m src.server` |
-| **`scripts/generate_report.py`** | Generate HTML comparison report | `python scripts/generate_report.py` |
-| **`scripts/chatgpt_image_extractor.py`** | Standalone ChatGPT Vision extraction | `python scripts/chatgpt_image_extractor.py <image>` |
-| **`src/callerAxedras.py`** | Integration with aXedras BIL | `python -m src.callerAxedras` |
-
-### Windows Scripts
-
-For Windows users, PowerShell and batch scripts are available in `scripts/`:
-- **`run_parallel_tests.ps1`** - Parallel OCR testing (Windows)
-- **`start_ollama_parallel.bat`** - Start Ollama with parallel support (Windows)
-
-For macOS/Linux users, equivalent shell scripts are provided:
-- **`scripts/run_parallel_tests.sh`** - Parallel OCR testing (Unix)
-- **`scripts/start_ollama_parallel.sh`** - Start Ollama with parallel support (Unix)
+See [TESTING.md](docs/TESTING.md) for detailed testing guide.
 
 ---
 
 ## 🔧 Development
 
-### Pre-commit Hooks
-
-We use pre-commit hooks to maintain code quality:
+### Code Quality
 
 ```bash
-# Install hooks
+# Install pre-commit hooks (required for all contributors)
 pre-commit install
 
-# Run manually
-pre-commit run --all-files
+# Run code quality checks
+make lint
+make format
+make typecheck
 ```
 
-**Hooks Enabled:**
-- **trailing-whitespace**: Remove trailing whitespace
-- **end-of-file-fixer**: Ensure files end with newline
-- **check-yaml/json**: Validate config files
-- **detect-private-key**: Prevent committing secrets
-- **ruff**: Fast Python linter (replaces flake8, pylint)
-- **ruff-format**: Python formatter (replaces Black)
-- **mypy**: Static type checking
-
-**Why these hooks?**
-- Enforce consistent code style across team
-- Catch errors before CI/CD
-- Prevent security issues (leaked keys)
-- Improve code quality and maintainability
+See [PRE_COMMIT_SETUP.md](docs/PRE_COMMIT_SETUP.md) for details on hooks and enforcement.
 
 ### CI/CD Pipeline
 
-**GitHub Actions** (`.github/workflows/ci.yml`):
+GitHub Actions runs on every push/PR:
+- **Lint**: Ruff linter + formatter, Mypy type checking
+- **Test**: Pytest with coverage reporting
+- **Build**: Docker images → GitHub Container Registry
 
-```mermaid
-graph LR
-    A[Push/PR] --> B[Lint Job]
-    B --> C[Test Job]
-    C --> D[Build Docker]
-    D --> E[Deploy]
-```
-
-**Jobs:**
-1. **Lint**: Ruff linter, Ruff formatter, Mypy type checking
-2. **Test**: Pytest with coverage
-3. **Build**: Docker image → GitHub Container Registry (`ghcr.io`)
-4. **Deploy**: Triggered on releases (notification placeholder)
-
-**Triggers:**
-- Push to `main` or `develop`
-- Pull requests to `main`
-- Release published
-
-**Docker Image Tags:**
-- Branch: `ghcr.io/axedras/xScanner:main`
-- PR: `ghcr.io/axedras/xScanner:pr-123`
-- Release: `ghcr.io/axedras/xScanner:v1.0.0`
-- SHA: `ghcr.io/axedras/xScanner:sha-abc123`
+See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for branch naming and commit conventions.
 
 ---
 
 ## 🐳 Docker Deployment
 
-### Build Image
+Two image variants available:
+- **Cloud** (~300MB): ChatGPT + Gemini only
+- **Full** (~3GB): All strategies including PaddleOCR + Llama Vision
 
 ```bash
-docker build -t bullion-ocr .
+# Pull and run cloud image
+docker pull ghcr.io/axedras/xscanner:latest
+docker run -p 8000:8000 -e OPENAI_API_KEY=sk-... ghcr.io/axedras/xscanner:latest
 ```
 
-### Run Container
-
-```bash
-docker run -p 8000:8000 \
-  -e OPENAI_API_KEY=sk-... \
-  -e GOOGLE_API_KEY=... \
-  bullion-ocr
-```
-
-### Docker Compose (with Ollama)
-
-```yaml
-version: '3.8'
-services:
-  ollama:
-    image: ollama/ollama:latest
-    volumes:
-      - ollama_data:/root/.ollama
-    ports:
-      - "11434:11434"
-
-  bullion-ocr:
-    image: ghcr.io/axedras/xScanner:latest
-    ports:
-      - "8000:8000"
-    environment:
-      - OLLAMA_URLS=http://ollama:11434
-    depends_on:
-      - ollama
-
-volumes:
-  ollama_data:
-```
+See [DOCKER.md](docs/DOCKER.md) for complete deployment guide.
 
 ---
 
 ## 📁 Project Structure
 
+**New Package Structure** (v1.1.0+):
+
 ```
 xScanner/
-├── src/                          # Core application
-│   ├── server.py                 # FastAPI REST API
-│   ├── extraction.py             # Extraction service
-│   ├── config.py                 # Configuration management
-│   └── callerAxedras.py          # BIL integration
-├── ocr_strategies/               # OCR strategy implementations
-│   ├── base.py                   # Strategy interface
-│   ├── paddleocr_strategy.py     # PaddleOCR implementation
-│   ├── chatgpt_vision_strategy.py
-│   ├── gemini_flash_strategy.py
-│   ├── ollama_vision_strategy.py # Llama 3.2 Vision
-│   └── paddle_llama_hybrid_strategy.py
-├── scripts/                      # Utility scripts
-│   ├── generate_report.py        # HTML report generator
-│   ├── chatgpt_image_extractor.py # Standalone ChatGPT Vision CLI
-│   ├── ocr_comparator.py         # OCR comparison utilities
-│   ├── run_parallel_tests.sh     # Parallel testing (Unix)
-│   ├── run_parallel_tests.ps1    # Parallel testing (Windows)
-│   ├── start_ollama_parallel.sh  # Ollama setup (Unix)
-│   └── start_ollama_parallel.bat # Ollama setup (Windows)
-├── tests/                        # Unit tests
-│   ├── test_basic.py             # Basic smoke tests
-│   ├── test_config.py            # Configuration tests
-│   └── test_ocr_strategies.py    # OCR strategy benchmarks
+├── src/xscanner/                 # Main package (installable)
+│   ├── server/                   # FastAPI server & services
+│   │   ├── server.py             # REST API endpoints
+│   │   ├── config.py             # Configuration management
+│   │   ├── extraction.py         # Extraction service
+│   │   └── axedras_client.py     # BIL integration
+│   ├── strategy/                 # Extraction strategies
+│   │   ├── base.py               # Strategy interface
+│   │   ├── chatgpt_vision_strategy.py
+│   │   ├── gemini_flash_strategy.py
+│   │   ├── paddleocr_strategy.py  # PaddleOCR engine strategy
+│   │   ├── ollama_vision_strategy.py
+│   │   ├── paddle_llama_hybrid_strategy.py
+│   │   └── parser.py             # Data parser
+├── tools/                        # Development tools (not installed)
+│   ├── cli/                      # CLI tools
+│   │   └── cli.py                # Interactive strategy testing
+├── tests/                        # Test suite
+│   ├── unit/                     # Unit tests (49 tests)
+│   ├── integration/              # Integration tests
+│   └── conftest.py               # Pytest fixtures
 ├── docs/                         # Documentation
-│   ├── API_DOCUMENTATION.md      # REST API reference
-│   ├── DOCKER.md                 # Docker deployment guide
-│   ├── BACKLOG.md                # Development roadmap
-│   ├── CONTRIBUTING.md           # Contribution guidelines
-│   └── CHANGELOG.md              # Version history
-├── config/                       # Configuration files
-│   ├── config.json.template
-│   ├── prompt_template_image.txt
-│   └── system_prompt_image.txt
-├── logs/                         # Application logs
-├── reports/                      # Generated HTML reports
-├── invoices/                     # Test images
-├── .github/workflows/            # CI/CD pipelines
-├── Dockerfile                    # Default cloud image
-├── Dockerfile.full               # Full image with local OCR
-├── pyproject.toml                # Python package configuration
-├── .env.example                  # Environment variable template
-└── README.md                     # This file
+├── config/                       # Prompt templates
+├── scripts/                      # Utility scripts
+└── pyproject.toml                # Package configuration
 ```
 
 ---
 
 ## 🔑 Configuration
 
-### API Keys (Optional)
-
-Edit `config/config.json`:
-
-```json
-{
-  "openai": {
-    "api_key": "sk-...",
-    "model": "gpt-4o-mini",
-    "temperature": 0.1,
-    "max_output_tokens": 1200
-  },
-  "google_cloud": {
-    "api_key": "..."
-  },
-  "ollama": {
-    "base_url": "http://localhost:11434"
-  }
-}
-```
-
-**Environment Variables:**
-```bash
-export OPENAI_API_KEY=sk-...
-export GOOGLE_API_KEY=...
-export OLLAMA_URLS=http://localhost:11434
-export MAX_TEST_IMAGES=10        # Limit test images
-export OLLAMA_NUM_PARALLEL=4     # Ollama parallelism
-```
-
----
-
-## 🧪 Testing
+Create `.env.local` file for API keys:
 
 ```bash
-# Run all tests
-pytest
-
-# With coverage
-pytest --cov=src --cov=ocr_strategies
-
-# Specific test file
-pytest tests/test_basic.py -v
+OPENAI_API_KEY=sk-...
+GOOGLE_API_KEY=...
+OLLAMA_BASE_URL=http://localhost:11434
 ```
+
+See [API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for all configuration options.
 
 ---
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Install pre-commit hooks: `pre-commit install`
-4. Make your changes
-5. Run tests: `pytest`
-6. Commit: `git commit -m 'feat: add amazing feature'`
-7. Push: `git push origin feature/amazing-feature`
-8. Open a Pull Request
+See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
 
-**Commit Convention:** We use [Conventional Commits](https://www.conventionalcommits.org/)
-- `feat:` New feature
-- `fix:` Bug fix
-- `docs:` Documentation
-- `chore:` Maintenance
-- `refactor:` Code refactoring
+Quick start:
+```bash
+# 1. Fork and clone
+# 2. Install dependencies
+pip install -e ".[dev]"
+
+# 3. Install pre-commit hooks (required!)
+pre-commit install
+
+# 4. Create feature branch
+git checkout -b feature/my-feature
+
+# 5. Make changes, run tests
+make test-unit
+
+# 6. Commit with conventional commits
+git commit -m "feat: add my feature"
+```
 
 ---
 
 ## 📄 License
 
-[Add your license here]
+MIT License - See LICENSE file for details
 
 ---
 
-## 🙏 Acknowledgments
+## 📞 Support & Links
 
-- **PaddleOCR** - Excellent open-source OCR
-- **Ollama** - Easy local LLM deployment
-- **OpenAI & Google** - Powerful Vision APIs
-- **FastAPI** - Modern Python web framework
-
----
-
-## 📞 Support
-
-For issues, questions, or contributions, please open an issue on GitHub.
-
-**Related Projects:**
-- [aXedras Bullion Integrity Ledger](https://github.com/aXedras/BIL) - Blockchain-based bullion tracking
+- **Issues**: [GitHub Issues](https://github.com/aXedras/xScanner/issues)
+- **Related**: [aXedras Bullion Integrity Ledger](https://github.com/aXedras/BIL)

@@ -1,5 +1,5 @@
 # Default xScanner Dockerfile - Cloud APIs Only (Lightweight)
-# For full version with PaddleOCR, see Dockerfile.full
+# For full version with local strategies (PaddleOCR + Llama Vision), see Dockerfile.full
 # For cloud-only lightweight version, see Dockerfile.cloud (this is it!)
 #
 # This is the RECOMMENDED production image:
@@ -21,8 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy application code
-COPY src/ ./src/
-COPY ocr_strategies/ ./ocr_strategies/
+COPY src/xscanner/ ./src/xscanner/
 COPY config/prompt_template_image.txt config/system_prompt_image.txt ./config/
 COPY pyproject.toml ./
 
@@ -48,4 +47,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
 
 # Run server
-CMD ["python", "-m", "src.server"]
+CMD ["python", "-m", "xscanner.server.server"]

@@ -44,7 +44,7 @@ Thumbs.db
 barPictures/
 invoices/
 reports/
-ocr_comparison_results*.json
+strategy_benchmark_results*.json
 config/config.json
 config/config_image.json
 *.log
