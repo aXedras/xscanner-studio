@@ -147,7 +147,7 @@ class TestServerExtractEndpoint:
         assert response.status_code == 422  # Validation error
 
     def test_extract_with_mock_mode(self, server, test_image_bytes):
-        """Test extraction endpoint with mock mode enabled."""
+        """Test extraction endpoint with mock mode enabled (local=Hybrid)."""
         image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
 
         response = httpx.post(
@@ -162,14 +162,20 @@ class TestServerExtractEndpoint:
 
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] is True
-        assert data["strategy_used"] == "local_mock"
+        # Success can be True or False depending on random mock data (may include errors)
+        assert "success" in data
+        # Strategy should be Hybrid-related for local
+        assert (
+            "Hybrid" in data["strategy_used"]
+            or "Ollama" in data["strategy_used"]
+            or "Paddle" in data["strategy_used"]
+        )
+        assert "(mock)" in data["strategy_used"]
         assert "structured_data" in data
-        assert data["structured_data"]["Metal"] in ["Gold", "Silver", "Platinum"]
         assert "request_id" in data
 
     def test_extract_upload_with_mock_mode(self, server, test_image_bytes):
-        """Test /extract/upload endpoint with mock mode enabled."""
+        """Test /extract/upload endpoint with mock mode enabled (cloud=ChatGPT/Gemini)."""
         response = httpx.post(
             f"{server}/extract/upload",
             files={"file": ("test.jpg", test_image_bytes, "image/jpeg")},
@@ -183,18 +189,18 @@ class TestServerExtractEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
-        assert data["strategy_used"] == "cloud_mock"
+        # Strategy should be ChatGPT or Gemini for cloud
+        assert "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"]
+        assert "(mock)" in data["strategy_used"]
         assert "structured_data" in data
-        assert "SerialNumber" in data["structured_data"]
-        assert data["structured_data"]["Metal"] in ["Gold", "Silver", "Platinum"]
         assert "request_id" in data
         assert data["processing_time"] > 0
 
     def test_extract_endpoint_accepts_valid_request(self, server, test_image_bytes):
-        """Test that extraction endpoint accepts valid requests.
+        """Test that extraction endpoint accepts valid requests with strategy-specific mocks.
 
         Note: This uses mock mode to avoid dependency on external services.
-        We're testing the HTTP layer here, not the extraction quality.
+        Mock data comes from real benchmark results, including potential error cases.
         """
         image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
 
@@ -208,10 +214,14 @@ class TestServerExtractEndpoint:
             timeout=5.0,  # Mock strategy should be fast
         )
 
-        # Mock strategy should always succeed
+        # Mock strategy should return a response
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] is True
-        assert data["strategy_used"] == "local_mock"
+        assert "success" in data
+        assert (
+            "Hybrid" in data["strategy_used"]
+            or "Ollama" in data["strategy_used"]
+            or "Paddle" in data["strategy_used"]
+        )
         assert "structured_data" in data
         assert "request_id" in data

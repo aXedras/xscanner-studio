@@ -11,6 +11,7 @@ def run_benchmark(args) -> int:
     from xscanner.server.config import get_config
     from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy
     from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy
+    from xscanner.strategy.paddle_ollama_hybrid_strategy import PaddleLlamaHybridStrategy
 
     config = get_config()
 
@@ -32,6 +33,15 @@ def run_benchmark(args) -> int:
             GeminiFlashStrategy(
                 api_key=config.google.api_key,
                 model=config.google.model,
+            )
+        )
+
+    # Always include Hybrid strategy (local Ollama)
+    # Strategy name will indicate if PaddleOCR is active or Ollama-only (Apple Silicon)
+    if config.ollama.base_url:
+        strategies.append(
+            PaddleLlamaHybridStrategy(
+                base_url=config.ollama.base_url,
             )
         )
 

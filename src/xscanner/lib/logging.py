@@ -37,17 +37,26 @@ def setup_logging() -> None:
     file_handler = RotatingFileHandler(
         log_path, maxBytes=config.logging.max_bytes, backupCount=config.logging.backup_count
     )
-    file_handler.setLevel(logging.DEBUG)
+    file_handler.setLevel(log_level)  # Use configured log level
     file_handler.setFormatter(
         logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     )
     root_logger.addHandler(file_handler)
 
-    # Console handler for info level and above
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(logging.Formatter("%(name)s - %(levelname)s - %(message)s"))
-    root_logger.addHandler(console_handler)
+    # Console handler for info level and above (disabled during tests)
+    import sys
+
+    is_pytest = "pytest" in sys.modules
+
+    if not is_pytest:
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(log_level)  # Use configured log level
+        console_handler.setFormatter(logging.Formatter("%(name)s - %(levelname)s - %(message)s"))
+        root_logger.addHandler(console_handler)
+
+    # Suppress noisy third-party loggers
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
     _logging_configured = True
 

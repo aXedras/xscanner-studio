@@ -6,7 +6,7 @@ from xscanner.server.config import get_config
 from xscanner.strategy.base import ExtractionStrategy
 from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy
 from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy
-from xscanner.strategy.paddle_llama_hybrid_strategy import PaddleLlamaHybridStrategy
+from xscanner.strategy.paddle_ollama_hybrid_strategy import PaddleLlamaHybridStrategy
 
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")
 SEARCH_PATHS = [

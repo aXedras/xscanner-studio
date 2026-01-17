@@ -204,6 +204,20 @@ HTML_TEMPLATE = """
         }}
         .match-tag.ok {{ background: rgba(69,196,134,0.15); color: var(--success); }}
         .match-tag.miss {{ background: rgba(255,95,109,0.15); color: var(--error); }}
+        .error-list {{
+            margin: 0.75rem 0 0 0;
+            padding: 0;
+            list-style: none;
+            font-size: 0.85rem;
+            color: var(--error);
+        }}
+        .error-list li {{
+            padding: 0.3rem 0;
+            border-bottom: 1px solid rgba(255,95,109,0.1);
+        }}
+        .error-list li:last-child {{
+            border-bottom: none;
+        }}
         .metric-bar {{
             width: 100%; height: 6px;
             background: rgba(255,255,255,0.1);
@@ -295,6 +309,121 @@ HTML_TEMPLATE = """
             body {{ padding: 1rem; }}
             .strategy-grid {{ grid-template-columns: 1fr; }}
         }}
+        .failed-tests-section {{
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 95, 109, 0.2);
+        }}
+        .failed-tests-section h2 {{
+            margin-top: 0;
+            color: var(--error);
+            font-size: 1.5rem;
+        }}
+        .failed-strategies-container {{
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }}
+        .failed-strategy-group {{
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        .failed-strategy-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }}
+        .failed-strategy-info {{
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }}
+        .failed-strategy-info h3 {{
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--text);
+        }}
+        .failed-count {{
+            font-size: 0.85rem;
+            color: var(--muted);
+        }}
+        .failed-strategy-stats {{
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }}
+        .avg-accuracy-badge {{
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }}
+        .failed-tests-list {{
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }}
+        .failed-test-link {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0.75rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        .failed-test-link:hover {{
+            background: rgba(74, 212, 255, 0.1);
+            border-color: var(--accent);
+            transform: translateX(4px);
+        }}
+        .failed-test-image {{
+            font-size: 0.9rem;
+            color: var(--text);
+        }}
+        .failed-test-badge {{
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }}
+        .back-to-top {{
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--accent);
+            color: #03121f;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(74, 212, 255, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }}
+        .back-to-top.visible {{
+            opacity: 1;
+            visibility: visible;
+        }}
+        .back-to-top:hover {{
+            background: #5ae0ff;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(74, 212, 255, 0.6);
+        }}
     </style>
 </head>
 <body>
@@ -308,6 +437,7 @@ HTML_TEMPLATE = """
             <h2>Performance Summary: Accuracy vs. Speed</h2>
             {summary_chart}
         </section>
+        {failed_tests_section}
         <section>
             <h2>Strategy League Table</h2>
             <table>
@@ -316,18 +446,44 @@ HTML_TEMPLATE = """
         </section>
         {image_sections}
     </main>
+    <button class="back-to-top" id="backToTop" title="Back to top">↑</button>
     <footer>
         Bullion Bar Recognition &mdash; Automated report generated from reports/strategy_benchmark_results.json
     </footer>
     <script>
+        // Back to top button
+        const backToTopBtn = document.getElementById('backToTop');
+
+        window.addEventListener('scroll', () => {{
+            if (window.scrollY > 300) {{
+                backToTopBtn.classList.add('visible');
+            }} else {{
+                backToTopBtn.classList.remove('visible');
+            }}
+        }});
+
+        backToTopBtn.addEventListener('click', () => {{
+            window.scrollTo({{
+                top: 0,
+                behavior: 'smooth'
+            }});
+        }});
+
+        // Toggle panels
         document.addEventListener('DOMContentLoaded', () => {{
             document.querySelectorAll('.toggle-btn').forEach(btn => {{
                 btn.addEventListener('click', () => {{
                     const targetId = btn.getAttribute('data-target');
                     const panel = targetId ? document.getElementById(targetId) : null;
                     if (!panel) return;
-                    panel.classList.toggle('is-open');
+
+                    const isOpen = panel.classList.toggle('is-open');
                     btn.classList.toggle('is-active');
+
+                    // Update button text if it contains Show/Hide
+                    if (btn.textContent.includes('Show') || btn.textContent.includes('Hide')) {{
+                        btn.textContent = isOpen ? 'Hide' : 'Show';
+                    }}
                 }});
             }});
         }});
@@ -418,7 +574,7 @@ INDEX_TEMPLATE = """
                     <th># Images</th>
                     <th># Strategies</th>
                     <th>Best Strategy</th>
-                    <th>Avg Confidence</th>
+                    <th>Avg Score</th>
                     <th>Report</th>
                 </tr>
             </thead>

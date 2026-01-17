@@ -1,7 +1,5 @@
 """Strategy comparison and evaluation core logic."""
 
-import os
-import signal
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from pathlib import Path
@@ -9,46 +7,15 @@ from typing import Any
 
 from xscanner.strategy.base import ExtractionResult, ExtractionStrategy
 
-from .synonyms import (
-    get_producer_candidates,
-    normalize_fineness_value,
-    normalize_producer,
-    normalize_unit,
-    weight_to_grams,
+from .execution_manager import (
+    get_image_parallel_workers,
+    is_shutdown_requested,
+    reset_shutdown_flag,
+    run_strategies_parallel,
+    run_strategies_sequential,
 )
-
-# Global flag for graceful shutdown
-_shutdown_requested = False
-
-
-def signal_handler(signum, frame):
-    """Handle Ctrl+C gracefully."""
-    global _shutdown_requested
-    _shutdown_requested = True
-    print("\n\n⚠️  Shutdown requested (Ctrl+C). Waiting for current tasks to complete...")
-    print("    Press Ctrl+C again to force exit.\n")
-    # Re-register to allow force exit on second Ctrl+C
-    signal.signal(signal.SIGINT, signal.SIG_DFL)
-
-
-# Register signal handler
-signal.signal(signal.SIGINT, signal_handler)
-
-
-def get_image_parallel_workers() -> int:
-    """Get number of parallel image workers from env vars.
-
-    Set to 0 (default) to disable image-level parallelization.
-    Recommended: Set to CPU_count / STRATEGY_WORKERS for optimal throughput.
-    """
-    try:
-        raw = os.getenv("STRATEGY_IMAGE_WORKERS")
-        if raw is None:
-            # Legacy env var name (deprecated)
-            raw = os.getenv("OCR_IMAGE_WORKERS", "0")
-        return max(0, int(raw))
-    except ValueError:
-        return 0
+from .result_formatter import get_best_strategy, print_comparison
+from .validator import parse_filename_ground_truth, validate_extraction
 
 
 class StrategyComparator:
@@ -86,9 +53,9 @@ class StrategyComparator:
         worker_count = self._effective_worker_count()
 
         if worker_count > 1:
-            return self._run_strategies_parallel(image_path, worker_count)
+            return run_strategies_parallel(self.strategies, image_path, worker_count)
 
-        return self._run_strategies_sequential(image_path)
+        return run_strategies_sequential(self.strategies, image_path)
 
     def test_multiple_images(self, image_cases: list[Any]) -> list[dict[str, Any]]:
         """Test all strategies on multiple images.
@@ -113,152 +80,11 @@ class StrategyComparator:
 
     def get_best_strategy(self) -> str:
         """Determine best performing strategy based on confidence and completeness."""
-        if not self.results:
-            return "No results available"
-
-        strategy_scores: dict[str, list[float]] = {}
-
-        for test in self.results:
-            for strategy_name, result in test["results"].items():
-                if strategy_name not in strategy_scores:
-                    strategy_scores[strategy_name] = []
-
-                # Score based on confidence and number of extracted fields
-                if not result["error"]:
-                    confidence = result["confidence"] or 0
-                    completeness = sum(1 for v in result["structured_data"].values() if v) / 7
-                    score = (confidence + completeness) / 2
-                    strategy_scores[strategy_name].append(score)
-
-        # Calculate average scores
-        avg_scores = {
-            name: sum(scores) / len(scores) for name, scores in strategy_scores.items() if scores
-        }
-
-        if not avg_scores:
-            return "No successful extractions"
-
-        best = max(avg_scores.items(), key=lambda x: x[1])
-        return f"{best[0]} (avg score: {best[1]:.2%})"
+        return get_best_strategy(self.results)
 
     def print_comparison(self):
         """Print formatted comparison of results."""
-        if not self.results:
-            print("No results to compare")
-            return
-
-        print(f"\n\n{'=' * 80}")
-        print("COMPARISON SUMMARY")
-        print(f"{'=' * 80}\n")
-
-        for test in self.results:
-            expected = test.get("expected")
-            print(f"\nImage: {Path(test['image']).name}")
-            print(f"{'-' * 80}")
-            if expected and expected.get("fields"):
-                fields = expected["fields"]
-                print("  Expected metadata:")
-                for key, value in fields.items():
-                    print(f"    - {key}: {value}")
-
-            for strategy_name, result in test["results"].items():
-                print(f"\n  Strategy: {strategy_name}")
-                print(
-                    f"  Confidence: {result['confidence']:.2%}"
-                    if result["confidence"]
-                    else "  Confidence: N/A"
-                )
-                print(
-                    f"  Time: {result['processing_time']:.2f}s"
-                    if result["processing_time"]
-                    else "  Time: N/A"
-                )
-
-                if result["error"]:
-                    print(f"  ❌ Error: {result['error']}")
-                else:
-                    print("  Extracted Data:")
-                    for key, value in result["structured_data"].items():
-                        if value:
-                            print(f"    - {key}: {value}")
-                    comparison = result.get("comparison")
-                    if comparison and comparison.get("total_expected_fields"):
-                        match_count = comparison.get("matched_fields", 0)
-                        total_fields = comparison.get("total_expected_fields", 0)
-                        status = "✓" if comparison.get("pass") else "✗"
-                        print(f"  Comparison: {status} {match_count}/{total_fields} fields matched")
-                        missing = [
-                            field
-                            for field, ok in comparison.get("field_matches", {}).items()
-                            if not ok
-                        ]
-                        if missing:
-                            print(f"    Missing fields: {', '.join(missing)}")
-
-    # Private methods
-
-    def _run_strategies_sequential(self, image_path: Path) -> dict[str, ExtractionResult]:
-        """Execute strategies one by one."""
-        results: dict[str, ExtractionResult] = {}
-        print(f"\n{'=' * 80}")
-        print(f"Testing: {image_path.name}")
-        print(f"{'=' * 80}")
-
-        for strategy in self.strategies:
-            print(f"\n  Running {strategy.name}...", end=" ")
-            result = self._run_strategy_safe(strategy, image_path)
-            results[strategy.name] = result
-
-            if result.error:
-                print(f"❌ Error: {result.error}")
-            else:
-                print(f"✓ Done ({result.processing_time:.2f}s)")
-
-        return results
-
-    def _run_strategies_parallel(
-        self, image_path: Path, worker_count: int
-    ) -> dict[str, ExtractionResult]:
-        """Execute strategies in parallel using ThreadPoolExecutor."""
-        print(f"\n{'=' * 80}")
-        print(f"Testing: {image_path.name}")
-        print(f"{'=' * 80}")
-        print(f"\n  Executing with {worker_count} parallel workers...")
-
-        completion: dict[str, ExtractionResult] = {}
-        with ThreadPoolExecutor(max_workers=worker_count) as executor:
-            future_map = {
-                executor.submit(self._run_strategy_safe, strategy, image_path): strategy
-                for strategy in self.strategies
-            }
-            for future in as_completed(future_map):
-                strategy = future_map[future]
-                print(f"\n  Running {strategy.name} (parallel)...", end=" ")
-                try:
-                    result = future.result()
-                except Exception as exc:
-                    result = ExtractionResult(
-                        raw_text="",
-                        structured_data={},
-                        confidence=None,
-                        processing_time=None,
-                        strategy_name=strategy.name,
-                        error=str(exc),
-                    )
-                completion[strategy.name] = result
-                if result.error:
-                    print(f"❌ Error: {result.error}")
-                else:
-                    proc_time = result.processing_time or 0.0
-                    print(f"✓ Done ({proc_time:.2f}s)")
-
-        # Preserve declared strategy order for downstream consumers
-        ordered_results: dict[str, ExtractionResult] = {}
-        for strategy in self.strategies:
-            strategy_result: ExtractionResult | None = completion.get(strategy.name)
-            if strategy_result is not None:
-                ordered_results[strategy.name] = strategy_result
-        return ordered_results
+        print_comparison(self.results)
 
     def _test_multiple_images_sequential(self, image_cases: list[Any]) -> list[dict[str, Any]]:
         """Process images sequentially (original behavior)."""
@@ -273,8 +99,7 @@ class StrategyComparator:
 
     def _test_multiple_images_parallel(self, image_cases: list[Any]) -> list[dict[str, Any]]:
         """Process multiple images in parallel using ThreadPoolExecutor."""
-        global _shutdown_requested
-        _shutdown_requested = False  # Reset on new run
+        reset_shutdown_flag()  # Reset on new run
 
         worker_count = min(self.image_workers, len(image_cases))
         print(f"\n{'#' * 80}")
@@ -292,7 +117,7 @@ class StrategyComparator:
             }
 
             for future in as_completed(future_to_index):
-                if _shutdown_requested:
+                if is_shutdown_requested():
                     print("\n⚠️  Cancelling remaining tasks...")
                     executor.shutdown(wait=False, cancel_futures=True)
                     break
@@ -338,6 +163,13 @@ class StrategyComparator:
     def _process_single_image_case(self, case: Any) -> dict[str, Any]:
         """Process a single image case and return the result dict."""
         image_path, expected = self._extract_case(case)
+
+        # Try to get ground truth from filename if not explicitly provided
+        if expected is None:
+            ground_truth = parse_filename_ground_truth(image_path)
+            if ground_truth:
+                expected = {"fields": ground_truth}
+
         strategy_results = self.test_image(image_path)
 
         return {
@@ -353,7 +185,9 @@ class StrategyComparator:
                     "confidence": result.confidence,
                     "processing_time": result.processing_time,
                     "error": result.error,
-                    "comparison": self._evaluate_result(expected, result.structured_data),
+                    "comparison": self._evaluate_result_with_validator(
+                        expected, result.structured_data
+                    ),
                 }
                 for name, result in strategy_results.items()
             },
@@ -371,86 +205,35 @@ class StrategyComparator:
             return 0
         return min(self.max_workers, len(self.strategies))
 
-    def _run_strategy_safe(
-        self, strategy: ExtractionStrategy, image_path: Path
-    ) -> ExtractionResult:
-        """Execute strategy with error handling."""
-        try:
-            return strategy.extract(image_path)
-        except Exception as exc:
-            return ExtractionResult(
-                raw_text="",
-                structured_data={},
-                confidence=None,
-                processing_time=None,
-                strategy_name=strategy.name,
-                error=str(exc),
-            )
-
-    def _evaluate_result(
+    def _evaluate_result_with_validator(
         self, expected: dict[str, Any] | None, extracted: dict[str, Any]
     ) -> dict[str, Any] | None:
-        """Compare extracted data with expected values."""
+        """Compare extracted data with expected values using centralized validator."""
         if not expected or "fields" not in expected:
             return None
 
-        expected_fields = expected["fields"]
+        ground_truth = expected["fields"]
+
+        # Use centralized validator
+        successes, errors = validate_extraction(extracted, ground_truth)
+
+        # Build field matches dict
         field_matches: dict[str, bool] = {}
-        matched_count = 0
+        total_fields = len(ground_truth) - 1  # Exclude WeightUnit from count
 
-        for field, expected_value in expected_fields.items():
-            actual = extracted.get(field)
-            if self._fields_match(field, expected_value, actual):
-                field_matches[field] = True
-                matched_count += 1
-            else:
-                field_matches[field] = False
+        # All fields from ground truth (excluding WeightUnit)
+        for field in ["Metal", "Weight", "Fineness", "Producer", "SerialNumber"]:
+            if field in ground_truth:
+                # Check if this field has an error
+                has_error = any(field in error for error in errors)
+                field_matches[field] = not has_error
 
-        total_fields = len(expected_fields)
+        matched_count = sum(1 for match in field_matches.values() if match)
+
         return {
             "matched_fields": matched_count,
             "total_expected_fields": total_fields,
             "field_matches": field_matches,
-            "pass": matched_count == total_fields,
+            "pass": len(errors) == 0,
+            "errors": errors,  # Include actual error messages
         }
-
-    def _fields_match(self, field_name: str, expected: Any, actual: Any) -> bool:
-        """Check if field values match with normalization."""
-        if expected is None:
-            return actual is None
-
-        if actual is None:
-            return False
-
-        field_lower = field_name.lower()
-
-        # Producer comparison with synonyms
-        if "producer" in field_lower:
-            expected_norm = normalize_producer(expected)
-            actual_candidates = get_producer_candidates(actual)
-            return expected_norm in actual_candidates if expected_norm else False
-
-        # Weight comparison (convert to grams)
-        if "weight" in field_lower and "unit" not in field_lower:
-            expected_weight = weight_to_grams(expected, None)
-            actual_weight = weight_to_grams(actual, None)
-            if expected_weight and actual_weight:
-                return abs(expected_weight - actual_weight) < 0.01
-            return False
-
-        # Unit comparison
-        if "unit" in field_lower:
-            expected_unit = normalize_unit(expected)
-            actual_unit = normalize_unit(actual)
-            return expected_unit == actual_unit
-
-        # Fineness comparison
-        if "fineness" in field_lower or "purity" in field_lower:
-            expected_fin = normalize_fineness_value(expected)
-            actual_fin = normalize_fineness_value(actual)
-            if expected_fin and actual_fin:
-                return abs(expected_fin - actual_fin) < 0.001
-            return False
-
-        # Default: case-insensitive string comparison
-        return str(expected).strip().lower() == str(actual).strip().lower()

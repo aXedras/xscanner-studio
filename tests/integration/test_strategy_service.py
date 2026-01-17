@@ -13,6 +13,7 @@ import pytest
 from xscanner.strategy.base import ExtractionResult, ExtractionStrategy
 from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy
 from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy
+from xscanner.strategy.paddle_ollama_hybrid_strategy import PaddleLlamaHybridStrategy
 
 pytestmark = pytest.mark.integration
 
@@ -28,6 +29,13 @@ def chatgpt_fixture():
 def gemini_fixture():
     """Load realistic Gemini response from fixture."""
     fixture_path = Path(__file__).parent.parent / "fixtures" / "gemini_response.json"
+    return json.loads(fixture_path.read_text())
+
+
+@pytest.fixture(scope="module")
+def hybrid_fixture():
+    """Load realistic Hybrid response from fixture."""
+    fixture_path = Path(__file__).parent.parent / "fixtures" / "hybrid_response.json"
     return json.loads(fixture_path.read_text())
 
 
@@ -161,6 +169,64 @@ class TestGeminiFlashStrategy:
 
         # Verify realistic data from fixture
         expected = gemini_fixture["structured_data"]
+        assert result.structured_data.get("Metal") == expected.get("Metal")
+        assert result.structured_data.get("Producer") == expected.get("Producer")
+
+    def test_extract_handles_invalid_path(self, strategy):
+        """Extract handles non-existent file path gracefully."""
+        invalid_path = Path("/nonexistent/image.jpg")
+
+        # Strategy wraps errors in ExtractionResult.error, doesn't raise
+        result = strategy.extract(invalid_path)
+        assert result.error is not None or result.structured_data == {}
+
+
+class TestPaddleLlamaHybridStrategy:
+    """Test Paddle+Llama Hybrid strategy without real API/OCR calls."""
+
+    @pytest.fixture
+    def strategy(self):
+        """Create strategy with mock configuration."""
+        return PaddleLlamaHybridStrategy(base_url="http://localhost:11434")
+
+    @pytest.fixture
+    def mock_image_path(self, tmp_path):
+        """Create a temporary test image."""
+        image_path = tmp_path / "test.jpg"
+        # Create minimal valid JPEG
+        image_path.write_bytes(
+            b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00\xff\xd9"
+        )
+        return image_path
+
+    def test_strategy_initialization(self, strategy):
+        """Strategy initializes with correct configuration."""
+        assert "Hybrid" in strategy.name or "Paddle" in strategy.name or "Llama" in strategy.name
+
+    @patch("xscanner.strategy.ollama_vision_strategy.OllamaVisionStrategy._extract_impl")
+    def test_extract_returns_result(self, mock_extract, strategy, mock_image_path, hybrid_fixture):
+        """Extract method returns ExtractionResult with realistic mocked response."""
+        from xscanner.strategy.base import ExtractionResult
+
+        # Mock the internal Ollama Vision extraction with realistic data from fixture
+        mock_extract.return_value = ExtractionResult(
+            raw_text=hybrid_fixture["raw_text"],
+            structured_data=hybrid_fixture["structured_data"],
+            confidence=1.0,
+            processing_time=hybrid_fixture["processing_time"],
+            strategy_name=hybrid_fixture["strategy_name"],
+        )
+
+        # Execute
+        result = strategy.extract(mock_image_path)
+
+        # Verify structure
+        assert isinstance(result, ExtractionResult)
+        assert result.processing_time >= 0
+        assert isinstance(result.structured_data, dict)
+
+        # Verify realistic data from fixture
+        expected = hybrid_fixture["structured_data"]
         assert result.structured_data.get("Metal") == expected.get("Metal")
         assert result.structured_data.get("Producer") == expected.get("Producer")
 

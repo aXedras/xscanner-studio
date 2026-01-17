@@ -17,6 +17,11 @@ class StrategyAggregate:
     total_time: float = 0.0
     latest_error: str | None = None
     samples: list[dict[str, Any]] = field(default_factory=list)
+    # Quality metrics
+    tests_with_ground_truth: int = 0
+    perfect_matches: int = 0
+    total_matched_fields: int = 0
+    total_expected_fields: int = 0
 
     def add_sample(self, sample: dict[str, Any]) -> None:
         """Add a single test result to the aggregate statistics."""
@@ -30,6 +35,19 @@ class StrategyAggregate:
             self.successes += 1
         else:
             self.latest_error = error
+
+        # Track quality metrics
+        comparison = sample.get("comparison")
+        if comparison and isinstance(comparison, dict):
+            total_fields = comparison.get("total_expected_fields", 0)
+            if total_fields > 0:
+                self.tests_with_ground_truth += 1
+                matched = comparison.get("matched_fields", 0)
+                self.total_matched_fields += matched
+                self.total_expected_fields += total_fields
+                if comparison.get("pass", False):
+                    self.perfect_matches += 1
+
         self.samples.append(sample)
 
     @property
@@ -46,6 +64,24 @@ class StrategyAggregate:
     def success_rate(self) -> float:
         """Success rate (successes/total runs)."""
         return self.successes / self.runs if self.runs else 0.0
+
+    @property
+    def field_accuracy(self) -> float:
+        """Field-level accuracy (matched fields / total expected fields)."""
+        return (
+            self.total_matched_fields / self.total_expected_fields
+            if self.total_expected_fields
+            else 0.0
+        )
+
+    @property
+    def perfect_match_rate(self) -> float:
+        """Perfect match rate (all fields correct)."""
+        return (
+            self.perfect_matches / self.tests_with_ground_truth
+            if self.tests_with_ground_truth
+            else 0.0
+        )
 
 
 def load_results(data_path: Path) -> list[dict[str, Any]]:

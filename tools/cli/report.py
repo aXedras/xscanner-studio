@@ -6,8 +6,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from .renderers import render_aggregate_table, render_summary_chart, render_table_rows
+from .renderers import (
+    render_aggregate_table,
+    render_failed_tests_section,
+    render_summary_chart,
+    render_table_rows,
+)
 from .report_models import aggregate_by_strategy, load_results
+from .result_formatter import calculate_strategy_scores
 from .template import HTML_TEMPLATE, INDEX_TEMPLATE
 
 DATA_PATH = Path("reports/strategy_benchmark_results.json")
@@ -20,20 +26,11 @@ def build_html(payload: list[dict[str, Any]], output_path: Path = OUTPUT_PATH) -
 
     Args:
         payload: List of benchmark test results
-        output_path: Path where HTML will be saved (used to calculate relative image paths)
+        output_path: Path where HTML will be saved (kept for compatibility, not used for image paths)
 
     Returns:
         Complete HTML document as string
     """
-    # Calculate depth from project root based on output path
-    # reports/strategy_benchmark_report.html -> depth = 1
-    # reports/history/report_xxx.html -> depth = 2
-    try:
-        depth = len(output_path.relative_to(Path.cwd()).parts) - 1
-    except ValueError:
-        # If output_path is not relative to cwd, default to 1
-        depth = 1
-
     aggregates = aggregate_by_strategy(payload)
     created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     image_count = len(payload)
@@ -57,8 +54,9 @@ def build_html(payload: list[dict[str, Any]], output_path: Path = OUTPUT_PATH) -
         created_at=created_at,
         summary_text=summary_text,
         summary_chart=render_summary_chart(aggregates),
+        failed_tests_section=render_failed_tests_section(payload),
         aggregate_rows=render_aggregate_table(aggregates),
-        image_sections=render_table_rows(payload, depth=depth),
+        image_sections=render_table_rows(payload),
     )
 
 
@@ -125,22 +123,11 @@ def generate_index_page(history_dir: Path) -> None:
                 strategies.update(entry.get("results", {}).keys())
             strategy_count = len(strategies)
 
-            # Calculate best strategy and avg confidence
-            strategy_scores = {}
-            for entry in data:
-                for strategy_name, result in entry.get("results", {}).items():
-                    if strategy_name not in strategy_scores:
-                        strategy_scores[strategy_name] = []
-                    if not result.get("error"):
-                        strategy_scores[strategy_name].append(result.get("confidence", 0))
-
-            avg_scores = {
-                name: sum(scores) / len(scores) if scores else 0
-                for name, scores in strategy_scores.items()
-            }
+            # Calculate best strategy score using shared function
+            avg_scores = calculate_strategy_scores(data)
 
             best_strategy = max(avg_scores.items(), key=lambda x: x[1])[0] if avg_scores else "N/A"
-            avg_confidence = f"{max(avg_scores.values()):.1%}" if avg_scores else "0%"
+            avg_score = f"{max(avg_scores.values()):.1%}" if avg_scores else "0%"
 
             # HTML file link
             html_link = f"report_{timestamp}.html"
@@ -152,7 +139,7 @@ def generate_index_page(history_dir: Path) -> None:
                     <td>{image_count}</td>
                     <td>{strategy_count}</td>
                     <td>{best_strategy}</td>
-                    <td>{avg_confidence}</td>
+                    <td>{avg_score}</td>
                     <td><a href="{html_link}" target="_blank">View Report</a></td>
                 </tr>
                 """
