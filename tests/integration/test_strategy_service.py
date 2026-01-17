@@ -13,7 +13,14 @@ import pytest
 from xscanner.strategy.base import ExtractionResult, ExtractionStrategy
 from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy
 from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy
-from xscanner.strategy.paddle_ollama_hybrid_strategy import PaddleLlamaHybridStrategy
+
+# Check if PaddleOCR is available
+try:
+    from xscanner.strategy.paddle_ollama_hybrid_strategy import PaddleLlamaHybridStrategy
+
+    PADDLE_AVAILABLE = True
+except ImportError:
+    PADDLE_AVAILABLE = False
 
 pytestmark = pytest.mark.integration
 
@@ -181,6 +188,7 @@ class TestGeminiFlashStrategy:
         assert result.error is not None or result.structured_data == {}
 
 
+@pytest.mark.skipif(not PADDLE_AVAILABLE, reason="PaddleOCR not installed")
 class TestPaddleLlamaHybridStrategy:
     """Test Paddle+Llama Hybrid strategy without real API/OCR calls."""
 

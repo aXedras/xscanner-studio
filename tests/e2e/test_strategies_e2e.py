@@ -16,7 +16,14 @@ from tools.cli.validator import parse_filename_ground_truth, validate_extraction
 from xscanner.server.config import get_config
 from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy
 from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy
-from xscanner.strategy.paddle_ollama_hybrid_strategy import PaddleLlamaHybridStrategy
+
+# Check if PaddleOCR is available for hybrid strategy
+try:
+    from xscanner.strategy.paddle_ollama_hybrid_strategy import PaddleLlamaHybridStrategy
+
+    PADDLE_AVAILABLE = True
+except ImportError:
+    PADDLE_AVAILABLE = False
 
 pytestmark = pytest.mark.e2e
 
@@ -68,6 +75,9 @@ def gemini_strategy(config):
 @pytest.fixture(scope="module")
 def hybrid_strategy(config):
     """Create Hybrid strategy if Ollama is running."""
+    if not PADDLE_AVAILABLE:
+        pytest.skip("PaddleOCR not installed")
+
     if not config.ollama.base_url:
         pytest.skip("Ollama base URL not configured")
 
