@@ -225,3 +225,179 @@ class TestServerExtractEndpoint:
         )
         assert "structured_data" in data
         assert "request_id" in data
+
+
+@pytest.mark.integration
+class TestServerUploadEndpointStrategy:
+    """Test /extract/upload endpoint strategy parameter handling."""
+
+    def test_upload_strategy_parameter_local(self, server, test_image_bytes):
+        """Test that strategy='local' works with file upload."""
+        response = httpx.post(
+            f"{server}/extract/upload",
+            files={"file": ("test.jpg", test_image_bytes, "image/jpeg")},
+            data={
+                "strategy": "local",
+                "use_mock": "true",
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert (
+            "Hybrid" in data["strategy_used"]
+            or "Ollama" in data["strategy_used"]
+            or "Paddle" in data["strategy_used"]
+        ), f"Expected local strategy, got: {data['strategy_used']}"
+
+    def test_upload_strategy_parameter_cloud(self, server, test_image_bytes):
+        """Test that strategy='cloud' works with file upload."""
+        response = httpx.post(
+            f"{server}/extract/upload",
+            files={"file": ("test.jpg", test_image_bytes, "image/jpeg")},
+            data={
+                "strategy": "cloud",
+                "use_mock": "true",
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert (
+            "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"]
+        ), f"Expected cloud strategy, got: {data['strategy_used']}"
+
+    def test_upload_strategy_parameter_default(self, server, test_image_bytes):
+        """Test that default strategy works with file upload (defaults to cloud)."""
+        response = httpx.post(
+            f"{server}/extract/upload",
+            files={"file": ("test.jpg", test_image_bytes, "image/jpeg")},
+            data={
+                "use_mock": "true",
+                # No strategy parameter - defaults to cloud
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        # Default is cloud (consistent with /extract endpoint)
+        assert (
+            "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"]
+        ), f"Expected default cloud strategy, got: {data['strategy_used']}"
+
+    def test_strategy_parameter_local(self, server, test_image_bytes):
+        """Test that strategy='local' uses Hybrid/Ollama strategy."""
+        image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
+
+        response = httpx.post(
+            f"{server}/extract",
+            json={
+                "image_base64": image_b64,
+                "strategy": "local",
+                "use_mock": True,
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        # Verify correct strategy was used
+        assert (
+            "Hybrid" in data["strategy_used"]
+            or "Ollama" in data["strategy_used"]
+            or "Paddle" in data["strategy_used"]
+        ), f"Expected local strategy, got: {data['strategy_used']}"
+
+    def test_strategy_parameter_cloud(self, server, test_image_bytes):
+        """Test that strategy='cloud' uses ChatGPT/Gemini strategy."""
+        image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
+
+        response = httpx.post(
+            f"{server}/extract",
+            json={
+                "image_base64": image_b64,
+                "strategy": "cloud",
+                "use_mock": True,
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        # Verify correct strategy was used
+        assert (
+            "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"]
+        ), f"Expected cloud strategy, got: {data['strategy_used']}"
+
+    def test_strategy_parameter_default(self, server, test_image_bytes):
+        """Test that default strategy (no parameter) uses cloud."""
+        image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
+
+        response = httpx.post(
+            f"{server}/extract",
+            json={
+                "image_base64": image_b64,
+                "use_mock": True,
+                # No strategy parameter - should default to cloud
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        # Default should be cloud (ChatGPT/Gemini)
+        assert (
+            "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"]
+        ), f"Expected default to cloud strategy, got: {data['strategy_used']}"
+
+    def test_strategy_parameter_case_sensitive(self, server, test_image_bytes):
+        """Test that strategy parameter is case-sensitive (only lowercase accepted)."""
+        image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
+
+        # Test uppercase - should be rejected
+        response = httpx.post(
+            f"{server}/extract",
+            json={
+                "image_base64": image_b64,
+                "strategy": "CLOUD",
+                "use_mock": True,
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 422  # Validation error - invalid enum value
+
+        # Test mixed case - should be rejected
+        response = httpx.post(
+            f"{server}/extract",
+            json={
+                "image_base64": image_b64,
+                "strategy": "Local",
+                "use_mock": True,
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 422  # Validation error - invalid enum value
+
+        # Test lowercase - should work
+        response = httpx.post(
+            f"{server}/extract",
+            json={
+                "image_base64": image_b64,
+                "strategy": "local",
+                "use_mock": True,
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert (
+            "Hybrid" in data["strategy_used"]
+            or "Ollama" in data["strategy_used"]
+            or "Paddle" in data["strategy_used"]
+        )
