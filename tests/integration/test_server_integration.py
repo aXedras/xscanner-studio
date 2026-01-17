@@ -168,6 +168,28 @@ class TestServerExtractEndpoint:
         assert data["structured_data"]["Metal"] in ["Gold", "Silver", "Platinum"]
         assert "request_id" in data
 
+    def test_extract_upload_with_mock_mode(self, server, test_image_bytes):
+        """Test /extract/upload endpoint with mock mode enabled."""
+        response = httpx.post(
+            f"{server}/extract/upload",
+            files={"file": ("test.jpg", test_image_bytes, "image/jpeg")},
+            data={
+                "strategy": "cloud",
+                "use_mock": "true",
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert data["strategy_used"] == "cloud_mock"
+        assert "structured_data" in data
+        assert "SerialNumber" in data["structured_data"]
+        assert data["structured_data"]["Metal"] in ["Gold", "Silver", "Platinum"]
+        assert "request_id" in data
+        assert data["processing_time"] > 0
+
     def test_extract_endpoint_accepts_valid_request(self, server, test_image_bytes):
         """Test that extraction endpoint accepts valid requests.
 
