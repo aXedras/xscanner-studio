@@ -268,9 +268,9 @@ class TestServerUploadEndpointStrategy:
 
         assert response.status_code == 200
         data = response.json()
-        assert (
-            "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"]
-        ), f"Expected cloud strategy, got: {data['strategy_used']}"
+        assert "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"], (
+            f"Expected cloud strategy, got: {data['strategy_used']}"
+        )
 
     def test_upload_strategy_parameter_default(self, server, test_image_bytes):
         """Test that default strategy works with file upload (defaults to cloud)."""
@@ -287,9 +287,9 @@ class TestServerUploadEndpointStrategy:
         assert response.status_code == 200
         data = response.json()
         # Default is cloud (consistent with /extract endpoint)
-        assert (
-            "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"]
-        ), f"Expected default cloud strategy, got: {data['strategy_used']}"
+        assert "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"], (
+            f"Expected default cloud strategy, got: {data['strategy_used']}"
+        )
 
     def test_strategy_parameter_local(self, server, test_image_bytes):
         """Test that strategy='local' uses Hybrid/Ollama strategy."""
@@ -331,9 +331,9 @@ class TestServerUploadEndpointStrategy:
         assert response.status_code == 200
         data = response.json()
         # Verify correct strategy was used
-        assert (
-            "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"]
-        ), f"Expected cloud strategy, got: {data['strategy_used']}"
+        assert "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"], (
+            f"Expected cloud strategy, got: {data['strategy_used']}"
+        )
 
     def test_strategy_parameter_default(self, server, test_image_bytes):
         """Test that default strategy (no parameter) uses cloud."""
@@ -352,9 +352,9 @@ class TestServerUploadEndpointStrategy:
         assert response.status_code == 200
         data = response.json()
         # Default should be cloud (ChatGPT/Gemini)
-        assert (
-            "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"]
-        ), f"Expected default to cloud strategy, got: {data['strategy_used']}"
+        assert "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"], (
+            f"Expected default to cloud strategy, got: {data['strategy_used']}"
+        )
 
     def test_strategy_parameter_case_sensitive(self, server, test_image_bytes):
         """Test that strategy parameter is case-sensitive (only lowercase accepted)."""
