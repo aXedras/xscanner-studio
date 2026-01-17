@@ -1,4 +1,4 @@
-.PHONY: install dev format lint test test-unit test-integration test-coverage test-quick ci-local pre-commit-all server docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick
+.PHONY: install dev format lint test test-unit test-integration test-coverage test-quick ci-local pre-commit-all server docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report cli-report-history
 
 # Install production dependencies
 install:
@@ -84,10 +84,15 @@ cli:
 	@echo "    make cli-benchmark           Full benchmark + HTML report"
 	@echo "    make cli-benchmark-quick     Quick benchmark (3 images) + HTML report"
 	@echo ""
+	@echo "  Report Generation:"
+	@echo "    make cli-report              Generate current + missing history reports (reports/history/index.html)"
+	@echo "    make cli-report-regenerate   Regenerate all history reports (reports/history/index.html)"
+	@echo ""
 	@echo "Examples:"
 	@echo "  make cli-interactive"
 	@echo "  make cli-test IMAGE=barPictures/gold.jpg STRATEGY=chatgpt"
 	@echo "  make cli-benchmark-quick"
+	@echo "  make cli-report"
 
 cli-help: cli
 
@@ -121,6 +126,20 @@ cli-benchmark-quick:
 	@echo ""
 	@echo "✅ Quick benchmark complete! View report at: reports/strategy_benchmark_report.html"
 
+cli-report:
+	@echo "📊 Generating HTML reports..."
+	@python -m tools.cli.report
+	@echo ""
+	@echo "✅ Reports generated!"
+	@echo "   Current: reports/strategy_benchmark_report.html"
+	@echo "   History: reports/history/index.html"
+
+cli-report-history:
+	@echo "🔄 Regenerating all history reports..."
+	@python -m tools.cli.report --regenerate
+	@echo ""
+	@echo "✅ All reports regenerated!"
+	@echo "   History: reports/history/index.html"
 
 
 # Build Docker image

@@ -335,3 +335,98 @@ HTML_TEMPLATE = """
 </body>
 </html>
 """
+
+
+# Index template for history overview
+INDEX_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>xScanner Benchmark History</title>
+    <style>
+        :root {{
+            --bg: #0b1221;
+            --card-bg: #111b2f;
+            --surface: #16223b;
+            --text: #f4f7ff;
+            --muted: #8ea2c4;
+            --accent: #4ad4ff;
+        }}
+        * {{ box-sizing: border-box; }}
+        body {{
+            margin: 0;
+            background: linear-gradient(130deg, #050910, #101b33);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            line-height: 1.5;
+            padding: 2rem;
+        }}
+        .container {{ max-width: 1200px; margin: 0 auto; }}
+        header {{
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(5, 10, 20, 0.45);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        h1 {{ margin-top: 0; font-size: 2.5rem; }}
+        .meta {{ color: var(--muted); font-size: 0.9rem; margin-top: 0.5rem; }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }}
+        th, td {{ padding: 1rem; text-align: left; }}
+        th {{
+            background: var(--surface);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }}
+        tr:hover td {{ background: rgba(74, 212, 255, 0.08); }}
+        tr:nth-child(even) td {{ background: rgba(255,255,255,0.02); }}
+        tr:nth-child(odd) td {{ background: rgba(255,255,255,0.04); }}
+        a {{
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }}
+        a:hover {{ text-decoration: underline; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 xScanner Benchmark History</h1>
+            <div class="meta">
+                Generated: {created_at} | Total Runs: {total_runs}
+            </div>
+        </header>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th># Images</th>
+                    <th># Strategies</th>
+                    <th>Best Strategy</th>
+                    <th>Avg Confidence</th>
+                    <th>Report</th>
+                </tr>
+            </thead>
+            <tbody>
+                {table_rows}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+"""

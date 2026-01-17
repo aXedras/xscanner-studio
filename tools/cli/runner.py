@@ -89,11 +89,23 @@ def run_benchmark(args) -> int:
     comparator.test_multiple_images(test_images)
 
     # Save results
+    from datetime import datetime
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    # Save current results (for report generation)
     output_file = Path("reports/strategy_benchmark_results.json")
     output_file.parent.mkdir(parents=True, exist_ok=True)
     comparator.save_results(output_file)
 
+    # Save historical copy with timestamp
+    history_dir = Path("reports/history")
+    history_dir.mkdir(parents=True, exist_ok=True)
+    history_file = history_dir / f"strategy_benchmark_results_{timestamp}.json"
+    comparator.save_results(history_file)
+
     print(f"📊 Results saved to: {output_file}")
+    print(f"📁 History saved to: {history_file}")
     print("\n💡 Generate report: make cli-report")
 
     return 0

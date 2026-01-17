@@ -23,11 +23,12 @@ def render_bar(value: float, max_value: float = 1.0) -> str:
     return f'<div class="bar" style="width:{width:.1f}%;"></div>'
 
 
-def compute_image_src(image_value: str) -> str:
+def compute_image_src(image_value: str, depth: int = 1) -> str:
     """Compute relative image source path for HTML.
 
     Args:
         image_value: Image path from benchmark results
+        depth: Number of directory levels from project root (1 for reports/, 2 for reports/history/)
 
     Returns:
         Relative path suitable for HTML src attribute
@@ -35,7 +36,10 @@ def compute_image_src(image_value: str) -> str:
     image_path = Path(image_value)
     if image_path.is_absolute():
         return image_path.as_posix()
-    return (Path("..") / image_path).as_posix()
+
+    # Build relative path based on depth: ../ for each level
+    prefix = "/".join([".."] * depth)
+    return f"{prefix}/{image_path.as_posix()}"
 
 
 def render_structured_data(data: dict[str, Any]) -> str:
@@ -115,11 +119,12 @@ def render_comparison_block(result: dict[str, Any]) -> str:
     )
 
 
-def render_table_rows(payload: list[dict[str, Any]]) -> str:
+def render_table_rows(payload: list[dict[str, Any]], depth: int = 1) -> str:
     """Render detailed image test results as HTML cards.
 
     Args:
         payload: List of all test results
+        depth: Number of directory levels from project root (1 for reports/, 2 for reports/history/)
 
     Returns:
         HTML string with all image result cards
@@ -127,7 +132,7 @@ def render_table_rows(payload: list[dict[str, Any]]) -> str:
     rows: list[str] = []
     for entry_idx, entry in enumerate(payload):
         image_panel_id = f"image-panel-{entry_idx}"
-        image_src = compute_image_src(entry["image"])
+        image_src = compute_image_src(entry["image"], depth=depth)
         timestamp_display = datetime.fromisoformat(entry["timestamp"]).strftime("%Y-%m-%d %H:%M:%S")
         expected_block = render_expected_block(entry)
         rows.append(
