@@ -38,7 +38,7 @@ repos:
     hooks:
       - id: pytest-unit
         name: pytest unit tests
-        entry: pytest tests/unit -v --tb=short
+        entry: bash -c 'source venv/bin/activate && python -m pytest tests/unit -v --tb=short'
         language: system
         pass_filenames: false
         always_run: true
@@ -48,7 +48,7 @@ repos:
     hooks:
       - id: pytest-integration
         name: pytest integration tests
-        entry: pytest tests/integration -v --tb=short -m integration
+        entry: bash -c 'source venv/bin/activate && python -m pytest tests/integration -v --tb=short'
         language: system
         pass_filenames: false
         always_run: true
@@ -58,18 +58,7 @@ repos:
     hooks:
       - id: pytest-e2e
         name: pytest e2e tests
-        entry: bash -c 'if [ -n "$OPENAI_API_KEY" ]; then pytest tests/e2e/ -v --tb=short -m e2e; else echo "⚠️  E2E tests skipped (OPENAI_API_KEY not set)"; fi'
-        language: system
-        pass_filenames: false
-        always_run: true
-        stages: [pre-push]
-
-  # Format check on push (matches CI "ruff format --check .")
-  - repo: local
-    hooks:
-      - id: ruff-format-check
-        name: ruff format --check
-        entry: ruff format --check .
+        entry: bash -c 'source venv/bin/activate && if [ -n "$OPENAI_API_KEY" ]; then python -m pytest tests/e2e/ -v --tb=short -m e2e; else echo "⚠️  E2E tests skipped (OPENAI_API_KEY not set)"; fi'
         language: system
         pass_filenames: false
         always_run: true

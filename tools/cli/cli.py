@@ -69,9 +69,9 @@ def run_single_test(image_path: Path, strategy_name: str, verbose: bool = False)
 
         successes, errors = validate_extraction(result.structured_data, ground_truth)
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("🔍 Quality Check Results:")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         if successes:
             for success in successes:
@@ -89,7 +89,7 @@ def run_single_test(image_path: Path, strategy_name: str, verbose: bool = False)
         else:
             print(f"\n🎉 Perfect! All {len(successes)} fields match!")
 
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
     else:
         print("\n💡 No ground truth available (filename doesn't match expected pattern)")
 
@@ -109,10 +109,10 @@ def run_multiple_tests(image_paths: list[Path], strategy_name: str) -> int:
         print(f"Available: {', '.join(strategies.keys())}")
         return 1
 
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"🔬 Batch Testing: {len(image_paths)} images")
     print(f"📊 Strategy: {strategy_name}")
-    print(f"{'='*80}\n")
+    print(f"{'=' * 80}\n")
 
     # Statistics tracking
     stats = {
@@ -127,7 +127,7 @@ def run_multiple_tests(image_paths: list[Path], strategy_name: str) -> int:
     # Process each image
     for idx, image_path in enumerate(image_paths, 1):
         print(f"\n[{idx}/{len(image_paths)}] 🔍 {image_path.name}")
-        print(f"{'-'*80}")
+        print(f"{'-' * 80}")
 
         result = strategy.extract(image_path)
 
@@ -165,9 +165,9 @@ def run_multiple_tests(image_paths: list[Path], strategy_name: str) -> int:
             print("💡 No ground truth available")
 
     # Summary Report
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print("📊 BATCH TEST SUMMARY")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
 
     if stats["total"] == 0:
         print("❌ No images were successfully processed")
@@ -182,7 +182,7 @@ def run_multiple_tests(image_paths: list[Path], strategy_name: str) -> int:
     print(f"  • Total processed: {stats['total']}")
     if total_with_gt > 0:
         print(f"  • Perfect extractions: {perfect} ({success_rate:.1f}%)")
-        print(f"  • With errors: {with_errors} ({100-success_rate:.1f}%)")
+        print(f"  • With errors: {with_errors} ({100 - success_rate:.1f}%)")
     if stats["no_ground_truth"] > 0:
         print(f"  • No ground truth: {stats['no_ground_truth']}")
 
@@ -194,7 +194,7 @@ def run_multiple_tests(image_paths: list[Path], strategy_name: str) -> int:
     total_time = sum(stats["processing_times"])
     print("\n⏱️  Performance:")
     print(f"  • Average time: {avg_time:.2f}s per image")
-    print(f"  • Total time: {total_time:.1f}s ({total_time/60:.1f} minutes)")
+    print(f"  • Total time: {total_time:.1f}s ({total_time / 60:.1f} minutes)")
 
     if with_errors > 0:
         print("\n❌ Field-specific Error Rates:")
@@ -204,7 +204,7 @@ def run_multiple_tests(image_paths: list[Path], strategy_name: str) -> int:
             status = "✓" if errors == 0 else "✗"
             print(f"  {status} {field:15s}: {errors:2d} errors ({error_rate:5.1f}%)")
 
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
 
     if success_rate == 100:
         print("🎉 EXCELLENT! All extractions were perfect!")
@@ -215,7 +215,7 @@ def run_multiple_tests(image_paths: list[Path], strategy_name: str) -> int:
     else:
         print("❌ POOR. Significant issues detected.")
 
-    print(f"{'='*80}\n")
+    print(f"{'=' * 80}\n")
 
     return 0
 

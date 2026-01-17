@@ -359,10 +359,10 @@ def render_failed_tests_section(payload: list[dict[str, Any]]) -> str:
             )
             links.append(
                 f"""
-                <a href="#image-panel-{test['idx']}" class="failed-test-link">
-                    <span class="failed-test-image">{html.escape(test['image'])}</span>
+                <a href="#image-panel-{test["idx"]}" class="failed-test-link">
+                    <span class="failed-test-image">{html.escape(test["image"])}</span>
                     <span class="failed-test-badge" style="background: {test_color}20; color: {test_color};">
-                        {test['matched']}/{test['total']} fields
+                        {test["matched"]}/{test["total"]} fields
                     </span>
                 </a>
                 """
@@ -375,7 +375,7 @@ def render_failed_tests_section(payload: list[dict[str, Any]]) -> str:
                 <div class="failed-strategy-header">
                     <div class="failed-strategy-info">
                         <h3>{html.escape(strategy_name)}</h3>
-                        <span class="failed-count">{len(tests)} failed test{'s' if len(tests) != 1 else ''}</span>
+                        <span class="failed-count">{len(tests)} failed test{"s" if len(tests) != 1 else ""}</span>
                     </div>
                     <div class="failed-strategy-stats">
                         <span class="avg-accuracy-badge" style="background: {failure_color}20; color: {failure_color};">
@@ -386,7 +386,7 @@ def render_failed_tests_section(payload: list[dict[str, Any]]) -> str:
                 </div>
                 <div id="{toggle_id}" class="toggle-panel">
                     <div class="failed-tests-list">
-                        {''.join(links)}
+                        {"".join(links)}
                     </div>
                 </div>
             </div>
@@ -397,7 +397,7 @@ def render_failed_tests_section(payload: list[dict[str, Any]]) -> str:
     <div class="failed-tests-section">
         <h2>⚠️ Tests with Validation Issues ({total_failures})</h2>
         <div class="failed-strategies-container">
-            {''.join(strategy_sections)}
+            {"".join(strategy_sections)}
         </div>
     </div>
     """

@@ -8,6 +8,7 @@ import base64
 import io
 import socket
 import subprocess
+import sys
 import time
 
 import httpx
@@ -33,6 +34,8 @@ def server(free_port):
     # Start server process
     process = subprocess.Popen(
         [
+            sys.executable,
+            "-m",
             "uvicorn",
             "xscanner.server.server:app",
             "--host",
