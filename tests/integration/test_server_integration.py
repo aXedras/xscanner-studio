@@ -193,7 +193,7 @@ class TestServerExtractEndpoint:
     def test_extract_endpoint_accepts_valid_request(self, server, test_image_bytes):
         """Test that extraction endpoint accepts valid requests.
 
-        Note: This will make real API calls depending on strategy configuration.
+        Note: This uses mock mode to avoid dependency on external services.
         We're testing the HTTP layer here, not the extraction quality.
         """
         image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
@@ -203,14 +203,15 @@ class TestServerExtractEndpoint:
             json={
                 "image_base64": image_b64,
                 "strategy": "local",
+                "use_mock": True,
             },
-            timeout=30.0,  # Allow time for real extraction
+            timeout=5.0,  # Mock strategy should be fast
         )
 
-        # Should either succeed or fail gracefully
-        assert response.status_code in [200, 500]  # Success or extraction error
-
-        if response.status_code == 200:
-            data = response.json()
-            assert "success" in data
-            assert "request_id" in data
+        # Mock strategy should always succeed
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert data["strategy_used"] == "local_mock"
+        assert "structured_data" in data
+        assert "request_id" in data
