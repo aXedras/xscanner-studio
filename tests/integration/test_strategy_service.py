@@ -14,11 +14,18 @@ from xscanner.strategy.base import ExtractionResult, ExtractionStrategy
 from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy
 from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy
 
-# Check if PaddleOCR is available
+# Check if PaddleOCR is available by trying to instantiate the strategy
+PADDLE_AVAILABLE = False
 try:
     from xscanner.strategy.paddle_ollama_hybrid_strategy import PaddleLlamaHybridStrategy
 
-    PADDLE_AVAILABLE = True
+    # Test if we can actually create an instance (checks for PaddleOCR installation)
+    try:
+        _test_strategy = PaddleLlamaHybridStrategy(base_url="http://localhost:11434")
+        PADDLE_AVAILABLE = True
+        del _test_strategy
+    except ImportError:
+        PADDLE_AVAILABLE = False
 except ImportError:
     PADDLE_AVAILABLE = False
 
