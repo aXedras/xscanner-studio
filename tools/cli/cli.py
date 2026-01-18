@@ -241,15 +241,12 @@ def interactive_mode() -> int:
     # Select image
     print(f"\n📸 Available Images ({len(images)}):\n")
     print(f"   0. [ALL IMAGES] - Test all {len(images)} images")
-    for idx, img in enumerate(images[:20], 1):
+    for idx, img in enumerate(images, 1):
         try:
             display_path = img.relative_to(Path.cwd()).as_posix()
         except ValueError:
             display_path = str(img)
         print(f"  {idx:2d}. {display_path}")
-
-    if len(images) > 20:
-        print(f"  ... and {len(images) - 20} more")
 
     try:
         img_choice = input("\n🔢 Select image number (0 for all, or 'q' to quit): ").strip()
