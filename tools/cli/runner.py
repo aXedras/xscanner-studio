@@ -144,6 +144,9 @@ def run_benchmark(args) -> int:
         QwenMiniCPMHybridV3,
     )
 
+    # LoRA fine-tuned model
+    from xscanner.strategy.lora_finetuned_strategy import LoRAFinetunedStrategy
+
     # Single model strategies
     from xscanner.strategy.minicpm_v_strategy import MiniCPMVStrategy
     from xscanner.strategy.qwen3_vision_strategy import Qwen3VisionStrategy
@@ -173,6 +176,8 @@ def run_benchmark(args) -> int:
     STRATEGY_MAP = {
         "qwen3": ("Qwen3VisionStrategy", Qwen3VisionStrategy, "Qwen3-VL"),
         "minicpm": ("MiniCPMVStrategy", MiniCPMVStrategy, "MiniCPM-V"),
+        # LoRA fine-tuned
+        "lora": ("LoRAFinetunedStrategy", LoRAFinetunedStrategy, "LoRA Fine-tuned"),
         # Cloud strategies
         "chatgpt": ("ChatGPTVisionStrategy", ChatGPTVisionStrategy, "ChatGPT-4o"),
         "gemini": ("GeminiFlashStrategy", GeminiFlashStrategy, "Gemini Flash"),
