@@ -135,19 +135,29 @@ def run_benchmark(args) -> int:
     # Cloud strategies
     from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy
     from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy
-    from xscanner.strategy.hybrid_v2_strategies import (
+
+    # Hybrid strategies (from refactored package)
+    from xscanner.strategy.hybrid import (
         MiniCPMQwenHybridV2,
-        QwenMiniCPMHybridV2,
-    )
-    from xscanner.strategy.hybrid_v3_strategies import (
         MiniCPMQwenHybridV3,
+        QwenMiniCPMHybridV2,
         QwenMiniCPMHybridV3,
     )
+
+    # Single model strategies
     from xscanner.strategy.minicpm_v_strategy import MiniCPMVStrategy
     from xscanner.strategy.qwen3_vision_strategy import Qwen3VisionStrategy
-    from xscanner.strategy.vision_hybrid_strategies import (
-        MiniCPMQwenHybridStrategy,
-    )
+
+    # Legacy hybrid (optional - in archive)
+    try:
+        from xscanner.strategy.archive.vision_hybrid_strategies import (
+            MiniCPMQwenHybridStrategy,
+        )
+
+        LEGACY_HYBRID_AVAILABLE = True
+    except ImportError:
+        MiniCPMQwenHybridStrategy = None
+        LEGACY_HYBRID_AVAILABLE = False
 
     # Config removed - not needed for benchmark
 
@@ -171,11 +181,6 @@ def run_benchmark(args) -> int:
     # Hybrid strategies V2 - intelligent conditional execution
     # NOTE: Llama-based hybrids removed due to poor Llama performance
     HYBRID_STRATEGY_MAP = {
-        "hybrid": (
-            "MiniCPMQwenHybridStrategy",
-            MiniCPMQwenHybridStrategy,
-            "MiniCPM → Qwen (Legacy)",
-        ),
         "hybrid-v2-qwen-first": ("QwenMiniCPMHybridV2", QwenMiniCPMHybridV2, "Qwen → MiniCPM (V2)"),
         "hybrid-v2-minicpm-first": (
             "MiniCPMQwenHybridV2",
@@ -190,6 +195,14 @@ def run_benchmark(args) -> int:
             "MiniCPM + Qwen (V3)",
         ),
     }
+
+    # Add legacy hybrid only if available
+    if LEGACY_HYBRID_AVAILABLE and MiniCPMQwenHybridStrategy:
+        HYBRID_STRATEGY_MAP["hybrid"] = (
+            "MiniCPMQwenHybridStrategy",
+            MiniCPMQwenHybridStrategy,
+            "MiniCPM → Qwen (Legacy)",
+        )
 
     # Determine which models need to be warmed up based on strategy filter
     models_to_warmup = set()
