@@ -1,12 +1,15 @@
 """Image and strategy discovery utilities for CLI tools."""
 
+import os
+import sys
 from pathlib import Path
 
-from xscanner.server.config import get_config
-from xscanner.strategy.base import ExtractionStrategy
-from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy
-from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy
-from xscanner.strategy.paddle_llama_hybrid_strategy import PaddleLlamaHybridStrategy
+# Add src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
+
+from xscanner.strategy.base import ExtractionStrategy  # noqa: E402
+from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy  # noqa: E402
+from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy  # noqa: E402
 
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")
 SEARCH_PATHS = [
@@ -37,24 +40,19 @@ def find_all_images() -> list[Path]:
 
 def get_available_strategies() -> dict[str, type[ExtractionStrategy]]:
     """Get map of strategy names to classes."""
-    config = get_config()
-
     strategies: dict[str, type[ExtractionStrategy]] = {}
 
-    if config.openai.api_key:
+    if os.environ.get("OPENAI_API_KEY"):
         strategies["chatgpt"] = ChatGPTVisionStrategy
 
-    if config.google.api_key:
+    if os.environ.get("GOOGLE_API_KEY"):
         strategies["gemini"] = GeminiFlashStrategy
-
-    strategies["hybrid"] = PaddleLlamaHybridStrategy
 
     return strategies
 
 
 def create_strategy(strategy_name: str) -> ExtractionStrategy:
     """Create strategy instance by name."""
-    config = get_config()
     strategies = get_available_strategies()
 
     if strategy_name not in strategies:
@@ -63,14 +61,9 @@ def create_strategy(strategy_name: str) -> ExtractionStrategy:
     strategy_class = strategies[strategy_name]
 
     if strategy_name == "chatgpt":
-        return ChatGPTVisionStrategy(
-            api_key=config.openai.api_key or "",
-            model=config.openai.model,
-        )
+        return ChatGPTVisionStrategy()
     elif strategy_name == "gemini":
-        return GeminiFlashStrategy(api_key=config.google.api_key or "")
-    elif strategy_name == "hybrid":
-        return PaddleLlamaHybridStrategy(base_url=config.ollama.base_url)
+        return GeminiFlashStrategy()
     else:
         return strategy_class()
 
@@ -101,13 +94,14 @@ def list_strategies_info():
         print("❌ No strategies available. Check your API keys in .env.local")
         return
 
-    config = get_config()
-
     print(f"\n🤖 Available Strategies ({len(strategies)}):\n")
     for name in strategies:
         print(f"  - {name}")
 
     print("\n💡 Configuration:")
-    print(f"  OpenAI API Key: {'✅ Configured' if config.openai.api_key else '❌ Missing'}")
-    print(f"  Google API Key: {'✅ Configured' if config.google.api_key else '❌ Missing'}")
-    print(f"  Ollama URL: {config.ollama.base_url}")
+    print(
+        f"  OpenAI API Key: {'✅ Configured' if os.environ.get('OPENAI_API_KEY') else '❌ Missing'}"
+    )
+    print(
+        f"  Google API Key: {'✅ Configured' if os.environ.get('GOOGLE_API_KEY') else '❌ Missing'}"
+    )
