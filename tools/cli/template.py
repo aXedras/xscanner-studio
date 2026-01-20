@@ -290,6 +290,237 @@ HTML_TEMPLATE = """
             padding: 0.4rem 0.6rem;
             border-radius: 10px;
         }}
+        /* Metal Accuracy Section */
+        .metal-accuracy-section {{
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        .metal-accuracy-section h2 {{
+            margin: 0 0 0.25rem 0;
+        }}
+        .section-subtitle {{
+            color: var(--muted);
+            margin: 0 0 1.25rem 0;
+            font-size: 0.95rem;
+        }}
+        .metal-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+        }}
+        .metal-card {{
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 1rem;
+        }}
+        .metal-card__header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }}
+        .metal-card h3 {{
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }}
+        .metal-badge {{
+            padding: 0.2rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }}
+        .metal-stats {{
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }}
+        .metal-stat {{
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 0.5rem 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }}
+        .metal-label {{
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }}
+        .metal-value {{
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+        }}
+        /* Executive Summary Section */
+        .exec-summary-section {{
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        .exec-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }}
+        .exec-card {{
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 1.25rem;
+            position: relative;
+        }}
+        .exec-rank {{
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }}
+        .exec-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }}
+        .exec-header h3 {{
+            margin: 0;
+            font-size: 1rem;
+        }}
+        .exec-accuracy {{
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }}
+        .exec-metrics {{
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }}
+        .exec-metric {{
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }}
+        .metric-label {{
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--muted);
+        }}
+        .metric-value {{
+            font-weight: 600;
+        }}
+        .exec-fields h4 {{
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin: 0 0 0.5rem 0;
+        }}
+        .field-stat {{
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }}
+        .field-name {{
+            font-size: 0.85rem;
+            color: var(--muted);
+        }}
+        .field-acc {{
+            font-weight: 600;
+        }}
+        /* Strategy Metal Matrix */
+        .matrix-section {{
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        .matrix-table {{
+            width: 100%;
+            border-collapse: collapse;
+        }}
+        .matrix-table th, .matrix-table td {{
+            padding: 0.75rem 1rem;
+            text-align: center;
+        }}
+        .matrix-table th:first-child, .matrix-table td:first-child {{
+            text-align: left;
+        }}
+        .matrix-table th {{
+            background: var(--surface);
+            font-weight: 600;
+        }}
+        .strategy-name {{
+            font-weight: 500;
+        }}
+        .matrix-acc {{
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }}
+        /* Hybrid Analysis Section */
+        .hybrid-section {{
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        .hybrid-table {{
+            width: 100%;
+            border-collapse: collapse;
+        }}
+        .hybrid-table th, .hybrid-table td {{
+            padding: 0.75rem 1rem;
+        }}
+        .hybrid-table th {{
+            background: var(--surface);
+            text-align: left;
+        }}
+        .combo-names {{
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }}
+        .combo-plus {{
+            color: var(--muted);
+            font-size: 0.8rem;
+        }}
+        .acc-value {{
+            font-weight: 600;
+        }}
+        .improvement {{
+            font-weight: 700;
+        }}
+        .hybrid-note {{
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+        }}
         footer {{ text-align: center; color: var(--muted); margin-top: 3rem; font-size: 0.85rem; }}
         @media (max-width: 600px) {{
             body {{ padding: 1rem; }}
@@ -304,6 +535,10 @@ HTML_TEMPLATE = """
             <p class="meta">Generated on {created_at}</p>
             <p>{summary_text}</p>
         </header>
+        {exec_summary}
+        {strategy_metal_matrix}
+        {metal_accuracy_section}
+        {hybrid_analysis}
         <section>
             <h2>Performance Summary: Accuracy vs. Speed</h2>
             {summary_chart}
