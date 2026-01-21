@@ -1,0 +1,2679 @@
+[
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Degussa/Gold_00250g_9999_D12669_Degussa.jpg",
+    "timestamp": "2026-01-17T19:41:21.370992",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "250",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "D12669",
+        "Producer": "Degussa"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"D12669\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Degussa\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "D12669",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Degussa"
+        },
+        "confidence": 0.95,
+        "processing_time": 12.228144884109497,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"D12669\", \"Metal\": \"Gold\", \"Weight\": \"250\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Degussa\"}\n```",
+        "structured_data": {
+          "SerialNumber": "D12669",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Degussa"
+        },
+        "confidence": 1.0,
+        "processing_time": 3.072269916534424,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D12669\", \"Metal\":\"Gold\", \"Weight\":\"250.0\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Valcambi\"}",
+        "structured_data": {
+          "SerialNumber": "D12669",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Valcambi"
+        },
+        "confidence": 1.0,
+        "processing_time": 23.41522479057312,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": false,
+            "SerialNumber": true
+          },
+          "pass": false,
+          "errors": [
+            "❌ Producer: expected 'Degussa', got 'Valcambi'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Degussa/Gold_00500g_9999_D08744_Degussa.jpg",
+    "timestamp": "2026-01-17T19:41:49.263520",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "500",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "D08744",
+        "Producer": "Degussa"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"D08744\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"500\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Degussa\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "D08744",
+          "Metal": "Gold",
+          "Weight": "500",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Degussa"
+        },
+        "confidence": 0.95,
+        "processing_time": 4.531518936157227,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"D08744\", \"Metal\": \"Gold\", \"Weight\": \"500\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Degussa\"}\n```",
+        "structured_data": {
+          "SerialNumber": "D08744",
+          "Metal": "Gold",
+          "Weight": "500",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Degussa"
+        },
+        "confidence": 1.0,
+        "processing_time": 1.8367679119110107,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":\"50\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Heraeus\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "50",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.523574113845825,
+        "error": null,
+        "comparison": {
+          "matched_fields": 2,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": false,
+            "Fineness": true,
+            "Producer": false,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Weight: expected '500g', got '50'",
+            "❌ Producer: expected 'Degussa', got 'Heraeus'",
+            "❌ SerialNumber: expected 'D08744', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/CS 1000/Gold_01000g_9999_AB55221_Credit Suisse.jpg",
+    "timestamp": "2026-01-17T19:42:59.562340",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "1000",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "AB55221",
+        "Producer": "Credit Suisse"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"AB55221\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1\",\n  \"WeightUnit\": \"kg\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Credit Suisse\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "AB55221",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Credit Suisse"
+        },
+        "confidence": 0.95,
+        "processing_time": 40.23356604576111,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"AB5221\", \"Metal\": \"Gold\", \"Weight\": \"1\", \"WeightUnit\": \"kg\", \"Fineness\": \"999,9\", \"Producer\": \"Credit Suisse\"}\n```",
+        "structured_data": {
+          "SerialNumber": "AB5221",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999,9",
+          "Producer": "Credit Suisse"
+        },
+        "confidence": 1.0,
+        "processing_time": 5.4282379150390625,
+        "error": null,
+        "comparison": {
+          "matched_fields": 3,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": false,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Fineness: expected '999.9', got '999,9'",
+            "❌ SerialNumber: expected 'AB55221', got 'AB5221'"
+          ]
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"9999\", \"Metal\":\"Gold\", \"Weight\":\"1\", \"WeightUnit\":\"kg\", \"Fineness\":\"999.9\", \"Producer\":\"Credit Suisse\"}",
+        "structured_data": {
+          "SerialNumber": "9999",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Credit Suisse"
+        },
+        "confidence": 1.0,
+        "processing_time": 24.632872819900513,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected 'AB55221', got '9999'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/CS 1000/Gold_01000g_9999_AA85989_Valcambi.jpg",
+    "timestamp": "2026-01-17T19:44:19.403937",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "1000",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "AA85989",
+        "Producer": "Valcambi"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"AA85989\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1\",\n  \"WeightUnit\": \"kg\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Valcambi\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "AA85989",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Valcambi"
+        },
+        "confidence": 0.95,
+        "processing_time": 49.297767877578735,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"AA85989\", \"Metal\": \"Gold\", \"Weight\": \"1\", \"WeightUnit\": \"kg\", \"Fineness\": \"999,9\", \"Producer\": \"Valcambi\"}\n```",
+        "structured_data": {
+          "SerialNumber": "AA85989",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999,9",
+          "Producer": "Valcambi"
+        },
+        "confidence": 1.0,
+        "processing_time": 5.454863786697388,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": false,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": false,
+          "errors": [
+            "❌ Fineness: expected '999.9', got '999,9'"
+          ]
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"99999\", \"Metal\":\"Gold\", \"Weight\":\"1\", \"WeightUnit\":\"kg\", \"Fineness\":\"999.9\", \"Producer\":\"Valcambi\"}",
+        "structured_data": {
+          "SerialNumber": "99999",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Valcambi"
+        },
+        "confidence": 1.0,
+        "processing_time": 25.087379932403564,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected 'AA85989', got '99999'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Argor Heraeus 100/Gold_00100g_9999_715563_Argor Heraeus.jpg",
+    "timestamp": "2026-01-17T19:44:48.392456",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "100",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "715563",
+        "Producer": "Argor Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"715563\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"100\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "715563",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 5.292353868484497,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"715563\", \"Metal\": \"Gold\", \"Weight\": \"100\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Argor Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "715563",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 1.9103729724884033,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"715563\", \"Metal\":\"Gold\", \"Weight\":\"100g\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Argor Heraeus\"}",
+        "structured_data": {
+          "SerialNumber": "715563",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.784419059753418,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Argor Heraeus 100/Gold_00100g_9999_715562_Argor Heraeus.jpg",
+    "timestamp": "2026-01-17T19:45:17.589912",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "100",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "715562",
+        "Producer": "Argor Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"715562\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"100\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "715562",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 5.160902976989746,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"715562\", \"Metal\": \"Gold\", \"Weight\": \"100\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Argor Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "715562",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 2.173081159591675,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"715562\", \"Metal\":\"Gold\", \"Weight\":\"100g\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Argor Heraeus\"}",
+        "structured_data": {
+          "SerialNumber": "715562",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.86268973350525,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Argor Heraeus 100/Gold_00100g_9999_715564_Argor Heraeus.jpg",
+    "timestamp": "2026-01-17T19:45:47.033146",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "100",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "715564",
+        "Producer": "Argor Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"715564\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"100\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "715564",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 5.685713052749634,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"715564\", \"Metal\": \"Gold\", \"Weight\": \"100\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Argor Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "715564",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 1.8395979404449463,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"715564\", \"Metal\":\"Gold\", \"Weight\":\"100g\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Argor Heraeus\"}",
+        "structured_data": {
+          "SerialNumber": "715564",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.916972160339355,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Heraeus 250/Gold_00250g_9999_49285_Heraeus.jpg",
+    "timestamp": "2026-01-17T19:46:25.728022",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "250",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "49285",
+        "Producer": "Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"49265\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "49265",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 13.80918025970459,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected '49285', got '49265'"
+          ]
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"49285\", \"Metal\": \"Gold\", \"Weight\": \"250\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "49285",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 2.3127832412719727,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":\"250g\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Heraeus\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 22.571868896484375,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected '49285', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Heraeus 250/Gold_00250g_9999_54283_Heraeus.jpg",
+    "timestamp": "2026-01-17T19:47:03.375472",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "250",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "54283",
+        "Producer": "Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"54283\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "54283",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 12.841370105743408,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"58275\", \"Metal\": \"Gold\", \"Weight\": \"250\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "58275",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 2.8336918354034424,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected '54283', got '58275'"
+          ]
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":\"250g\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Valcambi\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Valcambi"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.97128415107727,
+        "error": null,
+        "comparison": {
+          "matched_fields": 3,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": false,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Producer: expected 'Heraeus', got 'Valcambi'",
+            "❌ SerialNumber: expected '54283', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/CS/Gold_00100g_9999_614938_Credit Suisse.jpg",
+    "timestamp": "2026-01-17T19:47:32.569606",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "100",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "614938",
+        "Producer": "Credit Suisse"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"614938\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"100\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Credit Suisse\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "614938",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Credit Suisse"
+        },
+        "confidence": 0.95,
+        "processing_time": 5.063112020492554,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"614938\", \"Metal\": \"Gold\", \"Weight\": \"100\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Credit Suisse\"}\n```",
+        "structured_data": {
+          "SerialNumber": "614938",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Credit Suisse"
+        },
+        "confidence": 1.0,
+        "processing_time": 2.046025276184082,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\": \"D77496\", \"Metal\": \"Gold\", \"Weight\": \"100\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Credit Suisse\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Credit Suisse"
+        },
+        "confidence": 1.0,
+        "processing_time": 22.084033012390137,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected '614938', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/CS/Gold_00250g_9999_012232_Credit Suisse.jpg",
+    "timestamp": "2026-01-17T19:48:09.358801",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "250",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "012232",
+        "Producer": "Credit Suisse"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"012232\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Credit Suisse\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "012232",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Credit Suisse"
+        },
+        "confidence": 0.95,
+        "processing_time": 12.330211877822876,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"012232\", \"Metal\": \"Gold\", \"Weight\": \"250\", \"WeightUnit\": \"g\", \"Fineness\": \"999,9\", \"Producer\": \"Credit Suisse\"}\n```",
+        "structured_data": {
+          "SerialNumber": "012232",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999,9",
+          "Producer": "Credit Suisse"
+        },
+        "confidence": 1.0,
+        "processing_time": 2.6706721782684326,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": false,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": false,
+          "errors": [
+            "❌ Fineness: expected '999.9', got '999,9'"
+          ]
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":\"250\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Credit Suisse\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Credit Suisse"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.787072896957397,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected '012232', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/CS/Gold_00100g_9999_614936_Credit Suisse.jpg",
+    "timestamp": "2026-01-17T19:48:37.834977",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "100",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "614936",
+        "Producer": "Credit Suisse"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"614936\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"100\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Credit Suisse\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "614936",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Credit Suisse"
+        },
+        "confidence": 0.95,
+        "processing_time": 5.129621982574463,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"614936\", \"Metal\": \"Gold\", \"Weight\": \"100\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Credit Suisse\"}\n```",
+        "structured_data": {
+          "SerialNumber": "614936",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Credit Suisse"
+        },
+        "confidence": 1.0,
+        "processing_time": 1.9433400630950928,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":\"100\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Credit Suisse\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Credit Suisse"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.401907920837402,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected '614936', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Heraeus 500/Gold_00500g_9999_A55252_Heraeus.jpg",
+    "timestamp": "2026-01-17T19:49:06.722983",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "500",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "A55252",
+        "Producer": "Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"A552252\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"500\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "A552252",
+          "Metal": "Gold",
+          "Weight": "500",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 5.358839988708496,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected 'A55252', got 'A552252'"
+          ]
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"A57252\", \"Metal\": \"Gold\", \"Weight\": \"500\", \"WeightUnit\": \"g\", \"Fineness\": \"999,9\", \"Producer\": \"Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "A57252",
+          "Metal": "Gold",
+          "Weight": "500",
+          "WeightUnit": "g",
+          "Fineness": "999,9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 1.8077797889709473,
+        "error": null,
+        "comparison": {
+          "matched_fields": 3,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": false,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Fineness: expected '999.9', got '999,9'",
+            "❌ SerialNumber: expected 'A55252', got 'A57252'"
+          ]
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"999\", \"Metal\":\"Gold\", \"Weight\":\"50\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Valcambi\"}",
+        "structured_data": {
+          "SerialNumber": "999",
+          "Metal": "Gold",
+          "Weight": "50",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Valcambi"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.720592975616455,
+        "error": null,
+        "comparison": {
+          "matched_fields": 2,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": false,
+            "Fineness": true,
+            "Producer": false,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Weight: expected '500g', got '50'",
+            "❌ Producer: expected 'Heraeus', got 'Valcambi'",
+            "❌ SerialNumber: expected 'A55252', got '999'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Heraeus 500/Gold_00500g_9999_A55251_Heraeus.jpg",
+    "timestamp": "2026-01-17T19:49:35.844658",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "500",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "A55251",
+        "Producer": "Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"A55251\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"500\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "A55251",
+          "Metal": "Gold",
+          "Weight": "500",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 5.621806859970093,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"A55251\", \"Metal\": \"Gold\", \"Weight\": \"500\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "A55251",
+          "Metal": "Gold",
+          "Weight": "500",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 1.8405091762542725,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":\"50\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Heraeus\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "50",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.658658027648926,
+        "error": null,
+        "comparison": {
+          "matched_fields": 3,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": false,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Weight: expected '500g', got '50'",
+            "❌ SerialNumber: expected 'A55251', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Argor Heraeus 250/Gold_00250g_9999_46721_Argor Heraeus.jpg",
+    "timestamp": "2026-01-17T19:50:04.065307",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "250",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "46721",
+        "Producer": "Argor Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"48721\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "48721",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 4.556750059127808,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected '46721', got '48721'"
+          ]
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"A8727\", \"Metal\": \"Gold\", \"Weight\": \"250\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Argor Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "A8727",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 1.8209400177001953,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected '46721', got 'A8727'"
+          ]
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":20, \"WeightUnit\":\"g\", \"Fineness\":999.9, \"Producer\":\"Heraeus\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "20",
+          "WeightUnit": "g",
+          "Fineness": 999.9,
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.842281103134155,
+        "error": null,
+        "comparison": {
+          "matched_fields": 2,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": false,
+            "Fineness": true,
+            "Producer": false,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Weight: expected '250g', got '20'",
+            "❌ Producer: expected 'Argor Heraeus', got 'Heraeus'",
+            "❌ SerialNumber: expected '46721', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Argor Heraeus 250/Gold_00250g_9999_50176_Argor Heraeus.jpg",
+    "timestamp": "2026-01-17T19:50:32.019247",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "250",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "50176",
+        "Producer": "Argor Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"50176\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "50176",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 4.495548248291016,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"50776\", \"Metal\": \"Gold\", \"Weight\": \"250\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Argor Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "50776",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 1.7750017642974854,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected '50176', got '50776'"
+          ]
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":\"50\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Heraeus\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "50",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.682414770126343,
+        "error": null,
+        "comparison": {
+          "matched_fields": 2,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": false,
+            "Fineness": true,
+            "Producer": false,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Weight: expected '250g', got '50'",
+            "❌ Producer: expected 'Argor Heraeus', got 'Heraeus'",
+            "❌ SerialNumber: expected '50176', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Clariden Leu 1000/Gold_01000g_9999_AA04881_Clariden Leu.jpg",
+    "timestamp": "2026-01-17T19:51:36.993441",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "1000",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "AA04881",
+        "Producer": "Clariden Leu"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"AA04881\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1\",\n  \"WeightUnit\": \"kg\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Clariden Leu\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "AA04881",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Clariden Leu"
+        },
+        "confidence": 0.95,
+        "processing_time": 34.91275906562805,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"AA04881\", \"Metal\": \"Gold\", \"Weight\": \"1\", \"WeightUnit\": \"kg\", \"Fineness\": \"999,9\", \"Producer\": \"Clariden Leu\"}\n```",
+        "structured_data": {
+          "SerialNumber": "AA04881",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999,9",
+          "Producer": "Clariden Leu"
+        },
+        "confidence": 1.0,
+        "processing_time": 5.016967058181763,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": false,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": false,
+          "errors": [
+            "❌ Fineness: expected '999.9', got '999,9'"
+          ]
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":\"1\", \"WeightUnit\":\"kg\", \"Fineness\":\"999.9\", \"Producer\":\"Perth Mint\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Perth Mint"
+        },
+        "confidence": 1.0,
+        "processing_time": 25.043577909469604,
+        "error": null,
+        "comparison": {
+          "matched_fields": 3,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": false,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Producer: expected 'Clariden Leu', got 'Perth Mint'",
+            "❌ SerialNumber: expected 'AA04881', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Clariden Leu 1000/Gold_01000g_9999_AA04035_Clariden Leu.jpg",
+    "timestamp": "2026-01-17T19:52:15.284204",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "1000",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "AA04035",
+        "Producer": "Clariden Leu"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"AA04035\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1\",\n  \"WeightUnit\": \"kg\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Clariden Leu\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "AA04035",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Clariden Leu"
+        },
+        "confidence": 0.95,
+        "processing_time": 13.874567985534668,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"AA04035\", \"Metal\": \"Gold\", \"Weight\": \"1\", \"WeightUnit\": \"kg\", \"Fineness\": \"999,9\", \"Producer\": \"Clariden Leu\"}\n```",
+        "structured_data": {
+          "SerialNumber": "AA04035",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999,9",
+          "Producer": "Clariden Leu"
+        },
+        "confidence": 1.0,
+        "processing_time": 2.280486822128296,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": false,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": false,
+          "errors": [
+            "❌ Fineness: expected '999.9', got '999,9'"
+          ]
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":1000, \"WeightUnit\":\"kg\", \"Fineness\":\"999.9\", \"Producer\":\"Heraeus\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "1000000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 22.134546995162964,
+        "error": null,
+        "comparison": {
+          "matched_fields": 2,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": false,
+            "Fineness": true,
+            "Producer": false,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Weight: expected '1000g', got '1000000'",
+            "❌ Producer: expected 'Clariden Leu', got 'Heraeus'",
+            "❌ SerialNumber: expected 'AA04035', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Argor Heraeus 1000/Gold_01000g_9999_N36676_Argor Heraeus.jpg",
+    "timestamp": "2026-01-17T19:53:51.960605",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "1000",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "N36676",
+        "Producer": "Argor Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"N36676\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1000\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "N36676",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 43.35469698905945,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"N36676\", \"Metal\": \"Gold\", \"Weight\": \"1\", \"WeightUnit\": \"kg\", \"Fineness\": \"999,9\", \"Producer\": \"Argor Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "N36676",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999,9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 5.333741188049316,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": false,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": false,
+          "errors": [
+            "❌ Fineness: expected '999.9', got '999,9'"
+          ]
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"N35576\", \"Metal\":\"Gold\", \"Weight\":\"1\", \"WeightUnit\":\"kg\", \"Fineness\":\"999.9\", \"Producer\":\"PAMP\"}",
+        "structured_data": {
+          "SerialNumber": "N35576",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "PAMP"
+        },
+        "confidence": 1.0,
+        "processing_time": 47.98292684555054,
+        "error": null,
+        "comparison": {
+          "matched_fields": 3,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": false,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Producer: expected 'Argor Heraeus', got 'PAMP'",
+            "❌ SerialNumber: expected 'N36676', got 'N35576'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Argor Heraeus 1000/Gold_01000g_9999_AD95869_Argor Heraeus.jpg",
+    "timestamp": "2026-01-17T19:55:08.556892",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "1000",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "AD95869",
+        "Producer": "Argor Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"AD95869\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1\",\n  \"WeightUnit\": \"kg\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "AD95869",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 44.17668414115906,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"AD95869\", \"Metal\": \"Gold\", \"Weight\": \"1\", \"WeightUnit\": \"kg\", \"Fineness\": \"999,9\", \"Producer\": \"Argor Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "AD95869",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999,9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 6.660484790802002,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": false,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": false,
+          "errors": [
+            "❌ Fineness: expected '999.9', got '999,9'"
+          ]
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":\"1\", \"WeightUnit\":\"kg\", \"Fineness\":\"999.9\", \"Producer\":\"Heraeus\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 25.757389068603516,
+        "error": null,
+        "comparison": {
+          "matched_fields": 3,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": false,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Producer: expected 'Argor Heraeus', got 'Heraeus'",
+            "❌ SerialNumber: expected 'AD95869', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Argor Heraeus 1000/Gold_01000g_9999_AD095870_Argor Heraeus.jpg",
+    "timestamp": "2026-01-17T19:56:28.242097",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "1000",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "AD095870",
+        "Producer": "Argor Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"AD95870\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1000\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "AD95870",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 46.67583990097046,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected 'AD095870', got 'AD95870'"
+          ]
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"AD95870\", \"Metal\": \"Gold\", \"Weight\": \"1\", \"WeightUnit\": \"kg\", \"Fineness\": \"999.9\", \"Producer\": \"Argor Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "AD95870",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 5.30720591545105,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected 'AD095870', got 'AD95870'"
+          ]
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"D77496\",\n  \"Metal\": \"Gold\",\n  \"Weight\": 1,\n  \"WeightUnit\": \"Kilo\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 27.700160026550293,
+        "error": null,
+        "comparison": {
+          "matched_fields": 3,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": false,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Producer: expected 'Argor Heraeus', got 'Heraeus'",
+            "❌ SerialNumber: expected 'AD095870', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Heraeus 1000/Gold_01000g_9999_A40590_Heraeus.jpg",
+    "timestamp": "2026-01-17T19:57:45.556790",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "1000",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "A40590",
+        "Producer": "Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"A40590\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1000\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "A40590",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 44.67716908454895,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"A40590\", \"Metal\": \"Gold\", \"Weight\": \"1000\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "A40590",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 6.0504231452941895,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "```json\n{\n    \"SerialNumber\": \"D77496\",\n    \"Metal\": \"Gold\",\n    \"Weight\": 1000,\n    \"WeightUnit\": \"g\",\n    \"Fineness\": \"999.9\",\n    \"Producer\": \"Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 26.58502721786499,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected 'A40590', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Heraeus 1000/Gold_01000g_9999_A38978_Heraeus.jpg",
+    "timestamp": "2026-01-17T19:59:03.066401",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "1000",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "A38978",
+        "Producer": "Heraeus"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"A38978\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1000\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "A38978",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 45.12219524383545,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"A38978\", \"Metal\": \"Gold\", \"Weight\": \"1000\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "A38978",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 6.50443434715271,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":\"1000\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Heraeus\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 25.87771701812744,
+        "error": null,
+        "comparison": {
+          "matched_fields": 4,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ SerialNumber: expected 'A38978', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Commerzbank/Gold_01000g_9999_A17723_Commerzbank.jpg",
+    "timestamp": "2026-01-17T20:00:23.718552",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "1000",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "A17723",
+        "Producer": "Commerzbank"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"A17723\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1000\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Commerzbank\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "A17723",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Commerzbank"
+        },
+        "confidence": 0.95,
+        "processing_time": 46.87344408035278,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"A17723\", \"Metal\": \"Gold\", \"Weight\": \"1\", \"WeightUnit\": \"kg\", \"Fineness\": \"999.9\", \"Producer\": \"Commerzbank\"}\n```",
+        "structured_data": {
+          "SerialNumber": "A17723",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Commerzbank"
+        },
+        "confidence": 1.0,
+        "processing_time": 6.502166032791138,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"D77496\",\n  \"Metal\": \"Gold\",\n  \"Weight\": 1,\n  \"WeightUnit\": \"Kilo\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"COMMERZBANK\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "COMMERZBANK"
+        },
+        "confidence": 1.0,
+        "processing_time": 27.27431297302246,
+        "error": null,
+        "comparison": {
+          "matched_fields": 3,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": false,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Producer: expected 'Commerzbank', got 'COMMERZBANK'",
+            "❌ SerialNumber: expected 'A17723', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/Renamed-and-Sorted Au, Ag, Pt/Gold/Commerzbank/Gold_01000g_9999_A17724_Commerzbank.jpg",
+    "timestamp": "2026-01-17T20:01:42.597477",
+    "expected": {
+      "fields": {
+        "Metal": "Gold",
+        "Weight": "1000",
+        "WeightUnit": "g",
+        "Fineness": "999.9",
+        "SerialNumber": "A17724",
+        "Producer": "Commerzbank"
+      }
+    },
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"A17724\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1000\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Commerzbank\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "A17724",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Commerzbank"
+        },
+        "confidence": 0.95,
+        "processing_time": 46.8188271522522,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"A17724\", \"Metal\": \"Gold\", \"Weight\": \"1\", \"WeightUnit\": \"kg\", \"Fineness\": \"999.9\", \"Producer\": \"Commerzbank\"}\n```",
+        "structured_data": {
+          "SerialNumber": "A17724",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Commerzbank"
+        },
+        "confidence": 1.0,
+        "processing_time": 6.497812032699585,
+        "error": null,
+        "comparison": {
+          "matched_fields": 5,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": true,
+            "SerialNumber": true
+          },
+          "pass": true,
+          "errors": []
+        }
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":\"1\", \"WeightUnit\":\"kg\", \"Fineness\":\"999.9\", \"Producer\":\"Heraeus\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 25.559996843338013,
+        "error": null,
+        "comparison": {
+          "matched_fields": 3,
+          "total_expected_fields": 5,
+          "field_matches": {
+            "Metal": true,
+            "Weight": true,
+            "Fineness": true,
+            "Producer": false,
+            "SerialNumber": false
+          },
+          "pass": false,
+          "errors": [
+            "❌ Producer: expected 'Commerzbank', got 'Heraeus'",
+            "❌ SerialNumber: expected 'A17724', got 'D77496'"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "image": "barPictures/difficult/20211214_101043.jpg",
+    "timestamp": "2026-01-17T20:02:13.205031",
+    "expected": null,
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"AR95742\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1000\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Valcambi\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "AR95742",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Valcambi"
+        },
+        "confidence": 0.95,
+        "processing_time": 6.618185997009277,
+        "error": null,
+        "comparison": null
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"AR95742\", \"Metal\": \"Gold\", \"Weight\": \"1\", \"WeightUnit\": \"kg\", \"Fineness\": \"999.9\", \"Producer\": \"Valcambi\"}\n```",
+        "structured_data": {
+          "SerialNumber": "AR95742",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Valcambi"
+        },
+        "confidence": 1.0,
+        "processing_time": 2.2291948795318604,
+        "error": null,
+        "comparison": null
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":1000, \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Valcambi\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "1000",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Valcambi"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.758103847503662,
+        "error": null,
+        "comparison": null
+      }
+    }
+  },
+  {
+    "image": "barPictures/difficult/20211214_104315.jpg",
+    "timestamp": "2026-01-17T20:02:43.073680",
+    "expected": null,
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"E1647\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Degussa\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "E1647",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Degussa"
+        },
+        "confidence": 0.95,
+        "processing_time": 5.96803879737854,
+        "error": null,
+        "comparison": null
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"E1647\", \"Metal\": \"Gold\", \"Weight\": \"250\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Degussa\"}\n```",
+        "structured_data": {
+          "SerialNumber": "E1647",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Degussa"
+        },
+        "confidence": 1.0,
+        "processing_time": 2.2365429401397705,
+        "error": null,
+        "comparison": null
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":\"250\", \"WeightUnit\":\"g\", \"Fineness\":\"999.9\", \"Producer\":\"Valcambi\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "250",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Valcambi"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.6621413230896,
+        "error": null,
+        "comparison": null
+      }
+    }
+  },
+  {
+    "image": "barPictures/difficult/20211214_112338.jpg",
+    "timestamp": "2026-01-17T20:03:13.967762",
+    "expected": null,
+    "results": {
+      "ChatGPT Vision (gpt-4o-mini)": {
+        "raw_text": "```json\n{\n  \"SerialNumber\": \"CF 9972\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"100\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
+        "structured_data": {
+          "SerialNumber": "CF 9972",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 0.95,
+        "processing_time": 6.844811916351318,
+        "error": null,
+        "comparison": null
+      },
+      "Gemini Flash (gemini-2.0-flash)": {
+        "raw_text": "```json\n{\"SerialNumber\": \"CF 9972\", \"Metal\": \"Gold\", \"Weight\": \"100\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"Producer\": \"Argor Heraeus\"}\n```",
+        "structured_data": {
+          "SerialNumber": "CF 9972",
+          "Metal": "Gold",
+          "Weight": "100",
+          "WeightUnit": "g",
+          "Fineness": "999.9",
+          "Producer": "Argor Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 2.452003240585327,
+        "error": null,
+        "comparison": null
+      },
+      "Ollama Vision (Hybrid fallback on Apple Silicon)": {
+        "raw_text": "{\"SerialNumber\":\"D77496\", \"Metal\":\"Gold\", \"Weight\":\"1\", \"WeightUnit\":\"oz\", \"Fineness\":\"999.9\", \"Producer\":\"Heraeus\"}",
+        "structured_data": {
+          "SerialNumber": "D77496",
+          "Metal": "Gold",
+          "Weight": "1",
+          "WeightUnit": "oz",
+          "Fineness": "999.9",
+          "Producer": "Heraeus"
+        },
+        "confidence": 1.0,
+        "processing_time": 21.592328786849976,
+        "error": null,
+        "comparison": null
+      }
+    }
+  }
+]

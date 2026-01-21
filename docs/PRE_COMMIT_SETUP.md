@@ -91,11 +91,11 @@ git push --no-verify    # Skip pre-push
 | **CI/CD** | All tests | ~1-2min | ✅ Yes (from secrets) |
 
 **Test Types:**
-- **Unit** (49 tests): Business logic, fast, no dependencies
-- **Integration** (14 tests):
-  - Strategy Integration (8): Service interfaces with mocked APIs
-  - Server Integration (6): Real HTTP calls with FastAPI server
-- **E2E** (1 test): Real ChatGPT API calls with ground truth validation
+- **Unit** (71 tests): Business logic, fast, no dependencies
+- **Integration** (26 tests):
+  - Strategy Integration (11): Service interfaces with mocked APIs
+  - Server Integration (15): Real HTTP calls with FastAPI server
+- **E2E** (3 tests): Real ChatGPT/Gemini API calls with ground truth validation
 
 ## ⚡ Quick Commands
 

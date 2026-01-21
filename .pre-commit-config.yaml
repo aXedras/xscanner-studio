@@ -15,13 +15,15 @@ repos:
       - id: detect-private-key
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.8
+    rev: v0.14.13
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
         # Check all Python files, not just src/
+        exclude: ^tmp/
       - id: ruff-format
         # Format all Python files, not just src/
+        exclude: ^tmp/
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.7.1
@@ -38,7 +40,7 @@ repos:
     hooks:
       - id: pytest-unit
         name: pytest unit tests
-        entry: pytest tests/unit -v --tb=short
+        entry: bash -c 'source venv/bin/activate && python -m pytest tests/unit -v --tb=short'
         language: system
         pass_filenames: false
         always_run: true
@@ -48,7 +50,7 @@ repos:
     hooks:
       - id: pytest-integration
         name: pytest integration tests
-        entry: pytest tests/integration -v --tb=short -m integration
+        entry: bash -c 'source venv/bin/activate && python -m pytest tests/integration -v --tb=short'
         language: system
         pass_filenames: false
         always_run: true
@@ -58,7 +60,7 @@ repos:
     hooks:
       - id: pytest-e2e
         name: pytest e2e tests
-        entry: bash -c 'if [ -n "$OPENAI_API_KEY" ]; then pytest tests/e2e/ -v --tb=short -m e2e; else echo "⚠️  E2E tests skipped (OPENAI_API_KEY not set)"; fi'
+        entry: bash -c 'source venv/bin/activate && if [ -n "$OPENAI_API_KEY" ]; then python -m pytest tests/e2e/ -v --tb=short -m e2e; else echo "⚠️  E2E tests skipped (OPENAI_API_KEY not set)"; fi'
         language: system
         pass_filenames: false
         always_run: true

@@ -11,23 +11,92 @@ def canonicalize_producer_key(value: str) -> str:
 
 
 RAW_PRODUCER_SYNONYMS = {
-    "argor heraeus": {"argor heraeus", "argor-heraeus", "argor", "argor sa", "argor group"},
-    "heraeus": {"heraeus", "heraeus sa", "heraeus gmbh"},
-    "valcambi": {"valcambi", "valcambi sa", "valcambi suisse"},
-    "umicore": {"umicore", "umicore sa"},
-    "mks pamp": {"mks pamp", "pamp", "mks", "pamp suisse"},
-    "metalor": {"metalor", "metalor technologies"},
-    "credit suisse": {"credit suisse", "cs", "credit-suisse"},
-    "ubs": {"ubs", "ubs ag"},
-    "clariden leu": {"clariden leu", "clariden"},
+    # Swiss refiners
+    "argor heraeus": {
+        "argor heraeus",
+        "argor-heraeus",
+        "argor",
+        "argor sa",
+        "argor group",
+        "argor heraeus sa",
+        "argor-heraeus sa",
+        "argor-heraeus s.a.",
+        "argor heraeus s.a.",
+        "argor heraeus s a",
+        "argor heraeus sa switzerland",
+        "argor-heraeus sa switzerland",
+        "argor heraeus s.a. switzerland",
+        "argor heraeus switzerland",
+    },
+    "heraeus": {
+        "heraeus",
+        "heraeus sa",
+        "heraeus gmbh",
+        "heraeus ag",
+        "heraeus feinsilber",
+        "heraeus feingold",
+        "heræus",  # OCR may read the ligature
+    },
+    "valcambi": {
+        "valcambi",
+        "valcambi sa",
+        "valcambi suisse",
+        "valcambi s.a.",
+        "valcambi suisse sa",
+        "chi essayeur fondeur",
+        "chi fondeur",
+        "chi",  # Valcambi hallmark on platinum bars
+    },
+    "umicore": {
+        "umicore",
+        "umicore sa",
+        "umicore ag",
+        "umicore feinsilber",
+        "umicore precious metals",
+    },
+    "mks pamp": {
+        "mks pamp",
+        "pamp",
+        "mks",
+        "pamp suisse",
+        "pamp sa",
+        "pamp s.a.",
+        "pamp switzerland",
+        "mks pamp sa",
+    },
+    "metalor": {"metalor", "metalor technologies", "metalor sa"},
+    # Swiss banks
+    "credit suisse": {
+        "credit suisse",
+        "cs",
+        "credit-suisse",
+        "crédit suisse",
+        "credit suisse gold",
+        "credit suisse sa",
+    },
+    "ubs": {"ubs", "ubs ag", "ubs switzerland"},
+    "clariden leu": {"clariden leu", "clariden", "clariden leu ag"},
     "raiffeisen": {"raiffeisen", "raiffeisenbank"},
-    "commerzbank": {"commerzbank"},
-    "degussa": {"degussa", "degussas"},
+    "commerzbank": {"commerzbank", "commerzbank ag"},
+    "degussa": {"degussa", "degussas", "degussa goldhandel"},
     "kantonalbank": {"kantonalbank", "kantonal bank"},
-    "metaux precieux s a": {"metaux precieux", "metaux precieux s.a.", "metaux precieux sa"},
-    "perth mint": {"perth mint", "the perth mint"},
-    "rcm": {"rcm", "royal canadian mint"},
-    "asahi": {"asahi", "asahi refining"},
+    "metaux precieux": {
+        "metaux precieux",
+        "metaux precieux s.a.",
+        "metaux precieux sa",
+        "métaux précieux",
+        "métaux précieux sa",
+    },
+    # International mints/refiners
+    "perth mint": {"perth mint", "the perth mint", "perth mint australia"},
+    "rcm": {"rcm", "royal canadian mint", "royal canadian mint rcm"},
+    "rmc": {"rmc", "republic metals", "republic metals corporation"},
+    "asahi": {"asahi", "asahi refining", "asahi refinery", "asahi refining usa", "asah"},
+    # Additional producers from test data
+    "swiss bank corporation": {"swiss bank corporation", "sbc"},
+    "rand refinery": {"rand refinery", "rand refinery south africa"},
+    "johnson matthey": {"johnson matthey", "jm", "johnson matthey london"},
+    "engelhard": {"engelhard", "engelhard industries"},
 }
 
 PRODUCER_SYNONYM_MAP: dict[str, set[str]] = {
@@ -43,6 +112,12 @@ PRODUCER_SYNONYM_MAP: dict[str, set[str]] = {
 def normalize_producer(value: str | None) -> str | None:
     """Normalize producer name using synonym mapping.
 
+    Uses multiple matching strategies:
+    1. Exact match against known synonyms
+    2. Substring match (e.g., "ARGOR-HERAEUS S.A. Switzerland" → "argor heraeus")
+    3. Contains canonical name (e.g., "Umicore Feinsilber 999" → "umicore")
+    4. Fuzzy match for common OCR typos
+
     Args:
         value: Producer name to normalize
 
@@ -55,10 +130,65 @@ def normalize_producer(value: str | None) -> str | None:
     normalized = canonicalize_producer_key(text)
     if not normalized:
         return None
+
+    # Blacklist: words that are too generic and should not match alone
+    generic_words = {"switzerland", "germany", "usa", "australia", "london", "sa", "ag", "gmbh"}
+    if normalized in generic_words:
+        return None
+
+    # Strategy 1: Exact match against known synonyms
     for canonical, variants in PRODUCER_SYNONYM_MAP.items():
         if normalized in variants:
             return canonical
+
+    # Strategy 2: Check if any synonym (min 4 chars) is contained in the input
+    # This handles cases like "ARGOR-HERAEUS S.A. Switzerland"
+    # Require minimum length to avoid false positives from short matches
+    for canonical, variants in PRODUCER_SYNONYM_MAP.items():
+        for variant in variants:
+            if len(variant) >= 4:  # Only match meaningful substrings
+                # Check if variant is a substring of normalized input
+                if variant in normalized:
+                    return canonical
+
+    # Strategy 3: Check if canonical name appears in input
+    for canonical in PRODUCER_SYNONYM_MAP.keys():
+        canon_normalized = canonicalize_producer_key(canonical)
+        if len(canon_normalized) >= 4 and canon_normalized in normalized:
+            return canonical
+
+    # Strategy 4: Fuzzy match for common OCR typos (Levenshtein distance 1)
+    # e.g., "unicore" → "umicore", "Hereus" → "heraeus"
+    for canonical, variants in PRODUCER_SYNONYM_MAP.items():
+        for variant in variants:
+            if len(variant) >= 5 and _is_close_match(normalized, variant):
+                return canonical
+
     return normalized
+
+
+def _is_close_match(s1: str, s2: str, max_distance: int = 1) -> bool:
+    """Check if two strings are within edit distance (Levenshtein).
+
+    Simple implementation for short strings typical of producer names.
+    """
+    if abs(len(s1) - len(s2)) > max_distance:
+        return False
+    if s1 == s2:
+        return True
+
+    # Simple single-character difference check
+    if len(s1) == len(s2):
+        diffs = sum(c1 != c2 for c1, c2 in zip(s1, s2, strict=False))
+        return diffs <= max_distance
+
+    # One character insertion/deletion
+    longer, shorter = (s1, s2) if len(s1) > len(s2) else (s2, s1)
+    for i in range(len(longer)):
+        if longer[:i] + longer[i + 1 :] == shorter:
+            return True
+
+    return False
 
 
 def get_producer_candidates(value: str | None) -> set[str]:
@@ -102,6 +232,7 @@ def normalize_unit(value: str | None) -> str | None:
         "grams": "g",
         "g": "g",
         "kg": "kg",
+        "kilo": "kg",
         "kilogram": "kg",
         "kilograms": "kg",
         "oz": "oz",
@@ -140,7 +271,7 @@ def weight_to_grams(weight_value: str | float | None, unit_value: str | None) ->
     unit_norm = (unit or "g").lower()
     if unit_norm in {"g", "gram", "grams"}:
         return value
-    if unit_norm in {"kg", "kilogram", "kilograms"}:
+    if unit_norm in {"kg", "kilo", "kilogram", "kilograms"}:
         return value * 1000
     if unit_norm in {"oz", "ounce", "ozt"}:
         return value * 31.1034768

@@ -204,6 +204,20 @@ HTML_TEMPLATE = """
         }}
         .match-tag.ok {{ background: rgba(69,196,134,0.15); color: var(--success); }}
         .match-tag.miss {{ background: rgba(255,95,109,0.15); color: var(--error); }}
+        .error-list {{
+            margin: 0.75rem 0 0 0;
+            padding: 0;
+            list-style: none;
+            font-size: 0.85rem;
+            color: var(--error);
+        }}
+        .error-list li {{
+            padding: 0.3rem 0;
+            border-bottom: 1px solid rgba(255,95,109,0.1);
+        }}
+        .error-list li:last-child {{
+            border-bottom: none;
+        }}
         .metric-bar {{
             width: 100%; height: 6px;
             background: rgba(255,255,255,0.1);
@@ -290,10 +304,356 @@ HTML_TEMPLATE = """
             padding: 0.4rem 0.6rem;
             border-radius: 10px;
         }}
+        /* Metal Accuracy Section */
+        .metal-accuracy-section {{
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        .metal-accuracy-section h2 {{
+            margin: 0 0 0.25rem 0;
+        }}
+        .section-subtitle {{
+            color: var(--muted);
+            margin: 0 0 1.25rem 0;
+            font-size: 0.95rem;
+        }}
+        .metal-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+        }}
+        .metal-card {{
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 1rem;
+        }}
+        .metal-card__header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }}
+        .metal-card h3 {{
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }}
+        .metal-badge {{
+            padding: 0.2rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }}
+        .metal-stats {{
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }}
+        .metal-stat {{
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+            padding: 0.5rem 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }}
+        .metal-label {{
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }}
+        .metal-value {{
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+        }}
+        /* Executive Summary Section */
+        .exec-summary-section {{
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        .exec-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }}
+        .exec-card {{
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 1.25rem;
+            position: relative;
+        }}
+        .exec-rank {{
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }}
+        .exec-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+        }}
+        .exec-header h3 {{
+            margin: 0;
+            font-size: 1rem;
+        }}
+        .exec-accuracy {{
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }}
+        .exec-metrics {{
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }}
+        .exec-metric {{
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }}
+        .metric-label {{
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--muted);
+        }}
+        .metric-value {{
+            font-weight: 600;
+        }}
+        .exec-fields h4 {{
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin: 0 0 0.5rem 0;
+        }}
+        .field-stat {{
+            display: flex;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }}
+        .field-name {{
+            font-size: 0.85rem;
+            color: var(--muted);
+        }}
+        .field-acc {{
+            font-weight: 600;
+        }}
+        /* Strategy Metal Matrix */
+        .matrix-section {{
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        .matrix-table {{
+            width: 100%;
+            border-collapse: collapse;
+        }}
+        .matrix-table th, .matrix-table td {{
+            padding: 0.75rem 1rem;
+            text-align: center;
+        }}
+        .matrix-table th:first-child, .matrix-table td:first-child {{
+            text-align: left;
+        }}
+        .matrix-table th {{
+            background: var(--surface);
+            font-weight: 600;
+        }}
+        .strategy-name {{
+            font-weight: 500;
+        }}
+        .matrix-acc {{
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }}
+        /* Hybrid Analysis Section */
+        .hybrid-section {{
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        .hybrid-table {{
+            width: 100%;
+            border-collapse: collapse;
+        }}
+        .hybrid-table th, .hybrid-table td {{
+            padding: 0.75rem 1rem;
+        }}
+        .hybrid-table th {{
+            background: var(--surface);
+            text-align: left;
+        }}
+        .combo-names {{
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }}
+        .combo-plus {{
+            color: var(--muted);
+            font-size: 0.8rem;
+        }}
+        .acc-value {{
+            font-weight: 600;
+        }}
+        .improvement {{
+            font-weight: 700;
+        }}
+        .hybrid-note {{
+            color: var(--muted);
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+        }}
         footer {{ text-align: center; color: var(--muted); margin-top: 3rem; font-size: 0.85rem; }}
         @media (max-width: 600px) {{
             body {{ padding: 1rem; }}
             .strategy-grid {{ grid-template-columns: 1fr; }}
+        }}
+        .failed-tests-section {{
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 95, 109, 0.2);
+        }}
+        .failed-tests-section h2 {{
+            margin-top: 0;
+            color: var(--error);
+            font-size: 1.5rem;
+        }}
+        .failed-strategies-container {{
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }}
+        .failed-strategy-group {{
+            background: var(--surface);
+            border-radius: 14px;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        .failed-strategy-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }}
+        .failed-strategy-info {{
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }}
+        .failed-strategy-info h3 {{
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--text);
+        }}
+        .failed-count {{
+            font-size: 0.85rem;
+            color: var(--muted);
+        }}
+        .failed-strategy-stats {{
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }}
+        .avg-accuracy-badge {{
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }}
+        .failed-tests-list {{
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }}
+        .failed-test-link {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0.75rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        .failed-test-link:hover {{
+            background: rgba(74, 212, 255, 0.1);
+            border-color: var(--accent);
+            transform: translateX(4px);
+        }}
+        .failed-test-image {{
+            font-size: 0.9rem;
+            color: var(--text);
+        }}
+        .failed-test-badge {{
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }}
+        .back-to-top {{
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--accent);
+            color: #03121f;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(74, 212, 255, 0.4);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }}
+        .back-to-top.visible {{
+            opacity: 1;
+            visibility: visible;
+        }}
+        .back-to-top:hover {{
+            background: #5ae0ff;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(74, 212, 255, 0.6);
         }}
     </style>
 </head>
@@ -304,10 +664,15 @@ HTML_TEMPLATE = """
             <p class="meta">Generated on {created_at}</p>
             <p>{summary_text}</p>
         </header>
+        {exec_summary}
+        {strategy_metal_matrix}
+        {metal_accuracy_section}
+        {hybrid_analysis}
         <section>
             <h2>Performance Summary: Accuracy vs. Speed</h2>
             {summary_chart}
         </section>
+        {failed_tests_section}
         <section>
             <h2>Strategy League Table</h2>
             <table>
@@ -316,22 +681,143 @@ HTML_TEMPLATE = """
         </section>
         {image_sections}
     </main>
+    <button class="back-to-top" id="backToTop" title="Back to top">↑</button>
     <footer>
         Bullion Bar Recognition &mdash; Automated report generated from reports/strategy_benchmark_results.json
     </footer>
     <script>
+        // Back to top button
+        const backToTopBtn = document.getElementById('backToTop');
+
+        window.addEventListener('scroll', () => {{
+            if (window.scrollY > 300) {{
+                backToTopBtn.classList.add('visible');
+            }} else {{
+                backToTopBtn.classList.remove('visible');
+            }}
+        }});
+
+        backToTopBtn.addEventListener('click', () => {{
+            window.scrollTo({{
+                top: 0,
+                behavior: 'smooth'
+            }});
+        }});
+
+        // Toggle panels
         document.addEventListener('DOMContentLoaded', () => {{
             document.querySelectorAll('.toggle-btn').forEach(btn => {{
                 btn.addEventListener('click', () => {{
                     const targetId = btn.getAttribute('data-target');
                     const panel = targetId ? document.getElementById(targetId) : null;
                     if (!panel) return;
-                    panel.classList.toggle('is-open');
+
+                    const isOpen = panel.classList.toggle('is-open');
                     btn.classList.toggle('is-active');
+
+                    // Update button text if it contains Show/Hide
+                    if (btn.textContent.includes('Show') || btn.textContent.includes('Hide')) {{
+                        btn.textContent = isOpen ? 'Hide' : 'Show';
+                    }}
                 }});
             }});
         }});
     </script>
+</body>
+</html>
+"""
+
+
+# Index template for history overview
+INDEX_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>xScanner Benchmark History</title>
+    <style>
+        :root {{
+            --bg: #0b1221;
+            --card-bg: #111b2f;
+            --surface: #16223b;
+            --text: #f4f7ff;
+            --muted: #8ea2c4;
+            --accent: #4ad4ff;
+        }}
+        * {{ box-sizing: border-box; }}
+        body {{
+            margin: 0;
+            background: linear-gradient(130deg, #050910, #101b33);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            line-height: 1.5;
+            padding: 2rem;
+        }}
+        .container {{ max-width: 1200px; margin: 0 auto; }}
+        header {{
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 25px 60px rgba(5, 10, 20, 0.45);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }}
+        h1 {{ margin-top: 0; font-size: 2.5rem; }}
+        .meta {{ color: var(--muted); font-size: 0.9rem; margin-top: 0.5rem; }}
+        table {{
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }}
+        th, td {{ padding: 1rem; text-align: left; }}
+        th {{
+            background: var(--surface);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }}
+        tr:hover td {{ background: rgba(74, 212, 255, 0.08); }}
+        tr:nth-child(even) td {{ background: rgba(255,255,255,0.02); }}
+        tr:nth-child(odd) td {{ background: rgba(255,255,255,0.04); }}
+        a {{
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }}
+        a:hover {{ text-decoration: underline; }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔬 xScanner Benchmark History</h1>
+            <div class="meta">
+                Generated: {created_at} | Total Runs: {total_runs}
+            </div>
+        </header>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Date & Time</th>
+                    <th># Images</th>
+                    <th># Strategies</th>
+                    <th>Best Strategy</th>
+                    <th>Avg Score</th>
+                    <th>Report</th>
+                </tr>
+            </thead>
+            <tbody>
+                {table_rows}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
 """

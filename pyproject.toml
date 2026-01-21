@@ -1,7 +1,7 @@
 [project]
-name = "xscanner"
+name = "xScanner"
 version = "1.0.0"
-description = "LLM and vision-based bullion bar data extraction"
+description = "OCR and LLM-based bullion bar data extraction"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "aXedras"}
@@ -22,17 +22,17 @@ dependencies = [
     "requests==2.32.5",
     "Pillow>=10.3.0",  # Image processing (fixed CVE-2023-50447, CVE-2024-28219)
     "python-dotenv>=1.0.0",
-    "pypdf>=6.0.0",  # PDF handling (replaces deprecated PyPDF2, fixes CVE-2023-36464)
+    "PyPDF2==3.0.1",  # PDF handling if needed
 ]
 
 [project.optional-dependencies]
-# Cloud-based strategies (lightweight)
+# Cloud-based OCR strategies (lightweight)
 cloud = [
     "openai==1.35.0",  # ChatGPT Vision
     "google-generativeai>=0.3.0",  # Gemini Flash
 ]
 
-# Local strategies (heavy dependencies)
+# Local OCR strategies (heavy dependencies)
 local = [
     "paddleocr>=3.3.0",  # Updated for opencv-python compatibility
     "paddlepaddle>=2.6.2",
@@ -40,7 +40,7 @@ local = [
     "numpy<2.0",
 ]
 
-# All strategies (for development/testing)
+# All OCR strategies (for development/testing)
 all-strategies = [
     "xScanner[cloud,local]",
 ]
@@ -68,6 +68,9 @@ dev = [
 [tool.ruff]
 target-version = "py310"
 line-length = 100
+extend-exclude = [
+    "tmp",
+]
 
 [tool.ruff.lint]
 select = [
@@ -85,7 +88,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["xscanner"]
+known-first-party = ["src"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -104,8 +107,8 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["src"]  # src directory
-include = ["xscanner*"]  # xscanner package
+where = ["."]  # Root directory
+include = ["src*", "scripts*"]  # Include src and scripts
 exclude = ["tests*", "build*", "dist*"]
 
 [tool.pytest.ini_options]
@@ -113,7 +116,4 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-markers = [
-    "integration: marks tests as integration tests (may require external services)",
-    "e2e: marks tests as end-to-end tests (require API keys and real services)",
-]
+pythonpath = ["src"]

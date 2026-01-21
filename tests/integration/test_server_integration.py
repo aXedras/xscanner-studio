@@ -6,13 +6,19 @@ to test the full HTTP layer, while keeping tests fast and reliable.
 
 import base64
 import io
+import os
 import socket
 import subprocess
+import sys
 import time
+from pathlib import Path
 
 import httpx
 import pytest
 from PIL import Image
+
+# Get project root for PYTHONPATH
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 
 @pytest.fixture(scope="module")
@@ -30,9 +36,15 @@ def server(free_port):
     """Start FastAPI server on a free port for integration testing."""
     server_url = f"http://127.0.0.1:{free_port}"
 
+    # Set PYTHONPATH to include src directory
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(PROJECT_ROOT / "src")
+
     # Start server process
     process = subprocess.Popen(
         [
+            sys.executable,
+            "-m",
             "uvicorn",
             "xscanner.server.server:app",
             "--host",
@@ -44,6 +56,7 @@ def server(free_port):
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        env=env,
     )
 
     # Wait for server to start (max 10 seconds)
@@ -147,7 +160,7 @@ class TestServerExtractEndpoint:
         assert response.status_code == 422  # Validation error
 
     def test_extract_with_mock_mode(self, server, test_image_bytes):
-        """Test extraction endpoint with mock mode enabled."""
+        """Test extraction endpoint with mock mode enabled (local=Hybrid)."""
         image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
 
         response = httpx.post(
@@ -162,17 +175,45 @@ class TestServerExtractEndpoint:
 
         assert response.status_code == 200
         data = response.json()
-        assert data["success"] is True
-        assert data["strategy_used"] == "local_mock"
+        # Success can be True or False depending on random mock data (may include errors)
+        assert "success" in data
+        # Strategy should be Hybrid-related for local
+        assert (
+            "Hybrid" in data["strategy_used"]
+            or "Ollama" in data["strategy_used"]
+            or "Paddle" in data["strategy_used"]
+        )
+        assert "(mock)" in data["strategy_used"]
         assert "structured_data" in data
-        assert data["structured_data"]["Metal"] in ["Gold", "Silver", "Platinum"]
         assert "request_id" in data
 
-    def test_extract_endpoint_accepts_valid_request(self, server, test_image_bytes):
-        """Test that extraction endpoint accepts valid requests.
+    def test_extract_upload_with_mock_mode(self, server, test_image_bytes):
+        """Test /extract/upload endpoint with mock mode enabled (cloud=ChatGPT/Gemini)."""
+        response = httpx.post(
+            f"{server}/extract/upload",
+            files={"file": ("test.jpg", test_image_bytes, "image/jpeg")},
+            data={
+                "strategy": "cloud",
+                "use_mock": "true",
+            },
+            timeout=5.0,
+        )
 
-        Note: This will make real API calls depending on strategy configuration.
-        We're testing the HTTP layer here, not the extraction quality.
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        # Strategy should be ChatGPT or Gemini for cloud
+        assert "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"]
+        assert "(mock)" in data["strategy_used"]
+        assert "structured_data" in data
+        assert "request_id" in data
+        assert data["processing_time"] > 0
+
+    def test_extract_endpoint_accepts_valid_request(self, server, test_image_bytes):
+        """Test that extraction endpoint accepts valid requests with strategy-specific mocks.
+
+        Note: This uses mock mode to avoid dependency on external services.
+        Mock data comes from real benchmark results, including potential error cases.
         """
         image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
 
@@ -181,14 +222,195 @@ class TestServerExtractEndpoint:
             json={
                 "image_base64": image_b64,
                 "strategy": "local",
+                "use_mock": True,
             },
-            timeout=30.0,  # Allow time for real extraction
+            timeout=5.0,  # Mock strategy should be fast
         )
 
-        # Should either succeed or fail gracefully
-        assert response.status_code in [200, 500]  # Success or extraction error
+        # Mock strategy should return a response
+        assert response.status_code == 200
+        data = response.json()
+        assert "success" in data
+        assert (
+            "Hybrid" in data["strategy_used"]
+            or "Ollama" in data["strategy_used"]
+            or "Paddle" in data["strategy_used"]
+        )
+        assert "structured_data" in data
+        assert "request_id" in data
 
-        if response.status_code == 200:
-            data = response.json()
-            assert "success" in data
-            assert "request_id" in data
+
+@pytest.mark.integration
+class TestServerUploadEndpointStrategy:
+    """Test /extract/upload endpoint strategy parameter handling."""
+
+    def test_upload_strategy_parameter_local(self, server, test_image_bytes):
+        """Test that strategy='local' works with file upload."""
+        response = httpx.post(
+            f"{server}/extract/upload",
+            files={"file": ("test.jpg", test_image_bytes, "image/jpeg")},
+            data={
+                "strategy": "local",
+                "use_mock": "true",
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert (
+            "Hybrid" in data["strategy_used"]
+            or "Ollama" in data["strategy_used"]
+            or "Paddle" in data["strategy_used"]
+        ), f"Expected local strategy, got: {data['strategy_used']}"
+
+    def test_upload_strategy_parameter_cloud(self, server, test_image_bytes):
+        """Test that strategy='cloud' works with file upload."""
+        response = httpx.post(
+            f"{server}/extract/upload",
+            files={"file": ("test.jpg", test_image_bytes, "image/jpeg")},
+            data={
+                "strategy": "cloud",
+                "use_mock": "true",
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"], (
+            f"Expected cloud strategy, got: {data['strategy_used']}"
+        )
+
+    def test_upload_strategy_parameter_default(self, server, test_image_bytes):
+        """Test that default strategy works with file upload (defaults to cloud)."""
+        response = httpx.post(
+            f"{server}/extract/upload",
+            files={"file": ("test.jpg", test_image_bytes, "image/jpeg")},
+            data={
+                "use_mock": "true",
+                # No strategy parameter - defaults to cloud
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        # Default is cloud (consistent with /extract endpoint)
+        assert "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"], (
+            f"Expected default cloud strategy, got: {data['strategy_used']}"
+        )
+
+    def test_strategy_parameter_local(self, server, test_image_bytes):
+        """Test that strategy='local' uses Hybrid/Ollama strategy."""
+        image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
+
+        response = httpx.post(
+            f"{server}/extract",
+            json={
+                "image_base64": image_b64,
+                "strategy": "local",
+                "use_mock": True,
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        # Verify correct strategy was used
+        assert (
+            "Hybrid" in data["strategy_used"]
+            or "Ollama" in data["strategy_used"]
+            or "Paddle" in data["strategy_used"]
+        ), f"Expected local strategy, got: {data['strategy_used']}"
+
+    def test_strategy_parameter_cloud(self, server, test_image_bytes):
+        """Test that strategy='cloud' uses ChatGPT/Gemini strategy."""
+        image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
+
+        response = httpx.post(
+            f"{server}/extract",
+            json={
+                "image_base64": image_b64,
+                "strategy": "cloud",
+                "use_mock": True,
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        # Verify correct strategy was used
+        assert "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"], (
+            f"Expected cloud strategy, got: {data['strategy_used']}"
+        )
+
+    def test_strategy_parameter_default(self, server, test_image_bytes):
+        """Test that default strategy (no parameter) uses cloud."""
+        image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
+
+        response = httpx.post(
+            f"{server}/extract",
+            json={
+                "image_base64": image_b64,
+                "use_mock": True,
+                # No strategy parameter - should default to cloud
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        # Default should be cloud (ChatGPT/Gemini)
+        assert "ChatGPT" in data["strategy_used"] or "Gemini" in data["strategy_used"], (
+            f"Expected default to cloud strategy, got: {data['strategy_used']}"
+        )
+
+    def test_strategy_parameter_case_sensitive(self, server, test_image_bytes):
+        """Test that strategy parameter is case-sensitive (only lowercase accepted)."""
+        image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
+
+        # Test uppercase - should be rejected
+        response = httpx.post(
+            f"{server}/extract",
+            json={
+                "image_base64": image_b64,
+                "strategy": "CLOUD",
+                "use_mock": True,
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 422  # Validation error - invalid enum value
+
+        # Test mixed case - should be rejected
+        response = httpx.post(
+            f"{server}/extract",
+            json={
+                "image_base64": image_b64,
+                "strategy": "Local",
+                "use_mock": True,
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 422  # Validation error - invalid enum value
+
+        # Test lowercase - should work
+        response = httpx.post(
+            f"{server}/extract",
+            json={
+                "image_base64": image_b64,
+                "strategy": "local",
+                "use_mock": True,
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert (
+            "Hybrid" in data["strategy_used"]
+            or "Ollama" in data["strategy_used"]
+            or "Paddle" in data["strategy_used"]
+        )
