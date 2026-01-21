@@ -20,8 +20,10 @@ repos:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
         # Check all Python files, not just src/
+        exclude: ^tmp/
       - id: ruff-format
         # Format all Python files, not just src/
+        exclude: ^tmp/
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.7.1
