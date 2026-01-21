@@ -60,7 +60,7 @@ test-unit:
 
 # Run only integration tests
 test-integration:
-	@echo "🔌 Running integration tests (requires API keys)..."
+	@echo "🔌 Running integration tests (mocked APIs, no API keys needed)..."
 	pytest tests/integration/ -v -m integration
 
 # Run only e2e tests

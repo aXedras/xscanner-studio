@@ -6,14 +6,19 @@ to test the full HTTP layer, while keeping tests fast and reliable.
 
 import base64
 import io
+import os
 import socket
 import subprocess
 import sys
 import time
+from pathlib import Path
 
 import httpx
 import pytest
 from PIL import Image
+
+# Get project root for PYTHONPATH
+PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 
 @pytest.fixture(scope="module")
@@ -31,6 +36,10 @@ def server(free_port):
     """Start FastAPI server on a free port for integration testing."""
     server_url = f"http://127.0.0.1:{free_port}"
 
+    # Set PYTHONPATH to include src directory
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(PROJECT_ROOT / "src")
+
     # Start server process
     process = subprocess.Popen(
         [
@@ -47,6 +56,7 @@ def server(free_port):
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
+        env=env,
     )
 
     # Wait for server to start (max 10 seconds)

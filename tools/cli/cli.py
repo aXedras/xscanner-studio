@@ -5,7 +5,10 @@ import logging
 import os
 from pathlib import Path
 
-from .discovery import (
+# SET THIS BEFORE ANY OTHER IMPORTS!!!
+os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
+
+from .discovery import (  # noqa: E402
     create_strategy,
     find_all_images,
     get_available_strategies,
@@ -14,10 +17,6 @@ from .discovery import (
 )
 from .runner import run_benchmark
 from .validator import parse_filename_ground_truth, validate_extraction
-
-# Disable model connectivity checks for CLI (PaddleX)
-# Must be set before PaddleOCR is imported (happens in strategies)
-os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
 
 # Suppress console INFO/DEBUG output - only show WARNING and above
 # This must be done AFTER imports, when handlers are initialized
@@ -336,7 +335,34 @@ Examples:
     )
 
     parser.add_argument(
+        "--map-reduce",
+        action="store_true",
+        help="Map-reduce: strategies parallel, images sequential. Best for Cloud APIs.",
+    )
+
+    parser.add_argument(
+        "--ollama-optimized",
+        action="store_true",
+        help="Ollama-optimized: models sequential, images parallel. Avoids model switching.",
+    )
+
+    parser.add_argument(
+        "--strategies",
+        type=str,
+        default=None,
+        help="Comma-separated list of strategies to test. "
+        "Single: qwen3,qwen3-abl,deepseek,minicpm,llama | "
+        "Hybrid: hybrid-minicpm-qwen,hybrid-minicpm-llama,hybrid-llama-qwen",
+    )
+
+    parser.add_argument(
         "--quick", action="store_true", help="Quick benchmark: random sample of 3 images"
+    )
+
+    parser.add_argument(
+        "--difficult-only",
+        action="store_true",
+        help="Benchmark only on barPictures/difficult folder",
     )
 
     # Single test options

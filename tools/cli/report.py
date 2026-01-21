@@ -8,11 +8,21 @@ from typing import Any
 
 from .renderers import (
     render_aggregate_table,
+    render_executive_summary,
     render_failed_tests_section,
+    render_hybrid_analysis,
+    render_metal_accuracy_section,
+    render_strategy_metal_matrix,
     render_summary_chart,
     render_table_rows,
 )
-from .report_models import aggregate_by_strategy, load_results
+from .report_models import (
+    aggregate_by_metal,
+    aggregate_by_strategy,
+    aggregate_strategy_by_metal,
+    calculate_hybrid_potential,
+    load_results,
+)
 from .result_formatter import calculate_strategy_scores
 from .template import HTML_TEMPLATE, INDEX_TEMPLATE
 
@@ -32,6 +42,10 @@ def build_html(payload: list[dict[str, Any]], output_path: Path = OUTPUT_PATH) -
         Complete HTML document as string
     """
     aggregates = aggregate_by_strategy(payload)
+    metal_aggregates = aggregate_by_metal(payload)
+    strategy_metal_stats = aggregate_strategy_by_metal(payload)
+    hybrid_potentials = calculate_hybrid_potential(payload, aggregates)
+
     created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     image_count = len(payload)
     strategy_count = len(aggregates)
@@ -50,9 +64,19 @@ def build_html(payload: list[dict[str, Any]], output_path: Path = OUTPUT_PATH) -
             f"{'s' if expected_images != 1 else ''}."
         )
 
+    # Render all sections
+    exec_summary = render_executive_summary(aggregates)
+    metal_accuracy_section = render_metal_accuracy_section(metal_aggregates)
+    strategy_metal_matrix = render_strategy_metal_matrix(strategy_metal_stats)
+    hybrid_analysis = render_hybrid_analysis(hybrid_potentials)
+
     return HTML_TEMPLATE.format(
         created_at=created_at,
         summary_text=summary_text,
+        exec_summary=exec_summary,
+        metal_accuracy_section=metal_accuracy_section,
+        strategy_metal_matrix=strategy_metal_matrix,
+        hybrid_analysis=hybrid_analysis,
         summary_chart=render_summary_chart(aggregates),
         failed_tests_section=render_failed_tests_section(payload),
         aggregate_rows=render_aggregate_table(aggregates),
