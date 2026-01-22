@@ -4,6 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "help": "node scripts/help.mjs",
+    "check": "node scripts/help-check.mjs",
+    "check:fast": "npm run lint && npm run type-check && npm run test:unit",
+    "check:all": "npm run format:check && npm run lint && npm run type-check && npm run i18n:all && npm run db:check && npm run build && npm run test:unit",
+
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
@@ -11,18 +16,26 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
     "type-check": "tsc --noEmit",
-    "test": "vitest",
+    "test": "node scripts/help-test.mjs",
+    "test:watch": "vitest",
     "test:run": "vitest run",
     "test:unit": "vitest run --dir tests/unit",
     "test:integration": "vitest run --dir tests/integration",
-    "test:ci": "npm run test:unit && npm run test:integration",
+    "test:all": "npm run test:unit && npm run test:integration",
+    "db": "node scripts/db/help.mjs",
     "db:types": "node scripts/db/help.mjs",
+    "db:generate": "npm run db:types:generate",
+    "db:check": "npm run db:types:check",
     "db:types:generate": "node scripts/db/gen-db-types.mjs",
     "db:types:check": "node scripts/db/check-db-types.mjs",
-    "check:i18n": "node scripts/i18n/help.mjs",
+    "i18n": "node scripts/help-i18n.mjs",
+    "i18n:all": "npm run check:i18n:all",
+    "i18n:missing": "npm run check:i18n:missing",
+    "i18n:unused": "npm run check:i18n:unused",
+
     "check:i18n:missing": "node scripts/i18n/check-missing.mjs",
     "check:i18n:unused": "node scripts/i18n/check-unused.mjs",
-    "check:i18n:all": "node scripts/check-i18n.mjs && npm run check:i18n:missing && npm run check:i18n:unused"
+    "check:i18n:all": "node scripts/i18n/check-i18n.mjs && npm run check:i18n:missing && npm run check:i18n:unused"
   },
   "dependencies": {
     "@supabase/auth-ui-react": "^0.4.7",

@@ -10,17 +10,17 @@
  * 5. Same interpolation variables (e.g. {{field}})
  * 6. Strict override validation (feature scopes must have matching common.* keys)
  *
- * Usage: node scripts/check-i18n.mjs
+ * Usage: node scripts/i18n/check-i18n.mjs
  * Exit codes: 0 = success, 1 = validation errors found
  */
 
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import { findInvalidOverrideKeys } from './i18n/override-rules.mjs'
+import { findInvalidOverrideKeys } from './override-rules.mjs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const repoRoot = path.resolve(__dirname, '..')
+const repoRoot = path.resolve(__dirname, '../..')
 const LOCALES_DIR = path.resolve(repoRoot, 'src', 'locales')
 const LANGUAGES = ['de', 'en']
 const BASE_LANG = 'de'
@@ -119,7 +119,7 @@ function validateTranslations() {
   // Get all unique keys
   const allKeys = new Set()
   for (const lang of LANGUAGES) {
-    Object.keys(flatTranslations[lang]).forEach(key => allKeys.add(key))
+    Object.keys(flatTranslations[lang]).forEach((key) => allKeys.add(key))
   }
 
   // Check for missing keys
@@ -135,7 +135,7 @@ function validateTranslations() {
 
     if (missing.length > 0) {
       console.error(`${colors.red}❌ ${lang}: Missing ${missing.length} translation key(s):${colors.reset}`)
-      missing.slice(0, 10).forEach(key => console.error(`   - ${key}`))
+      missing.slice(0, 10).forEach((key) => console.error(`   - ${key}`))
       if (missing.length > 10) {
         console.error(`   ... and ${missing.length - 10} more`)
       }
@@ -197,10 +197,8 @@ function validateTranslations() {
     }
 
     if (mismatches.length > 0) {
-      console.error(
-        `${colors.red}❌ Interpolation variables mismatch (${mismatches.length} key(s)):${colors.reset}`
-      )
-      mismatches.slice(0, 10).forEach(m => {
+      console.error(`${colors.red}❌ Interpolation variables mismatch (${mismatches.length} key(s)):${colors.reset}`)
+      mismatches.slice(0, 10).forEach((m) => {
         console.error(
           `   - ${m.key}: ${BASE_LANG}=[${m.base.join(', ')}] ${m.lang}=[${m.other.join(', ')}]`
         )
@@ -215,7 +213,7 @@ function validateTranslations() {
   // Validate strict overrides
   const allKeysList = [...allKeys]
   const commonRests = new Set(
-    allKeysList.filter(k => k.startsWith('common.')).map(k => k.slice('common.'.length))
+    allKeysList.filter((k) => k.startsWith('common.')).map((k) => k.slice('common.'.length))
   )
   const invalid = findInvalidOverrideKeys(allKeysList, commonRests, { includeSuggestions: true })
 
@@ -226,8 +224,10 @@ function validateTranslations() {
     )
     console.error(`${colors.yellow}   Fix: Add the missing common.* key first, then override in feature scope.${colors.reset}`)
 
-    invalid.slice(0, 10).forEach(item => {
-      const suggestionText = item.suggestions?.length ? ` (did you mean ${item.suggestions.join(' or ')}?)` : ''
+    invalid.slice(0, 10).forEach((item) => {
+      const suggestionText = item.suggestions?.length
+        ? ` (did you mean ${item.suggestions.join(' or ')}?)`
+        : ''
       console.error(`   - ${item.key} → missing ${item.expectedCommonKey}${suggestionText}`)
     })
     if (invalid.length > 10) {

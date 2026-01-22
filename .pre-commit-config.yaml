@@ -45,7 +45,7 @@ repos:
         pass_filenames: false
         always_run: true
 
-  # Integration tests (mocked APIs, no keys needed, run on commit)
+  # Integration tests (run before push)
   - repo: local
     hooks:
       - id: pytest-integration
@@ -54,6 +54,7 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+        stages: [pre-push]
 
   # Studio: Prettier format check (only for studio/ files)
   - repo: local
@@ -95,15 +96,32 @@ repos:
         files: ^studio/
         pass_filenames: false
 
-  # Studio: Integration tests (only for studio/ files)
+  # Studio: Integration tests (only for studio/ files, run before push)
   - repo: local
     hooks:
       - id: studio-test-integration
         name: studio integration tests
-        entry: bash -c 'cd studio && npm run test:integration'
+        entry: |
+          bash -c '
+            set -euo pipefail
+            API_URL="${VITE_API_URL:-http://127.0.0.1:8000}"
+            HEALTH_URL="${API_URL%/}/health"
+
+            if ! curl -fsS "$HEALTH_URL" >/dev/null; then
+              echo "ERROR: xScanner API is not reachable: $HEALTH_URL" >&2
+              echo "Start it (example): make start-server" >&2
+              echo "Or set VITE_API_URL to the running server base URL." >&2
+              exit 1
+            fi
+
+            cd studio
+            VITE_API_URL="$API_URL" npm run test:integration
+          '
         language: system
         files: ^studio/
         pass_filenames: false
+        always_run: true
+        stages: [pre-push]
 
   # Studio: i18n validation (only for studio/ files)
   - repo: local
@@ -120,7 +138,7 @@ repos:
     hooks:
       - id: studio-db-types
         name: studio db types up-to-date
-        entry: bash -c 'cd studio && npm run db:types:check'
+        entry: bash -c 'cd studio && npm run db:check'
         language: system
         files: ^(supabase/migrations/.*\.sql|studio/src/lib/supabase/database\.types\.ts)$
         pass_filenames: false

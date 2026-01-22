@@ -1,4 +1,4 @@
-.PHONY: help install dev format lint test test-all test-unit test-integration test-e2e test-coverage test-quick ci-local pre-commit-all db-types db-types-generate db-types-check database database-start database-stop start start-server start-studio start-supabase start-all preprod preprod-check preprod-update-main preprod-up preprod-down preprod-health preprod-status preprod-logs preprod-deploy release release-help release-create release-status release-list version ci-main-status docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report cli-report-history
+.PHONY: help install dev venv hooks hooks-install hooks-update hooks-run format lint check check-help check-fast check-all studio studio-install studio-format-check studio-lint studio-type-check studio-i18n-check studio-db-types-check studio-build studio-test-unit studio-test-integration studio-check-fast studio-check-all test test-help test-all test-unit test-integration test-e2e test-coverage test-quick pre-commit-all db-types db-types-generate db-types-check database database-start database-stop start start-server start-studio start-supabase start-all preprod preprod-check preprod-update-main preprod-up preprod-down preprod-health preprod-status preprod-logs preprod-deploy release release-help release-create release-status release-list version ci-main-status docker-build docker-run clean cli cli-help cli cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report cli-report-history
 
 # Load environment variables from .env.local
 -include .env.local
@@ -8,8 +8,12 @@ export
 STUDIO_PORT := $(shell grep -oP 'port:\s*\K\d+' studio/vite.config.ts 2>/dev/null || echo 8084)
 
 # Install production dependencies
-install:
-	pip install -e .
+venv:
+	@if [ ! -x "venv/bin/python" ]; then python3 -m venv venv; fi
+	@venv/bin/python -m pip install -U pip
+
+install: venv
+	@venv/bin/python -m pip install -e .
 
 # Show an overview of the most important commands
 help:
@@ -19,18 +23,45 @@ help:
 	@echo "  make preprod   # pre-prod deploy help"
 	@echo "  make release   # release help"
 	@echo "  make version   # show local version + latest GitHub release"
+	@echo "  make studio    # studio targets help"
+	@echo "  make check     # check targets help"
+	@echo "  make check-fast # fast local checks (lint + unit tests)"
+	@echo "  make check-all  # full local CI script (mirrors GitHub Actions)"
 	@echo "  make test      # test targets help"
 	@echo "  make cli       # CLI help"
 	@echo "  make db-types  # DB types help"
+	@echo "  make hooks     # pre-commit hooks help"
 
 # Install with server dependencies
-install-server:
-	pip install -e ".[server]"
+install-server: venv
+	@venv/bin/python -m pip install -e ".[server]"
 
 # Install development dependencies
-dev:
-	pip install -e ".[dev]"
-	pre-commit install
+dev: venv
+	@venv/bin/python -m pip install -e ".[dev]"
+	@make hooks-install
+
+hooks:
+	@echo "🪝 Git Hooks (pre-commit)"
+	@echo ""
+	@echo "  make hooks-install   Install pre-commit + git hooks (pre-commit + pre-push)"
+	@echo "  make hooks-run       Run commit-stage hooks on all files"
+	@echo "  make hooks-update    Update hook versions in .pre-commit-config.yaml"
+	@echo ""
+	@echo "Notes:"
+	@echo "  - Hooks run automatically on commit/push after install."
+	@echo "  - We install pre-commit into the repo venv (venv/)."
+
+hooks-install: venv
+	@venv/bin/python -m pip install -U pre-commit
+	@venv/bin/pre-commit install
+	@venv/bin/pre-commit install --hook-type pre-push
+
+hooks-update: venv
+	@venv/bin/pre-commit autoupdate
+
+hooks-run: venv
+	@venv/bin/pre-commit run --all-files
 
 # Format code
 format:
@@ -56,16 +87,118 @@ db-types-generate:
 db-types-check:
 	@venv/bin/python -m scripts.db.check_db_types
 
-# Run ALL CI checks locally (exactly what CI runs)
-ci-local: lint test
-	@echo "✅ All CI checks passed locally!"
+# Checks (help)
+check: check-help
+
+check-help:
+	@echo "✅ Check Targets"
+	@echo ""
+	@echo "  make check-fast        Fast local checks (Server + Studio, no Supabase)"
+	@echo "  make check-all         Full local CI script (mirrors GitHub Actions)"
+	@echo "  make studio-check-fast Studio fast checks (lint/type/unit)"
+	@echo "  make studio-check-all  Studio full checks (format/i18n/dbtypes/build/unit)"
+	@echo ""
+	@echo "Individual checks:"
+	@echo "  make lint         Ruff + mypy + DB types check"
+	@echo "  make db-types-check"
+	@echo "  make test-quick    Unit tests (quick)"
+	@echo "  make test-unit     Unit tests (verbose)"
+	@echo "  make test-integration"
+	@echo "  make test-e2e"
+	@echo ""
+	@echo "Notes:"
+	@echo "  - check-all runs scripts/ci-check-local.sh and may require Node, Supabase, and API keys."
+
+# Fast local checks (suitable for day-to-day development)
+check-fast: lint test-quick studio-check-fast
+	@echo "✅ Fast checks passed locally!"
+
+# Full CI run (mirrors GitHub Actions; may require Node, Supabase, and API keys for some checks)
+check-all:
+	@bash scripts/ci-check-local.sh
+
+studio:
+	@echo "🎛️  xScanner Studio"
+	@echo ""
+	@echo "Prefer npm-first when working on Studio:"
+	@echo "  cd studio && npm run help"
+	@echo "  cd studio && npm run check"
+	@echo "  cd studio && npm run check:fast"
+	@echo ""
+	@echo "Setup:"
+	@echo "  make studio-install          Install dependencies (local dev)"
+	@echo ""
+	@echo "Fast checks:"
+	@echo "  make studio-check-fast       Lint + type-check + unit tests"
+	@echo "  make studio-check-all        Full checks (format/i18n/dbtypes/build/unit)"
+	@echo ""
+	@echo "Individual commands:"
+	@echo "  make studio-format-check     Prettier check"
+	@echo "  make studio-lint             ESLint"
+	@echo "  make studio-type-check       TypeScript type-check"
+	@echo "  make studio-i18n-check       i18n checks"
+	@echo "  make studio-db-types-check   Supabase DB types drift check"
+	@echo "  make studio-build            Build"
+	@echo "  make studio-test-unit        Unit tests"
+	@echo "  make studio-test-integration Integration tests (requires running server + Supabase env)"
+
+studio-install:
+	@if [ ! -d "studio" ]; then echo "Studio folder not found."; exit 1; fi
+	@if ! command -v npm >/dev/null 2>&1; then echo "npm not found (required for Studio)" >&2; exit 1; fi
+	@cd studio && npm install
+
+studio-format-check:
+	@cd studio && npm run format:check
+
+studio-lint:
+	@cd studio && npm run lint
+
+studio-type-check:
+	@cd studio && npm run type-check
+
+studio-i18n-check:
+	@cd studio && npm run check:i18n:all
+
+studio-db-types-check:
+	@cd studio && npm run db:check
+
+studio-build:
+	@cd studio && npm run build
+
+studio-test-unit:
+	@cd studio && npm run test:unit
+
+studio-test-integration:
+	@cd studio && npm run test:integration
+
+studio-check-fast:
+	@if [ ! -d "studio" ]; then echo "Studio folder not found, skipping."; exit 0; fi
+	@if ! command -v npm >/dev/null 2>&1; then echo "npm not found (required for Studio checks)" >&2; exit 1; fi
+	@if [ ! -d "studio/node_modules" ]; then echo "Studio deps missing. Run: make studio-install" >&2; exit 1; fi
+	@make studio-lint
+	@make studio-type-check
+	@make studio-test-unit
+
+studio-check-all:
+	@if [ ! -d "studio" ]; then echo "Studio folder not found, skipping."; exit 0; fi
+	@if ! command -v npm >/dev/null 2>&1; then echo "npm not found (required for Studio checks)" >&2; exit 1; fi
+	@if [ ! -d "studio/node_modules" ]; then echo "Studio deps missing. Run: make studio-install" >&2; exit 1; fi
+	@make studio-format-check
+	@make studio-lint
+	@make studio-type-check
+	@make studio-i18n-check
+	@make studio-db-types-check
+	@make studio-build
+	@make studio-test-unit
 
 # Run pre-commit on all files (what pre-commit hook does)
 pre-commit-all:
-	pre-commit run --all-files
+	@venv/bin/pre-commit run --all-files
 
-# Run tests
-test:
+# Run tests (help)
+test: test-help
+
+test-help:
 	@echo "🧪 Available test targets:"
 	@echo ""
 	@echo "  make test-all          Run ALL tests (unit + integration + e2e)"
