@@ -22,8 +22,9 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 
 cd /d "%~dp0\..\..\.."
 
-REM Ensure gh is discoverable even if installer didn't update PATH
-if exist "%ProgramFiles%\GitHub CLI\gh.exe" set "PATH=%ProgramFiles%\GitHub CLI;%PATH%"
+REM Resolve gh CLI (PATH is not always updated on Windows)
+set "GH_EXE=gh"
+if exist "%ProgramFiles%\GitHub CLI\gh.exe" set "GH_EXE=%ProgramFiles%\GitHub CLI\gh.exe"
 
 call :check_prereqs
 if %errorlevel% neq 0 exit /b %errorlevel%
@@ -65,18 +66,18 @@ if /I not "!TAG:~0,1!"=="v" set "TAG=v!TAG!"
 goto deploy_release_common
 
 :deploy_latest
-where gh >NUL 2>&1
+"%GH_EXE%" --version >NUL 2>&1
 if %errorlevel% neq 0 (
 	echo Error: gh CLI not found in PATH. Install GitHub CLI or set ORIGIN=release-x.y.z.
 	exit /b 1
 )
-gh release view --repo aXedras/xScanner --json tagName --jq .tagName >NUL 2>&1
+"%GH_EXE%" release view --repo aXedras/xScanner --json tagName --jq .tagName >NUL 2>&1
 if %errorlevel% neq 0 (
 	echo Error: no GitHub Releases found for aXedras/xScanner.
 	echo Tip: use ORIGIN=main ^(local build^) or ORIGIN=release-x.y.z once releases exist.
 	exit /b 1
 )
-for /f "usebackq delims=" %%T in (`gh release view --repo aXedras/xScanner --json tagName --jq .tagName 2^>NUL`) do set "TAG=%%T"
+for /f "usebackq delims=" %%T in (`"%GH_EXE%" release view --repo aXedras/xScanner --json tagName --jq .tagName 2^>NUL`) do set "TAG=%%T"
 if not defined TAG (
 	echo Error: could not resolve latest release tag via gh.
 	exit /b 1
@@ -194,12 +195,12 @@ if not exist ".env.preprod" (
 
 REM For release-based deploys, require gh + auth
 if /I not "%ORIGIN%"=="main" (
-	where gh >NUL 2>&1
+	"%GH_EXE%" --version >NUL 2>&1
 	if %errorlevel% neq 0 (
 		echo Error: gh CLI not found in PATH ^(required for ORIGIN != main^)
 		exit /b 1
 	)
-	gh auth status -h github.com >NUL 2>&1
+	"%GH_EXE%" auth status -h github.com >NUL 2>&1
 	if %errorlevel% neq 0 (
 		echo Error: gh is not authenticated ^(required for ORIGIN != main^)
 		echo Run: gh auth login
@@ -226,13 +227,13 @@ exit /b 1
 
 :verify_ci_main_strict
 REM Mirror scripts/preprod/verify-ci-main.sh --strict
-where gh >NUL 2>&1
+"%GH_EXE%" --version >NUL 2>&1
 if %errorlevel% neq 0 (
 	echo Error: gh CLI not installed; cannot verify CI status
 	exit /b 1
 )
 
-gh auth status -h github.com >NUL 2>&1
+"%GH_EXE%" auth status -h github.com >NUL 2>&1
 if %errorlevel% neq 0 (
 	echo Error: gh is not authenticated; cannot verify CI status
 	exit /b 1
@@ -246,7 +247,7 @@ if not defined HEAD_SHA (
 )
 
 set "MATCHED_CONCLUSION="
-for /f "usebackq delims=" %%C in (`gh api "repos/aXedras/xScanner/actions/workflows/ci.yml/runs?branch=main^&per_page=50" --jq ".workflow_runs[] | select(.head_sha == \"!HEAD_SHA!\") | .conclusion" 2^>NUL`) do (
+for /f "usebackq delims=" %%C in (`"%GH_EXE%" api "repos/aXedras/xScanner/actions/workflows/ci.yml/runs?branch=main^&per_page=50" --jq ".workflow_runs[] | select(.head_sha == \"!HEAD_SHA!\") | .conclusion" 2^>NUL`) do (
 	set "MATCHED_CONCLUSION=%%C"
 	goto got_ci
 )
@@ -274,26 +275,26 @@ if %errorlevel% neq 0 (
   exit /b 1
 )
 
-where gh >NUL 2>&1
+"%GH_EXE%" --version >NUL 2>&1
 if %errorlevel% neq 0 (
   REM No gh: user must login manually.
   exit /b 0
 )
 
 REM Ensure gh is authenticated
-gh auth status -h github.com >NUL 2>&1
+"%GH_EXE%" auth status -h github.com >NUL 2>&1
 if %errorlevel% neq 0 (
   echo Note: gh not authenticated. If GHCR pull fails, run: gh auth login
   exit /b 0
 )
 
 set "GH_USER="
-for /f "usebackq delims=" %%U in (`gh api user --jq .login 2^>NUL`) do set "GH_USER=%%U"
+for /f "usebackq delims=" %%U in (`"%GH_EXE%" api user --jq .login 2^>NUL`) do set "GH_USER=%%U"
 if not defined GH_USER set "GH_USER=%GITHUB_ACTOR%"
 if not defined GH_USER set "GH_USER=github"
 
 set "GH_TOKEN="
-for /f "usebackq delims=" %%T in (`gh auth token 2^>NUL`) do set "GH_TOKEN=%%T"
+for /f "usebackq delims=" %%T in (`"%GH_EXE%" auth token 2^>NUL`) do set "GH_TOKEN=%%T"
 if not defined GH_TOKEN exit /b 0
 
 echo Logging into ghcr.io (best-effort)...
