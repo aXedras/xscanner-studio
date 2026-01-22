@@ -22,12 +22,24 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 
 cd /d "%~dp0\..\..\.."
 
+call :check_prereqs
+if %errorlevel% neq 0 exit /b %errorlevel%
+
 echo Updating main...
+
+call :ensure_clean_worktree
+if %errorlevel% neq 0 exit /b %errorlevel%
+
 git checkout main
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 git pull --ff-only origin main
 if %errorlevel% neq 0 exit /b %errorlevel%
+
+if /I "%ORIGIN%"=="main" (
+	call :verify_ci_main_strict
+	if %errorlevel% neq 0 exit /b %errorlevel%
+)
 
 if not exist ".env.preprod" goto missing_env
 
@@ -69,8 +81,12 @@ goto deploy_release_common
 :deploy_main
 if not defined XSCANNER_RELEASE_TAG set "XSCANNER_RELEASE_TAG=dev"
 set "API_SERVICE=xscanner-api-build"
+echo Building API + Studio images ^(build mode^)...
+docker compose --env-file .env.preprod -f docker-compose.preprod.yml build xscanner-api-build xscanner-studio
+if %errorlevel% neq 0 exit /b %errorlevel%
+
 echo Starting API + Studio ^(build mode^)...
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d --build xscanner-api-build xscanner-studio
+docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d xscanner-api-build xscanner-studio
 if %errorlevel% neq 0 exit /b %errorlevel%
 goto after_deploy
 
@@ -97,7 +113,12 @@ if %errorlevel% neq 0 (
 )
 
 echo Starting API + Studio ^(release mode^)...
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d --build xscanner-api-release xscanner-studio
+echo Building Studio image ^(release mode^)...
+docker compose --env-file .env.preprod -f docker-compose.preprod.yml build xscanner-studio
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+echo Starting API + Studio ^(release mode^)...
+docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d xscanner-api-release xscanner-studio
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 if defined ORIGINAL_REF (
@@ -109,17 +130,13 @@ goto after_deploy
 
 echo Healthcheck...
 set "HEALTH_URL=http://127.0.0.1:8010/health"
-set /a HEALTH_RETRIES=30
-:health_loop
 curl -fsS "%HEALTH_URL%" >nul 2>&1
 if %errorlevel% equ 0 goto health_ok
-set /a HEALTH_RETRIES-=1
-if %HEALTH_RETRIES% leq 0 goto health_fail
-timeout /t 2 /nobreak >nul
-goto health_loop
+goto health_fail
 
 :health_fail
 echo Healthcheck failed: %HEALTH_URL%
+echo Tip: this script intentionally fails fast; just run it again once the build/pull is ready.
 if defined API_SERVICE (
 	echo Recent logs ^(%API_SERVICE%^):
 	docker compose --env-file .env.preprod -f docker-compose.preprod.yml logs --tail 200 %API_SERVICE%
@@ -145,6 +162,105 @@ if /I "%MODE%"=="cloud" exit /b 0
 if /I "%MODE%"=="full" exit /b 0
 echo Error: invalid MODE (expected cloud^|full): %MODE%
 exit /b 1
+
+:check_prereqs
+where docker >NUL 2>&1
+if %errorlevel% neq 0 (
+	echo Error: docker not found in PATH
+	exit /b 1
+)
+
+docker compose version >NUL 2>&1
+if %errorlevel% neq 0 (
+	echo Error: docker compose not available
+	exit /b 1
+)
+
+where supabase >NUL 2>&1
+if %errorlevel% neq 0 (
+	echo Error: supabase CLI not found in PATH
+	exit /b 1
+)
+
+if not exist ".env.preprod" (
+	echo Error: missing .env.preprod
+	echo Create it from .env.preprod.example ^(do not commit secrets^).
+	exit /b 1
+)
+
+REM For release-based deploys, require gh + auth
+if /I not "%ORIGIN%"=="main" (
+	where gh >NUL 2>&1
+	if %errorlevel% neq 0 (
+		echo Error: gh CLI not found in PATH ^(required for ORIGIN != main^)
+		exit /b 1
+	)
+	gh auth status -h github.com >NUL 2>&1
+	if %errorlevel% neq 0 (
+		echo Error: gh is not authenticated ^(required for ORIGIN != main^)
+		echo Run: gh auth login
+		exit /b 1
+	)
+)
+
+exit /b 0
+
+:ensure_clean_worktree
+REM Guard against local modifications (match scripts/preprod/check.sh intent)
+git diff --quiet
+if %errorlevel% neq 0 goto worktree_dirty
+git diff --cached --quiet
+if %errorlevel% neq 0 goto worktree_dirty
+exit /b 0
+
+:worktree_dirty
+echo Error: git working tree has uncommitted changes
+echo This is intentional for pre-prod deploys.
+echo Fix: commit, stash, or deploy from a clean clone.
+git status -sb
+exit /b 1
+
+:verify_ci_main_strict
+REM Mirror scripts/preprod/verify-ci-main.sh --strict
+where gh >NUL 2>&1
+if %errorlevel% neq 0 (
+	echo Error: gh CLI not installed; cannot verify CI status
+	exit /b 1
+)
+
+gh auth status -h github.com >NUL 2>&1
+if %errorlevel% neq 0 (
+	echo Error: gh is not authenticated; cannot verify CI status
+	exit /b 1
+)
+
+set "HEAD_SHA="
+for /f "usebackq delims=" %%S in (`git rev-parse HEAD 2^>NUL`) do set "HEAD_SHA=%%S"
+if not defined HEAD_SHA (
+	echo Error: cannot read HEAD sha
+	exit /b 1
+)
+
+set "MATCHED_CONCLUSION="
+for /f "usebackq delims=" %%C in (`gh api "repos/aXedras/xScanner/actions/workflows/ci.yml/runs?branch=main^&per_page=50" --jq ".workflow_runs[] | select(.head_sha == \"!HEAD_SHA!\") | .conclusion" 2^>NUL`) do (
+	set "MATCHED_CONCLUSION=%%C"
+	goto got_ci
+)
+:got_ci
+
+if not defined MATCHED_CONCLUSION (
+	echo Error: cannot verify CI for sha !HEAD_SHA!
+	echo Ensure gh is authenticated and the workflow run exists for this commit.
+	exit /b 1
+)
+
+if /I not "!MATCHED_CONCLUSION!"=="success" (
+	echo Error: CI for sha !HEAD_SHA! is not successful ^(conclusion=!MATCHED_CONCLUSION!^)
+	exit /b 1
+)
+
+echo CI successful for sha: !HEAD_SHA!
+exit /b 0
 
 :ensure_ghcr_login
 REM Best-effort GHCR auth to avoid 401 when pulling private images.
