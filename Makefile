@@ -1,4 +1,4 @@
-.PHONY: help install dev format lint test test-all test-unit test-integration test-e2e test-coverage test-quick ci-local pre-commit-all db-types db-types-generate db-types-check database database-start database-stop start start-server start-studio start-supabase start-all preprod preprod-check preprod-update-main preprod-up preprod-down preprod-health preprod-status preprod-logs preprod-deploy release release-help release-create ci-main-status docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report cli-report-history
+.PHONY: help install dev format lint test test-all test-unit test-integration test-e2e test-coverage test-quick ci-local pre-commit-all db-types db-types-generate db-types-check database database-start database-stop start start-server start-studio start-supabase start-all preprod preprod-check preprod-update-main preprod-up preprod-down preprod-health preprod-status preprod-logs preprod-deploy release release-help release-create release-status release-list version ci-main-status docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report cli-report-history
 
 # Load environment variables from .env.local
 -include .env.local
@@ -18,6 +18,7 @@ help:
 	@echo "  make database  # Supabase start/stop help"
 	@echo "  make preprod   # pre-prod deploy help"
 	@echo "  make release   # release help"
+	@echo "  make version   # show local version + latest GitHub release"
 	@echo "  make test      # test targets help"
 	@echo "  make cli       # CLI help"
 	@echo "  make db-types  # DB types help"
@@ -217,9 +218,11 @@ release:
 	@echo ""
 	@echo "Commands:"
 	@echo "  make release-create        Create GitHub release (tag + release)"
+	@echo "  make release-status        Show latest GitHub release + list releases"
 	@echo ""
 	@echo "Usage:"
 	@echo "  make release-create VERSION=X.Y.Z"
+	@echo "  make release-status [LIMIT=20]"
 	@echo ""
 	@echo "Notes:"
 	@echo "  - Runs scripts/release/create-release.sh"
@@ -235,6 +238,39 @@ release-create:
 		exit 1; \
 	fi
 	@VERSION="$(VERSION)" bash scripts/release/create-release.sh
+
+release-list:
+	@if ! command -v gh >/dev/null 2>&1; then \
+		echo "Error: gh CLI not found in PATH" >&2; \
+		exit 1; \
+	fi
+	@gh release list --repo aXedras/xScanner -L $(or $(LIMIT),20)
+
+release-status:
+	@if ! command -v gh >/dev/null 2>&1; then \
+		echo "Error: gh CLI not found in PATH" >&2; \
+		exit 1; \
+	fi
+	@echo "Latest GitHub release tag:"
+	@if gh release view --repo aXedras/xScanner >/dev/null 2>&1; then \
+		gh release view --repo aXedras/xScanner --json tagName,publishedAt --jq '"  " + .tagName + " (publishedAt=" + (.publishedAt // "") + ")"'; \
+	else \
+		echo "  (none)"; \
+	fi
+	@echo ""
+	@echo "Recent releases:"
+	@gh release list --repo aXedras/xScanner -L $(or $(LIMIT),20) || true
+
+version:
+	@echo "Local repo:"
+	@echo "  branch=$$(git branch --show-current) sha=$$(git rev-parse --short HEAD) tag=$$(git describe --tags --always 2>/dev/null || echo '-')"
+	@echo "  pyproject=$$( \
+		PY=python3; \
+		if [ -x venv/bin/python ]; then PY=venv/bin/python; fi; \
+		$$PY -c 'import tomllib;print(tomllib.load(open("pyproject.toml","rb"))["project"]["version"])' 2>/dev/null || echo '-' \
+	)"
+	@echo ""
+	@$(MAKE) release-status LIMIT=$(or $(LIMIT),20)
 
 ci-main-status:
 	@echo "Latest CI run on main:"
