@@ -8,28 +8,37 @@ Code quality checks for the frontend application.
 
 **Studio uses the repository-wide pre-commit configuration** defined in `.pre-commit-config.yaml` at the repository root.
 
-**Pre-commit hooks (run automatically on commit):**
-- ✅ Code formatting (Prettier)
+**Commit-stage hooks (run automatically on commit for Studio changes):**
+- ✅ Formatting check (Prettier)
 - ✅ Linting (ESLint)
 - ✅ Type checking (TypeScript)
+- ✅ Unit tests (Vitest)
 - ✅ i18n validation
-- ✅ JSON/YAML validation
-- ✅ Trailing whitespace removal
+- ✅ DB types drift check (only when relevant files change)
 
-**All hooks only run when studio/ files are modified.**
+**Pre-push hooks (run before push):**
+- ✅ Server integration tests (pytest)
+- ✅ Studio integration tests (Vitest; requires a running API)
+- ✅ E2E tests (only if `OPENAI_API_KEY` is set)
+
+Studio-specific hooks only run when `studio/` files are modified.
 
 ---
 
 ## Installation
 
 ```bash
-# From repository root
-pip install pre-commit
-pre-commit install
+# From repository root (recommended)
+make dev
+make studio-install
 
-# Install Studio dependencies
-cd studio/
-npm install
+# Alternative (manual)
+python -m pip install pre-commit
+pre-commit install
+pre-commit install --hook-type pre-push
+
+# Studio deps
+cd studio && npm install
 ```
 
 That's it! Pre-commit hooks are now active for all commits.
@@ -38,24 +47,22 @@ That's it! Pre-commit hooks are now active for all commits.
 
 ## Package.json Scripts
 
-Add these scripts to `package.json`:
+Key scripts are already defined in `studio/package.json`.
+Excerpt (for orientation):
 
 ```json
 {
   "scripts": {
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
-    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "type-check": "tsc --noEmit",
-    "check:i18n": "node scripts/check-i18n.mjs",
-    "test": "vitest",
-    "test:run": "vitest run",
+    "lint": "eslint .",
+    "type-check": "tsc -b",
     "test:unit": "vitest run --dir tests/unit",
     "test:integration": "vitest run --dir tests/integration",
-    "test:ci": "npm run test:unit && npm run test:integration",
-    "test:coverage": "vitest --coverage",
-    "build": "tsc && vite build",
-    "prepare": "husky install"
+    "check:i18n:all": "node scripts/i18n/check-i18n.mjs && npm run check:i18n:missing && npm run check:i18n:unused",
+    "db:check": "npm run db:types:check",
+    "check:fast": "npm run lint && npm run type-check && npm run test:unit",
+    "check:all": "npm run format:check && npm run lint && npm run type-check && npm run i18n:all && npm run db:check && npm run build && npm run test:unit"
   }
 }
 ```
@@ -71,17 +78,21 @@ git add .
 git commit -m "feat: new feature"
 ```
 
-**Runs automatically (only if studio/ files changed):**
+**Runs automatically (only if `studio/` files changed):**
 1. Prettier format check (`npm run format:check`)
 2. ESLint linting (`npm run lint`)
 3. TypeScript type check (`npm run type-check`)
 4. Unit tests (`npm run test:unit`)
-5. Integration tests (`npm run test:integration`)
-6. i18n validation (`npm run check:i18n:all`)
+5. i18n validation (`npm run check:i18n:all`)
+6. DB types drift check (only when relevant files changed)
 7. JSON/YAML validation
 8. Trailing whitespace removal
 
 If any check fails → commit is blocked.
+
+### Push
+
+Before `git push`, pre-push hooks run integration tests. Studio integration tests require a running API and will fail fast if the API health check is not reachable.
 
 ### Skip Hooks (Emergency Only)
 
@@ -157,19 +168,19 @@ npm run type-check
 ### Check i18n translations
 
 ```bash
-npm run check:i18n
+npm run check:i18n:all
 ```
 
 ### Run tests
 
 ```bash
-npm run test:ci
+npm run test:all
 ```
 
 ### Run all checks
 
 ```bash
-npm run format:check && npm run lint && npm run type-check && npm test -- --run
+npm run check:all
 ```
 
 ---
@@ -189,48 +200,7 @@ git push --no-verify
 
 ## CI/CD Integration
 
-GitHub Actions should run the same checks:
-
-```yaml
-name: CI
-
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: 'npm'
-          cache-dependency-path: studio/package-lock.json
-
-      - name: Install dependencies
-        working-directory: studio
-        run: npm ci
-
-      - name: Check formatting
-        working-directory: studio
-        run: npm run format:check
-
-      - name: Lint
-        working-directory: studio
-        run: npm run lint
-
-      - name: Type check
-        working-directory: studio
-        run: npm run type-check
-
-      - name: Run tests
-        working-directory: studio
-        run: npm test -- --run
-
-      - name: Build
-        working-directory: studio
-        run: npm run build
-```
+CI should run the same checks. See `.github/workflows/ci.yml` for the canonical pipeline.
 
 ---
 
@@ -239,24 +209,13 @@ jobs:
 ### Hooks not running
 
 ```bash
-# Reinstall Husky
-rm -rf .husky
-npx husky init
-# Re-create hooks (see Installation section)
+make hooks-install
 ```
 
-### "command not found: husky"
+### Run hooks manually
 
 ```bash
-npm install -D husky
-npx husky init
-```
-
-### "Permission denied"
-
-```bash
-chmod +x .husky/pre-commit
-chmod +x .husky/pre-push
+make hooks-run
 ```
 
 ### Format/Lint errors

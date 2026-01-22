@@ -15,7 +15,7 @@
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
-    "type-check": "tsc --noEmit",
+    "type-check": "tsc -b",
     "test": "node scripts/help-test.mjs",
     "test:watch": "vitest",
     "test:run": "vitest run",
