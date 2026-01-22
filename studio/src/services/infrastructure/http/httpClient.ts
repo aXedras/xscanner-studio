@@ -145,9 +145,12 @@ export function createHttpJsonClient(options: HttpClientOptions): HttpJsonClient
     headers?: Record<string, string>
     body?: BodyInit | null
     payloadSnippet?: string
+    timeoutMs?: number
   }): Promise<TResponse> => {
     const url = joinUrl(baseUrl, input.path)
     const startedAt = performance.now()
+
+    const effectiveTimeoutMs = input.timeoutMs ?? timeoutMs
 
     logger.debug(name, 'http.request', { method: input.method, url })
 
@@ -155,7 +158,7 @@ export function createHttpJsonClient(options: HttpClientOptions): HttpJsonClient
     try {
       response = await fetchWithTimeout({
         url,
-        timeoutMs,
+        timeoutMs: effectiveTimeoutMs,
         init: {
           method: input.method,
           headers: { ...defaultHeaders, ...(input.headers ?? {}) },
@@ -232,6 +235,7 @@ export function createHttpJsonClient(options: HttpClientOptions): HttpJsonClient
         method: 'GET',
         path,
         headers: { ...(requestOptions?.headers ?? {}) },
+        timeoutMs: requestOptions?.timeoutMs,
       })
     },
 
@@ -246,6 +250,7 @@ export function createHttpJsonClient(options: HttpClientOptions): HttpJsonClient
         },
         body: JSON.stringify(body),
         payloadSnippet,
+        timeoutMs: requestOptions?.timeoutMs,
       })
     },
 
@@ -260,6 +265,7 @@ export function createHttpJsonClient(options: HttpClientOptions): HttpJsonClient
         headers: { ...(requestOptions?.headers ?? {}) },
         body: formData,
         payloadSnippet: truncate(describeFormData(formData), maxSnippetChars),
+        timeoutMs: requestOptions?.timeoutMs,
       })
     },
   }

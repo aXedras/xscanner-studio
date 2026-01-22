@@ -166,13 +166,69 @@ describe('httpClient (unit, black-box)', () => {
     const promise = client.getJson('/slow')
     const handled = promise.then(
       () => ({ ok: true as const }),
-      error => ({ ok: false as const, error })
+      (error: unknown) => ({ ok: false as const, error })
     )
 
     await vi.advanceTimersByTimeAsync(10)
 
     const outcome = await handled
     expect(outcome.ok).toBe(false)
+
+    if (outcome.ok) {
+      throw new Error('Expected request to time out')
+    }
+
+    expect(outcome.error).toBeInstanceOf(HttpError)
+    expect(outcome.error).toMatchObject({
+      kind: 'timeout',
+      method: 'GET',
+      url: 'http://x.test/slow',
+    })
+
+    vi.useRealTimers()
+  })
+
+  test('requestOptions.timeoutMs overrides client timeout for a single request', async () => {
+    vi.useFakeTimers()
+
+    const fetchMock = vi.fn().mockImplementation((_url: string, init?: RequestInit) => {
+      return new Promise((_resolve, reject) => {
+        const signal = init?.signal as AbortSignal | undefined
+        if (!signal) return
+
+        if (signal.aborted) {
+          reject(new DOMException('Aborted', 'AbortError'))
+          return
+        }
+
+        signal.addEventListener(
+          'abort',
+          () => {
+            reject(new DOMException('Aborted', 'AbortError'))
+          },
+          { once: true }
+        )
+      })
+    })
+
+    vi.stubGlobal('fetch', fetchMock)
+
+    const client = createHttpJsonClient({ baseUrl: 'http://x.test', logger: createNoopLogger(), timeoutMs: 50 })
+    const promise = client.getJson('/slow', { timeoutMs: 5 })
+    const handled = promise.then(
+      () => ({ ok: true as const }),
+      (error: unknown) => ({ ok: false as const, error })
+    )
+
+    await vi.advanceTimersByTimeAsync(10)
+
+    const outcome = await handled
+    expect(outcome.ok).toBe(false)
+
+    if (outcome.ok) {
+      throw new Error('Expected request to time out')
+    }
+
     expect(outcome.error).toBeInstanceOf(HttpError)
     expect(outcome.error).toMatchObject({
       kind: 'timeout',
