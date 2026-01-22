@@ -1,6 +1,6 @@
 [project]
 name = "xScanner"
-version = "1.0.0"
+version = "0.1.0"
 description = "OCR and LLM-based bullion bar data extraction"
 readme = "README.md"
 requires-python = ">=3.11"

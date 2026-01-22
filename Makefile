@@ -1,4 +1,4 @@
-.PHONY: help install dev format lint test test-all test-unit test-integration test-e2e test-coverage test-quick ci-local pre-commit-all db-types db-types-generate db-types-check database database-start database-stop start start-server start-studio start-supabase start-all preprod preprod-check preprod-update-main preprod-up preprod-down preprod-health preprod-status preprod-logs preprod-deploy ci-main-status docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report cli-report-history
+.PHONY: help install dev format lint test test-all test-unit test-integration test-e2e test-coverage test-quick ci-local pre-commit-all db-types db-types-generate db-types-check database database-start database-stop start start-server start-studio start-supabase start-all preprod preprod-check preprod-update-main preprod-up preprod-down preprod-health preprod-status preprod-logs preprod-deploy release release-help release-create ci-main-status docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report cli-report-history
 
 # Load environment variables from .env.local
 -include .env.local
@@ -17,6 +17,7 @@ help:
 	@echo "  make start     # dev services help"
 	@echo "  make database  # Supabase start/stop help"
 	@echo "  make preprod   # pre-prod deploy help"
+	@echo "  make release   # release help"
 	@echo "  make test      # test targets help"
 	@echo "  make cli       # CLI help"
 	@echo "  make db-types  # DB types help"
@@ -32,14 +33,14 @@ dev:
 
 # Format code
 format:
-	ruff format .
-	ruff check --fix .
+	@venv/bin/ruff format .
+	@venv/bin/ruff check --fix .
 
 # Lint code (no fixes)
 lint: db-types-check
-	ruff check .
-	ruff format --check .
-	mypy src/xscanner/ --ignore-missing-imports
+	@venv/bin/ruff check .
+	@venv/bin/ruff format --check .
+	@venv/bin/mypy src/xscanner/ --ignore-missing-imports
 
 # DB types (server)
 db-types:
@@ -168,7 +169,19 @@ preprod:
 	@echo "  make preprod-health        Run /health check against pre-prod API"
 	@echo "  make preprod-status        Show supabase status + docker compose ps"
 	@echo "  make preprod-logs          Tail docker compose logs"
-	@echo "  make preprod-deploy        Orchestrate: check → update-main → verify CI → up → health"
+	@echo "  make preprod-deploy        Deploy (default: latest GitHub release)"
+	@echo ""
+	@echo "Deploy options:"
+	@echo "  - ORIGIN=main|latest|release-x.y.z (default: latest)"
+	@echo "  - MODE=cloud|full (default: full for releases, cloud for main)"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make preprod-deploy                         # ORIGIN=latest, MODE=full"
+	@echo "  make preprod-deploy MODE=cloud              # latest release, cloud image"
+	@echo "  make preprod-deploy ORIGIN=release-0.1.0    # pin release tag v0.1.0 (full)"
+	@echo "  make preprod-deploy ORIGIN=release-0.1.0 MODE=cloud"
+	@echo "  make preprod-deploy ORIGIN=main MODE=cloud  # main HEAD, local build (cloud)"
+	@echo "  make preprod-deploy ORIGIN=main MODE=full   # main HEAD, local build (full)"
 	@echo ""
 	@echo "Env files:"
 	@echo "  .env.preprod.example -> .env.preprod (do not commit secrets)"
@@ -197,6 +210,31 @@ preprod-logs:
 
 preprod-deploy:
 	@bash scripts/preprod/deploy.sh
+
+# Releases
+release:
+	@echo "🏷️  xScanner Release"
+	@echo ""
+	@echo "Commands:"
+	@echo "  make release-create        Create GitHub release (tag + release)"
+	@echo ""
+	@echo "Usage:"
+	@echo "  make release-create VERSION=X.Y.Z"
+	@echo ""
+	@echo "Notes:"
+	@echo "  - Runs scripts/release/create-release.sh"
+	@echo "  - Requires clean working tree on main + gh auth"
+	@echo "  - Enforces docs/CHANGELOG.md + version alignment"
+
+release-help: release
+
+release-create:
+	@if [ -z "$(VERSION)" ]; then \
+		echo "Error: VERSION is required" >&2; \
+		echo "Usage: make release-create VERSION=X.Y.Z" >&2; \
+		exit 1; \
+	fi
+	@VERSION="$(VERSION)" bash scripts/release/create-release.sh
 
 ci-main-status:
 	@echo "Latest CI run on main:"
@@ -261,6 +299,11 @@ cli-interactive:
 	@venv/bin/python -m tools.cli.cli --interactive
 
 cli-test:
+	@if [ -z "$(IMAGE)" ] || [ -z "$(STRATEGY)" ]; then \
+		echo "Error: IMAGE and STRATEGY are required" >&2; \
+		echo "Usage: make cli-test IMAGE=path.jpg STRATEGY=chatgpt" >&2; \
+		exit 1; \
+	fi
 	@venv/bin/python -m tools.cli.cli --image "$(IMAGE)" --strategy $(STRATEGY) -v
 
 cli-list-images:
@@ -301,6 +344,8 @@ cli-report-history:
 	@echo ""
 	@echo "✅ All reports regenerated!"
 	@echo "   History: reports/history/index.html"
+
+cli-report-regenerate: cli-report-history
 
 
 # Build Docker image

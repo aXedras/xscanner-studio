@@ -1,5 +1,6 @@
 export default function Footer() {
   const currentYear = new Date().getFullYear()
+  const releaseLabel = import.meta.env.VITE_XSCANNER_RELEASE_TAG || 'dev'
 
   return (
     <footer className="mt-auto w-full">
@@ -15,6 +16,7 @@ export default function Footer() {
             </div>
 
             <div className="flex items-center gap-6 text-sm">
+              <span className="text-[color:var(--text-secondary)]">Release: {releaseLabel}</span>
               <a
                 href="https://axedras.com"
                 target="_blank"

@@ -11,6 +11,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 cd "$REPO_ROOT"
 
+ORIGIN="${ORIGIN:-latest}"
+
 if ! command -v docker >/dev/null 2>&1; then
   echo -e "${RED}Error: docker not found in PATH${NC}" >&2
   exit 1
@@ -32,9 +34,25 @@ if [ ! -f ".env.preprod" ]; then
   exit 1
 fi
 
+# For release-based deploys, we rely on GitHub Releases to resolve tags.
+if [ "$ORIGIN" != "main" ]; then
+  if ! command -v gh >/dev/null 2>&1; then
+    echo -e "${RED}Error: gh CLI not found in PATH (required for ORIGIN != main)${NC}" >&2
+    exit 1
+  fi
+
+  if ! gh auth status -h github.com >/dev/null 2>&1; then
+    echo -e "${RED}Error: gh is not authenticated (required for ORIGIN != main)${NC}" >&2
+    echo "Run: gh auth login" >&2
+    exit 1
+  fi
+fi
+
 # Guard against local modifications on the server.
 if ! git diff --quiet || ! git diff --cached --quiet; then
   echo -e "${RED}Error: git working tree has uncommitted changes${NC}" >&2
+  echo "This is intentional for pre-prod deploys." >&2
+  echo "Fix: commit, stash, or deploy from a clean clone." >&2
   git status -sb || true
   exit 1
 fi
