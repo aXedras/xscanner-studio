@@ -104,13 +104,42 @@ repos:
         entry: |
           bash -c '
             set -euo pipefail
-            API_URL="${VITE_API_URL:-http://127.0.0.1:8000}"
+
+            # Load env files (pre-commit does not automatically load .env/.env.local)
+            if [ -f .env.local ]; then
+              set -a
+              . ./.env.local
+              set +a
+            elif [ -f .env ]; then
+              set -a
+              . ./.env
+              set +a
+            fi
+
+            if [ -f studio/.env.local ]; then
+              set -a
+              . ./studio/.env.local
+              set +a
+            elif [ -f studio/.env ]; then
+              set -a
+              . ./studio/.env
+              set +a
+            fi
+
+            if [ -n "${VITE_API_URL:-}" ]; then
+              API_URL="$VITE_API_URL"
+            elif [ -n "${SERVER_PORT:-}" ]; then
+              API_URL="http://127.0.0.1:${SERVER_PORT}"
+            else
+              API_URL="http://127.0.0.1:8000"
+            fi
+
             HEALTH_URL="${API_URL%/}/health"
 
             if ! curl -fsS "$HEALTH_URL" >/dev/null; then
               echo "ERROR: xScanner API is not reachable: $HEALTH_URL" >&2
               echo "Start it (example): make start-server" >&2
-              echo "Or set VITE_API_URL to the running server base URL." >&2
+              echo "Or set VITE_API_URL (or SERVER_PORT) so the hook finds the server." >&2
               exit 1
             fi
 
