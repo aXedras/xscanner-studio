@@ -22,7 +22,6 @@ dependencies = [
     "requests==2.32.5",
     "Pillow>=10.3.0",  # Image processing (fixed CVE-2023-50447, CVE-2024-28219)
     "python-dotenv>=1.0.0",
-    "PyPDF2==3.0.1",  # PDF handling if needed
 ]
 
 [project.optional-dependencies]
