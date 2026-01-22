@@ -46,7 +46,7 @@ if [ ! -f "$CHANGELOG_FILE" ]; then
   exit 1
 fi
 
-if ! grep -Eq "^## \\\[${VERSION_NO_V}\\\]" "$CHANGELOG_FILE"; then
+if ! grep -Eq "^## \\[${VERSION_NO_V}\\]" "$CHANGELOG_FILE"; then
   echo -e "${RED}Error: changelog is missing release entry for ${VERSION_NO_V}${NC}" >&2
   echo "Add a section like: ## [${VERSION_NO_V}] - YYYY-MM-DD" >&2
   exit 1
