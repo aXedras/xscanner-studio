@@ -12,7 +12,7 @@ echo %BLUE%Starting all xScanner services...%NC%
 echo.
 
 REM 1. Start Supabase
-call scripts\windows\start-supabase.bat
+call scripts\windows\preprod\database-start.bat
 if %errorlevel% neq 0 (
     echo Failed to start Supabase
     exit /b 1
@@ -20,7 +20,7 @@ if %errorlevel% neq 0 (
 
 REM 2. Start FastAPI server in background
 echo %BLUE%Starting xScanner Server...%NC%
-start "xScanner Server" cmd /c "scripts\windows\start-server.bat"
+start "xScanner Server" cmd /c "scripts\windows\development\start-server.bat"
 timeout /t 2 /nobreak >nul
 
 REM 3. Start Studio in background

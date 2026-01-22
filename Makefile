@@ -1,4 +1,4 @@
-.PHONY: install dev format lint test test-all test-unit test-integration test-e2e test-coverage test-quick ci-local pre-commit-all db-types db-types-generate db-types-check start start-server start-studio start-supabase start-all docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report cli-report-history
+.PHONY: help install dev format lint test test-all test-unit test-integration test-e2e test-coverage test-quick ci-local pre-commit-all db-types db-types-generate db-types-check database database-start database-stop start start-server start-studio start-supabase start-all preprod preprod-check preprod-update-main preprod-up preprod-down preprod-health preprod-status preprod-logs preprod-deploy ci-main-status docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report cli-report-history
 
 # Load environment variables from .env.local
 -include .env.local
@@ -10,6 +10,16 @@ STUDIO_PORT := $(shell grep -oP 'port:\s*\K\d+' studio/vite.config.ts 2>/dev/nul
 # Install production dependencies
 install:
 	pip install -e .
+
+# Show an overview of the most important commands
+help:
+	@echo "xScanner Make Targets"
+	@echo "  make start     # dev services help"
+	@echo "  make database  # Supabase start/stop help"
+	@echo "  make preprod   # pre-prod deploy help"
+	@echo "  make test      # test targets help"
+	@echo "  make cli       # CLI help"
+	@echo "  make db-types  # DB types help"
 
 # Install with server dependencies
 install-server:
@@ -117,7 +127,7 @@ start:
 
 # Start FastAPI backend
 start-server:
-	@bash scripts/start-server.sh
+	@bash scripts/development/start-server.sh
 
 # Start Vite studio UI
 start-studio:
@@ -125,11 +135,73 @@ start-studio:
 
 # Start or check Supabase
 start-supabase:
-	@if ! supabase status >/dev/null 2>&1; then \
-		echo "🚀 Starting Supabase..."; \
-		supabase start; \
-		echo ""; \
-	fi
+	@make database-start
+
+# Database (Supabase) commands
+database:
+	@echo "🗄️  Database (Supabase)"
+	@echo ""
+	@echo "Available database commands:"
+	@echo ""
+	@echo "  make database-start   Start/check Supabase"
+	@echo "  make database-stop    Stop Supabase"
+	@echo ""
+	@echo "Notes:"
+	@echo "  - preprod-down intentionally keeps Supabase running"
+
+database-start:
+	@bash scripts/preprod/database-start.sh
+
+database-stop:
+	@bash scripts/preprod/database-stop.sh
+
+# Pre-prod deployment commands
+preprod:
+	@echo "🚀 xScanner Pre-prod"
+	@echo ""
+	@echo "Available pre-prod commands:"
+	@echo ""
+	@echo "  make preprod-check         Validate prerequisites (.env.preprod, docker, supabase)"
+	@echo "  make preprod-update-main   Fetch + checkout main + pull --ff-only"
+	@echo "  make preprod-up            Start/upgrade API+Studio via docker-compose.preprod.yml"
+	@echo "  make preprod-down          Stop API+Studio (keeps Supabase running)"
+	@echo "  make preprod-health        Run /health check against pre-prod API"
+	@echo "  make preprod-status        Show supabase status + docker compose ps"
+	@echo "  make preprod-logs          Tail docker compose logs"
+	@echo "  make preprod-deploy        Orchestrate: check → update-main → verify CI → up → health"
+	@echo ""
+	@echo "Env files:"
+	@echo "  .env.preprod.example -> .env.preprod (do not commit secrets)"
+
+preprod-check:
+	@bash scripts/preprod/check.sh
+
+preprod-update-main:
+	@bash scripts/preprod/update-main.sh
+
+preprod-up:
+	@bash scripts/preprod/database-start.sh
+	@bash scripts/preprod/up.sh
+
+preprod-down:
+	@bash scripts/preprod/down.sh
+
+preprod-health:
+	@bash scripts/preprod/health.sh
+
+preprod-status:
+	@bash scripts/preprod/status.sh
+
+preprod-logs:
+	@bash scripts/preprod/logs.sh
+
+preprod-deploy:
+	@bash scripts/preprod/deploy.sh
+
+ci-main-status:
+	@echo "Latest CI run on main:"
+	@gh run list -R aXedras/xScanner -w "CI/CD Pipeline" -b main -L 1 || true
+
 
 # Start all services (Supabase + FastAPI + Studio)
 start-all: start-supabase

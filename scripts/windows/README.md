@@ -1,6 +1,6 @@
 # Windows Scripts
 
-This directory contains Windows-specific `.bat` scripts that mirror the functionality of the Unix `.sh` scripts in the parent `scripts/` directory.
+This directory contains Windows-specific `.bat` scripts.
 
 ## Purpose
 
@@ -8,20 +8,15 @@ This directory contains Windows-specific `.bat` scripts that mirror the function
 - **Clean Separation**: Keep Windows-specific code separate from Unix scripts
 - **Automatic Detection**: Makefile automatically uses Windows scripts on Windows platforms
 
-## Available Scripts
+## Structure
 
-- `start-server.bat` - Start FastAPI backend server (mirrors `start-server.sh`)
+- `development/` - Local dev scripts
+- `preprod/` - Pre-prod deploy scripts
 
 ## Usage
 
-These scripts are automatically used by the Makefile when running on Windows:
-
-```powershell
-# These commands will use the .bat scripts on Windows:
-make start-server
-make start-all
-```
+These scripts are meant to be run directly on Windows machines (e.g. a Windows VM for pre-prod).
 
 ## Maintenance
 
-When adding new `.sh` scripts, create equivalent `.bat` scripts here to maintain Windows compatibility.
+When adding new `.sh` scripts, create equivalent `.bat` scripts here if you need Windows-native execution.
