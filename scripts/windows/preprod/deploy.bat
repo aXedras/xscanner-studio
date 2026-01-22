@@ -47,7 +47,8 @@ call scripts\windows\preprod\database-start.bat
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo Stopping existing API + Studio ^(if any^)...
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml down --remove-orphans >NUL 2>&1
+docker compose --env-file .env.preprod -f docker-compose.preprod.yml down --remove-orphans
+if %errorlevel% neq 0 exit /b %errorlevel%
 
 REM Deploy
 if /I "%ORIGIN%"=="main" goto deploy_main
