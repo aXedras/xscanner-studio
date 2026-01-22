@@ -44,7 +44,12 @@ fi
 
 TAG=""
 if [ "$ORIGIN" = "latest" ]; then
-	TAG="$(gh release view --repo aXedras/xScanner --json tagName --jq .tagName)"
+	TAG="$(gh release view --repo aXedras/xScanner --json tagName --jq .tagName 2>/dev/null || true)"
+	if [ -z "$TAG" ]; then
+		echo -e "${RED}Error:${NC} no GitHub Releases found for aXedras/xScanner." >&2
+		echo -e "${BLUE}Tip:${NC} use ORIGIN=main (local build) or ORIGIN=release-x.y.z once releases exist." >&2
+		exit 1
+	fi
 elif [[ "$ORIGIN" == release-* ]]; then
 	TAG="${ORIGIN#release-}"
 	if [[ "$TAG" != v* ]]; then

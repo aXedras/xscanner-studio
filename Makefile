@@ -4,16 +4,33 @@
 -include .env.local
 export
 
-# Extract Studio port from vite.config.ts
+# Virtualenv (cross-platform)
+VENV_DIR := venv
+ifeq ($(OS),Windows_NT)
+VENV_PYTHON := $(VENV_DIR)/Scripts/python.exe
+else
+VENV_PYTHON := $(VENV_DIR)/bin/python
+endif
+
+# Extract Studio port from vite.config.ts (best-effort)
+ifeq ($(OS),Windows_NT)
+STUDIO_PORT := 8084
+else
 STUDIO_PORT := $(shell grep -oP 'port:\s*\K\d+' studio/vite.config.ts 2>/dev/null || echo 8084)
+endif
 
 # Install production dependencies
 venv:
-	@if [ ! -x "venv/bin/python" ]; then python3 -m venv venv; fi
-	@venv/bin/python -m pip install -U pip
+
+ifeq ($(OS),Windows_NT)
+	@if not exist "$(VENV_PYTHON)" (python -m venv $(VENV_DIR))
+else
+	@if [ ! -x "$(VENV_PYTHON)" ]; then python3 -m venv $(VENV_DIR); fi
+endif
+	@$(VENV_PYTHON) -m pip install -U pip
 
 install: venv
-	@venv/bin/python -m pip install -e .
+	@$(VENV_PYTHON) -m pip install -e .
 
 # Show an overview of the most important commands
 help:
@@ -34,11 +51,11 @@ help:
 
 # Install with server dependencies
 install-server: venv
-	@venv/bin/python -m pip install -e ".[server]"
+	@$(VENV_PYTHON) -m pip install -e ".[server]"
 
 # Install development dependencies
 dev: venv
-	@venv/bin/python -m pip install -e ".[dev]"
+	@$(VENV_PYTHON) -m pip install -e ".[dev]"
 	@make hooks-install
 
 hooks:
@@ -53,26 +70,26 @@ hooks:
 	@echo "  - We install pre-commit into the repo venv (venv/)."
 
 hooks-install: venv
-	@venv/bin/python -m pip install -U pre-commit
-	@venv/bin/pre-commit install
-	@venv/bin/pre-commit install --hook-type pre-push
+	@$(VENV_PYTHON) -m pip install -U pre-commit
+	@$(VENV_PYTHON) -m pre_commit install
+	@$(VENV_PYTHON) -m pre_commit install --hook-type pre-push
 
 hooks-update: venv
-	@venv/bin/pre-commit autoupdate
+	@$(VENV_PYTHON) -m pre_commit autoupdate
 
 hooks-run: venv
-	@venv/bin/pre-commit run --all-files
+	@$(VENV_PYTHON) -m pre_commit run --all-files
 
 # Format code
 format:
-	@venv/bin/ruff format .
-	@venv/bin/ruff check --fix .
+	@$(VENV_PYTHON) -m ruff format .
+	@$(VENV_PYTHON) -m ruff check --fix .
 
 # Lint code (no fixes)
 lint: db-types-check
-	@venv/bin/ruff check .
-	@venv/bin/ruff format --check .
-	@venv/bin/mypy src/xscanner/ --ignore-missing-imports
+	@$(VENV_PYTHON) -m ruff check .
+	@$(VENV_PYTHON) -m ruff format --check .
+	@$(VENV_PYTHON) -m mypy src/xscanner/ --ignore-missing-imports
 
 # DB types (server)
 db-types:
@@ -82,10 +99,10 @@ db-types:
 	@echo "  make db-types-check      Verify DB types match supabase/migrations"
 
 db-types-generate:
-	@venv/bin/python -m scripts.db.gen_db_types
+	@$(VENV_PYTHON) -m scripts.db.gen_db_types
 
 db-types-check:
-	@venv/bin/python -m scripts.db.check_db_types
+	@$(VENV_PYTHON) -m scripts.db.check_db_types
 
 # Checks (help)
 check: check-help
@@ -115,7 +132,13 @@ check-fast: lint test-quick studio-check-fast
 
 # Full CI run (mirrors GitHub Actions; may require Node, Supabase, and API keys for some checks)
 check-all:
+
+ifeq ($(OS),Windows_NT)
+	@where bash >NUL 2>&1 || (echo bash not found. Install Git Bash or use WSL to run check-all. & exit /b 1)
 	@bash scripts/ci-check-local.sh
+else
+	@bash scripts/ci-check-local.sh
+endif
 
 studio:
 	@echo "🎛️  xScanner Studio"
@@ -143,9 +166,15 @@ studio:
 	@echo "  make studio-test-integration Integration tests (requires running server + Supabase env)"
 
 studio-install:
+ifeq ($(OS),Windows_NT)
+	@if not exist studio (echo Studio folder not found.& exit /b 1)
+	@where npm >NUL 2>&1 || (echo npm not found (required for Studio) & exit /b 1)
+	@cd studio && npm install
+else
 	@if [ ! -d "studio" ]; then echo "Studio folder not found."; exit 1; fi
 	@if ! command -v npm >/dev/null 2>&1; then echo "npm not found (required for Studio)" >&2; exit 1; fi
 	@cd studio && npm install
+endif
 
 studio-format-check:
 	@cd studio && npm run format:check
@@ -172,28 +201,26 @@ studio-test-integration:
 	@cd studio && npm run test:integration
 
 studio-check-fast:
+ifeq ($(OS),Windows_NT)
+	@if exist studio (cd studio && npm run check:fast) else (echo Studio folder not found, skipping.)
+else
 	@if [ ! -d "studio" ]; then echo "Studio folder not found, skipping."; exit 0; fi
 	@if ! command -v npm >/dev/null 2>&1; then echo "npm not found (required for Studio checks)" >&2; exit 1; fi
-	@if [ ! -d "studio/node_modules" ]; then echo "Studio deps missing. Run: make studio-install" >&2; exit 1; fi
-	@make studio-lint
-	@make studio-type-check
-	@make studio-test-unit
+	@cd studio && npm run check:fast
+endif
 
 studio-check-all:
+ifeq ($(OS),Windows_NT)
+	@if exist studio (cd studio && npm run check:all) else (echo Studio folder not found, skipping.)
+else
 	@if [ ! -d "studio" ]; then echo "Studio folder not found, skipping."; exit 0; fi
 	@if ! command -v npm >/dev/null 2>&1; then echo "npm not found (required for Studio checks)" >&2; exit 1; fi
-	@if [ ! -d "studio/node_modules" ]; then echo "Studio deps missing. Run: make studio-install" >&2; exit 1; fi
-	@make studio-format-check
-	@make studio-lint
-	@make studio-type-check
-	@make studio-i18n-check
-	@make studio-db-types-check
-	@make studio-build
-	@make studio-test-unit
+	@cd studio && npm run check:all
+endif
 
 # Run pre-commit on all files (what pre-commit hook does)
 pre-commit-all:
-	@venv/bin/pre-commit run --all-files
+	@$(VENV_PYTHON) -m pre_commit run --all-files
 
 # Run tests (help)
 test: test-help
@@ -216,34 +243,34 @@ test-help:
 # Run ALL tests
 test-all:
 	@echo "🧪 Running all tests (unit + integration + e2e)..."
-	@venv/bin/python -m pytest tests/ -v
+	@$(VENV_PYTHON) -m pytest tests/ -v
 
 # Run only fast unit tests
 test-unit:
 	@echo "⚡ Running unit tests only..."
-	@venv/bin/python -m pytest tests/unit/ -v
+	@$(VENV_PYTHON) -m pytest tests/unit/ -v
 
 # Run only integration tests
 test-integration:
 	@echo "🔌 Running integration tests (mocked APIs, no API keys needed)..."
-	@venv/bin/python -m pytest tests/integration/ -v -m integration
+	@$(VENV_PYTHON) -m pytest tests/integration/ -v -m integration
 
 # Run only e2e tests
 test-e2e:
 	@echo "🚀 Running e2e tests (requires API keys & services)..."
-	@venv/bin/python -m pytest tests/e2e/ -v -m e2e
+	@$(VENV_PYTHON) -m pytest tests/e2e/ -v -m e2e
 
 # Run tests with coverage report
 test-coverage:
 	@echo "📊 Running tests with coverage..."
-	@venv/bin/python -m pytest tests/ --cov=src/xscanner --cov-report=html --cov-report=term
+	@$(VENV_PYTHON) -m pytest tests/ --cov=src/xscanner --cov-report=html --cov-report=term
 	@echo ""
 	@echo "✅ Coverage report generated: htmlcov/index.html"
 
 # Run quick tests (unit only, for pre-commit)
 test-quick:
 	@echo "⚡ Running quick tests..."
-	@venv/bin/python -m pytest tests/unit/ -q
+	@$(VENV_PYTHON) -m pytest tests/unit/ -q
 
 # Start services (show help)
 start:
@@ -259,10 +286,21 @@ start:
 	@echo "Prerequisites:"
 	@echo "  • Python:    source venv/bin/activate"
 	@echo "  • Node:      cd studio && npm install"
+	@echo ""
+ifeq ($(OS),Windows_NT)
+	@echo "Windows notes:"
+	@echo "  • Python:    venv\\Scripts\\activate"
+	@echo "  • Some targets require Git Bash (bash) or WSL"
+endif
 
 # Start FastAPI backend
 start-server:
+
+ifeq ($(OS),Windows_NT)
+	@scripts\\windows\\development\\start-server.bat
+else
 	@bash scripts/development/start-server.sh
+endif
 
 # Start Vite studio UI
 start-studio:
@@ -270,7 +308,7 @@ start-studio:
 
 # Start or check Supabase
 start-supabase:
-	@make database-start
+	@$(MAKE) database-start
 
 # Database (Supabase) commands
 database:
@@ -285,12 +323,19 @@ database:
 	@echo "  - preprod-down intentionally keeps Supabase running"
 
 database-start:
+ifeq ($(OS),Windows_NT)
+	@scripts\\windows\\preprod\\database-start.bat
+else
 	@bash scripts/preprod/database-start.sh
+endif
 
 database-stop:
+ifeq ($(OS),Windows_NT)
+	@scripts\\windows\\preprod\\database-stop.bat
+else
 	@bash scripts/preprod/database-stop.sh
+endif
 
-# Pre-prod deployment commands
 preprod:
 	@echo "🚀 xScanner Pre-prod"
 	@echo ""
@@ -321,29 +366,77 @@ preprod:
 	@echo "  .env.preprod.example -> .env.preprod (do not commit secrets)"
 
 preprod-check:
+
+ifeq ($(OS),Windows_NT)
+	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod targets (except database-start/stop/deploy). & exit /b 1)
 	@bash scripts/preprod/check.sh
+else
+	@bash scripts/preprod/check.sh
+endif
 
 preprod-update-main:
+
+ifeq ($(OS),Windows_NT)
+	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod targets (except database-start/stop/deploy). & exit /b 1)
 	@bash scripts/preprod/update-main.sh
+else
+	@bash scripts/preprod/update-main.sh
+endif
 
 preprod-up:
+
+ifeq ($(OS),Windows_NT)
+	@scripts\\windows\\preprod\\database-start.bat
+	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod-up (up.sh). & exit /b 1)
+	@bash scripts/preprod/up.sh
+else
 	@bash scripts/preprod/database-start.sh
 	@bash scripts/preprod/up.sh
+endif
 
 preprod-down:
+
+ifeq ($(OS),Windows_NT)
+	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod targets (except database-start/stop/deploy). & exit /b 1)
 	@bash scripts/preprod/down.sh
+else
+	@bash scripts/preprod/down.sh
+endif
 
 preprod-health:
+
+ifeq ($(OS),Windows_NT)
+	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod targets (except database-start/stop/deploy). & exit /b 1)
 	@bash scripts/preprod/health.sh
+else
+	@bash scripts/preprod/health.sh
+endif
 
 preprod-status:
+
+ifeq ($(OS),Windows_NT)
+	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod targets (except database-start/stop/deploy). & exit /b 1)
 	@bash scripts/preprod/status.sh
+else
+	@bash scripts/preprod/status.sh
+endif
 
 preprod-logs:
+
+ifeq ($(OS),Windows_NT)
+	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod targets (except database-start/stop/deploy). & exit /b 1)
 	@bash scripts/preprod/logs.sh
+else
+	@bash scripts/preprod/logs.sh
+endif
 
 preprod-deploy:
+
+ifeq ($(OS),Windows_NT)
+	@scripts\\windows\\preprod\\deploy.bat
+else
 	@bash scripts/preprod/deploy.sh
+endif
 
 # Releases
 release:
@@ -365,21 +458,36 @@ release:
 release-help: release
 
 release-create:
-	@if [ -z "$(VERSION)" ]; then \
-		echo "Error: VERSION is required" >&2; \
-		echo "Usage: make release-create VERSION=X.Y.Z" >&2; \
-		exit 1; \
-	fi
+	$(if $(strip $(VERSION)),,$(error VERSION is required. Usage: make release-create VERSION=X.Y.Z))
+
+ifeq ($(OS),Windows_NT)
+	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash to run release-create. & exit /b 1)
 	@VERSION="$(VERSION)" bash scripts/release/create-release.sh
+else
+	@VERSION="$(VERSION)" bash scripts/release/create-release.sh
+endif
 
 release-list:
+ifeq ($(OS),Windows_NT)
+	@where gh >NUL 2>&1 || (echo Error: gh CLI not found in PATH & exit /b 1)
+else
 	@if ! command -v gh >/dev/null 2>&1; then \
 		echo "Error: gh CLI not found in PATH" >&2; \
 		exit 1; \
 	fi
+endif
 	@gh release list --repo aXedras/xScanner -L $(or $(LIMIT),20)
 
 release-status:
+
+ifeq ($(OS),Windows_NT)
+	@where gh >NUL 2>&1 || (echo Error: gh CLI not found in PATH & exit /b 1)
+	@echo "Latest GitHub release tag:"
+	@powershell -NoProfile -Command "$$json = (gh release view --repo aXedras/xScanner --json tagName,publishedAt 2>$$null); if ($$LASTEXITCODE -ne 0 -or -not $$json) { Write-Output '  (none)'; exit 0 }; $$o = $$json | ConvertFrom-Json; $$published = $$o.publishedAt; if (-not $$published) { $$published = '' }; Write-Output ('  ' + $$o.tagName + ' (publishedAt=' + $$published + ')')"
+	@echo.
+	@echo Recent releases:
+	@gh release list --repo aXedras/xScanner -L $(or $(LIMIT),20) || exit /b 1
+else
 	@if ! command -v gh >/dev/null 2>&1; then \
 		echo "Error: gh CLI not found in PATH" >&2; \
 		exit 1; \
@@ -393,8 +501,17 @@ release-status:
 	@echo ""
 	@echo "Recent releases:"
 	@gh release list --repo aXedras/xScanner -L $(or $(LIMIT),20) || true
+endif
 
 version:
+
+ifeq ($(OS),Windows_NT)
+	@echo "Local repo:"
+	@powershell -NoProfile -Command "$$b=(git branch --show-current); $$s=(git rev-parse --short HEAD); $$t=(git describe --tags --always 2>$$null); if(-not $$t){$$t='-'}; Write-Output ('  branch=' + $$b + ' sha=' + $$s + ' tag=' + $$t)"
+	@powershell -NoProfile -Command "$$v=(& '$(VENV_PYTHON)' -c \"import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])\" 2>$$null); if(-not $$v){$$v='-'}; Write-Output ('  pyproject=' + $$v)"
+	@echo ""
+	@$(MAKE) release-status LIMIT=$(or $(LIMIT),20)
+else
 	@echo "Local repo:"
 	@echo "  branch=$$(git branch --show-current) sha=$$(git rev-parse --short HEAD) tag=$$(git describe --tags --always 2>/dev/null || echo '-')"
 	@echo "  pyproject=$$( \
@@ -404,6 +521,7 @@ version:
 	)"
 	@echo ""
 	@$(MAKE) release-status LIMIT=$(or $(LIMIT),20)
+endif
 
 ci-main-status:
 	@echo "Latest CI run on main:"
@@ -412,6 +530,10 @@ ci-main-status:
 
 # Start all services (Supabase + FastAPI + Studio)
 start-all: start-supabase
+
+ifeq ($(OS),Windows_NT)
+	@scripts\\windows\\development\\start-all.bat
+else
 	@echo "🚀 Starting all xScanner services..."
 	@echo ""
 	@echo "Supabase:"
@@ -430,6 +552,7 @@ start-all: start-supabase
 	@echo "   UI:               http://localhost:$(STUDIO_PORT)"
 	@echo ""
 	@make start-server & make start-studio
+endif
 
 # CLI Tools - Unified tool for testing and benchmarking
 cli:
@@ -465,37 +588,34 @@ cli:
 cli-help: cli
 
 cli-interactive:
-	@venv/bin/python -m tools.cli.cli --interactive
+	@$(VENV_PYTHON) -m tools.cli.cli --interactive
 
 cli-test:
-	@if [ -z "$(IMAGE)" ] || [ -z "$(STRATEGY)" ]; then \
-		echo "Error: IMAGE and STRATEGY are required" >&2; \
-		echo "Usage: make cli-test IMAGE=path.jpg STRATEGY=chatgpt" >&2; \
-		exit 1; \
-	fi
-	@venv/bin/python -m tools.cli.cli --image "$(IMAGE)" --strategy $(STRATEGY) -v
+	$(if $(strip $(IMAGE)),,$(error IMAGE is required. Usage: make cli-test IMAGE=path.jpg STRATEGY=chatgpt))
+	$(if $(strip $(STRATEGY)),,$(error STRATEGY is required. Usage: make cli-test IMAGE=path.jpg STRATEGY=chatgpt))
+	@$(VENV_PYTHON) -m tools.cli.cli --image "$(IMAGE)" --strategy $(STRATEGY) -v
 
 cli-list-images:
-	@venv/bin/python -m tools.cli.cli --list-images
+	@$(VENV_PYTHON) -m tools.cli.cli --list-images
 
 cli-list-strategies:
-	@venv/bin/python -m tools.cli.cli --list-strategies
+	@$(VENV_PYTHON) -m tools.cli.cli --list-strategies
 
 cli-benchmark:
 	@echo "🔬 Running full benchmark + generating report..."
-	@venv/bin/python -m tools.cli.cli
+	@$(VENV_PYTHON) -m tools.cli.cli
 	@echo ""
 	@echo "📊 Generating HTML report..."
-	@venv/bin/python -m tools.cli.report
+	@$(VENV_PYTHON) -m tools.cli.report
 	@echo ""
 	@echo "✅ Benchmark complete! View report at: reports/strategy_benchmark_report.html"
 
 cli-benchmark-quick:
 	@echo "⚡ Running quick benchmark (3 random images) + generating report..."
-	@venv/bin/python -m tools.cli.cli --quick
+	@$(VENV_PYTHON) -m tools.cli.cli --quick
 	@echo ""
 	@echo "📊 Generating HTML report..."
-	@venv/bin/python -m tools.cli.report
+	@$(VENV_PYTHON) -m tools.cli.report
 	@echo ""
 	@echo "✅ Quick benchmark complete! View report at: reports/strategy_benchmark_report.html"
 
