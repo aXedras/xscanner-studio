@@ -10,6 +10,8 @@ import { createHttpJsonClient } from '../http/httpClient'
 
 const DEFAULT_API_BASE_URL = (import.meta.env.VITE_API_URL as string) || 'http://localhost:8000'
 
+const EXTRACT_UPLOAD_TIMEOUT_MS = 300_000
+
 export class HttpXScannerClient implements IXScannerClient {
   declare private readonly logger: ILogger
   declare private readonly apiBaseUrl: string
@@ -39,7 +41,9 @@ export class HttpXScannerClient implements IXScannerClient {
     form.append('use_mock', String(input.useMock))
     form.append('register_on_bil', String(input.registerOnBil))
 
-    return await this.client.postFormData<ExtractResponse>('/extract/upload', form)
+    return await this.client.postFormData<ExtractResponse>('/extract/upload', form, {
+      timeoutMs: EXTRACT_UPLOAD_TIMEOUT_MS,
+    })
   }
 
   async registerOnBil(input: RegisterOnBilInput): Promise<RegisterOnBilResponse> {
