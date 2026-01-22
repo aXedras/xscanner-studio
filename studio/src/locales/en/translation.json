@@ -1,0 +1,217 @@
+{
+  "common": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "extractions": "Extractions"
+    },
+    "toast": {
+      "save": {
+        "title": "Saved",
+        "description": "Changes saved successfully."
+      },
+      "upload": {
+        "title": "Extraction started",
+        "description": "The upload was processed and the result was saved."
+      },
+      "delete": {
+        "title": "Deleted",
+        "description": "Entry deleted successfully."
+      },
+      "update": {
+        "title": "Updated",
+        "description": "Data updated successfully."
+      },
+      "error": {
+        "title": "Error",
+        "description": "An error occurred."
+      },
+      "bulkReject": {
+        "title": "Rejected",
+        "description": "Rejected {{count}} item(s)."
+      },
+      "bulkRejectFailed": {
+        "description": "Failed to reject {{count}} item(s)."
+      }
+    },
+    "action": {
+      "save": "Save",
+      "correct": "Correct",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "showDetails": "Show details",
+      "register": "Register",
+      "reject": "Reject",
+      "rejectSelected": "Reject {{count}} records",
+      "clearSelection": "Clear selection",
+      "create": "Create",
+      "back": "Back",
+      "search": "Search",
+      "clear": "Clear",
+      "reset": "Reset",
+      "filters": "Filters",
+      "previous": "Previous",
+      "next": "Next",
+      "upload": "Upload",
+      "download": "Download",
+      "close": "Close"
+    },
+    "status": {
+      "loading": "Loading...",
+      "saving": "Saving...",
+      "uploading": "Uploading...",
+      "success": "Success",
+      "error": "Error"
+    },
+    "validation": {
+      "required": "{{field}} is required",
+      "invalid": "{{field}} is invalid"
+    },
+    "error": {
+      "title": "Something went wrong",
+      "network": "Network error. Please check your connection.",
+      "unauthorized": "You are not authorized. Please sign in again.",
+      "forbidden": "You don't have permission to perform this action.",
+      "notFound": "The requested resource was not found.",
+      "server": "Server error. Please try again later.",
+      "unknown": "An unexpected error occurred.",
+      "goBack": "Go Back",
+      "goHome": "Go to Dashboard"
+    },
+    "fields": {
+      "search": "Search",
+      "from": "From",
+      "to": "To",
+      "serialNumber": "Serial Number",
+      "metal": "Metal",
+      "weight": "Weight",
+      "purity": "Purity",
+      "manufacturer": "Manufacturer",
+      "createdAt": "Created at",
+      "updatedAt": "Updated at"
+    },
+    "table": {
+      "rowsPerPage": "Rows per page",
+      "page": "Page",
+      "selected": "{{count}} selected",
+      "selectAll": "Select all",
+      "selectRow": "Select row"
+    },
+    "imageInspector": {
+      "inspect": "Inspect",
+      "close": "Close",
+      "reset": "Reset",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
+      "zoom": "Zoom",
+      "hint": "Mouse wheel to zoom, drag to pan when zoomed, Esc to close."
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "xScanner Studio",
+      "subtitle": "Sign In",
+      "action": "Sign In"
+    },
+    "signup": {
+      "subtitle": "Create account",
+      "action": "Sign Up",
+      "displayName": "Display name",
+      "displayNamePlaceholder": "Jane Doe",
+      "checkEmail": "Check your email to confirm your account, then sign in."
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Password"
+    },
+    "errors": {
+      "invalidCredentials": "Email or password is incorrect.",
+      "emailNotConfirmed": "Please confirm your email address before signing in.",
+      "userAlreadyExists": "An account with this email address already exists.",
+      "weakPassword": "Your password is too weak. Please choose a stronger one.",
+      "tooManyRequests": "Too many attempts. Please try again later."
+    },
+    "logout": "Sign Out"
+  },
+  "extraction": {
+    "title": "xScanner Studio",
+    "welcome": {
+      "title": "Welcome back! 👋",
+      "subtitle": "Manage your bullion extractions and optimize your workflows."
+    },
+    "stats": {
+      "total": "Total",
+      "pending": "Pending",
+      "validated": "Validated",
+      "errors": "Errors"
+    },
+    "upload": {
+      "title": "Upload & Extract",
+      "description": "Upload bullion images and automatically extract metadata using AI.",
+      "action": "Start New Extraction",
+      "processing": "Processing extraction… this may take a few seconds.",
+      "aiStrategy": "AI Strategy",
+      "strategyCloud": "Cloud",
+      "strategyLocal": "Local",
+      "useMock": "Use mock data",
+      "registerOnBil": "Register on Bullion Integrity Ledger"
+    },
+    "history": {
+      "title": "Browse Extractions",
+      "description": "Search and manage all your previous extractions.",
+      "action": "View All"
+    },
+    "fields": {
+      "status": "Status",
+      "strategy": "Strategy",
+      "confidence": "Confidence",
+      "weightUnit": "Unit",
+      "error": "Error"
+    },
+    "list": {
+      "title": "Extractions",
+      "subtitle": "Quality control and corrections with full audit trail.",
+      "empty": "No extractions found.",
+      "stats": {
+        "pending": "Pending",
+        "corrected": "Corrected",
+        "validated": "Validated",
+        "rejected": "Rejected",
+        "errors": "Errors"
+      }
+    },
+    "detail": {
+      "title": "Extraction",
+      "subtitle": "Original ID: {{originalId}}",
+      "certificateIdLabel": "Certificate ID",
+      "strategyTitle": "Extraction Strategy",
+      "missingId": "Missing original id.",
+      "notFound": "Extraction not found.",
+      "imageAlt": "Bullion image",
+      "imageUnavailable": "Image preview not available.",
+      "bil": {
+        "title": "BIL Registration",
+        "empty": "No registration attempts recorded.",
+        "version": "Version",
+        "source": "Source",
+        "result": "Result",
+        "certificateId": "Certificate ID",
+        "processingTime": "Processing time",
+        "httpStatus": "HTTP status",
+        "details": "Details",
+        "errorDetails": "Error details",
+        "payloadSent": "Payload sent",
+        "payloadReceived": "Payload received"
+      },
+      "fields": "Fields",
+      "history": "History",
+      "audit": {
+        "when": "Version",
+        "by": "By",
+        "changes": "Changes",
+        "you": "You",
+        "system": "System"
+      }
+    }
+  }
+}

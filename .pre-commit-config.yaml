@@ -55,6 +55,86 @@ repos:
         pass_filenames: false
         always_run: true
 
+  # Studio: Prettier format check (only for studio/ files)
+  - repo: local
+    hooks:
+      - id: studio-prettier
+        name: studio prettier check
+        entry: bash -c 'cd studio && npm run format:check'
+        language: system
+        files: ^studio/.*\.(ts|tsx|css|json)$
+        pass_filenames: false
+
+  # Studio: ESLint (only for studio/ files)
+  - repo: local
+    hooks:
+      - id: studio-eslint
+        name: studio eslint
+        entry: bash -c 'cd studio && npm run lint'
+        language: system
+        files: ^studio/.*\.(ts|tsx)$
+        pass_filenames: false
+
+  # Studio: TypeScript type check (only for studio/ files)
+  - repo: local
+    hooks:
+      - id: studio-typecheck
+        name: studio type check
+        entry: bash -c 'cd studio && npm run type-check'
+        language: system
+        files: ^studio/.*\.(ts|tsx)$
+        pass_filenames: false
+
+  # Studio: Unit tests (only for studio/ files)
+  - repo: local
+    hooks:
+      - id: studio-test-unit
+        name: studio unit tests
+        entry: bash -c 'cd studio && npm run test:unit'
+        language: system
+        files: ^studio/
+        pass_filenames: false
+
+  # Studio: Integration tests (only for studio/ files)
+  - repo: local
+    hooks:
+      - id: studio-test-integration
+        name: studio integration tests
+        entry: bash -c 'cd studio && npm run test:integration'
+        language: system
+        files: ^studio/
+        pass_filenames: false
+
+  # Studio: i18n validation (only for studio/ files)
+  - repo: local
+    hooks:
+      - id: studio-i18n
+        name: studio i18n validation
+        entry: bash -c 'cd studio && npm run check:i18n:all'
+        language: system
+        files: ^studio/(src/.*\.(ts|tsx)|src/locales/.*/translation\.json)$
+        pass_filenames: false
+
+  # Studio: DB types must match migrations
+  - repo: local
+    hooks:
+      - id: studio-db-types
+        name: studio db types up-to-date
+        entry: bash -c 'cd studio && npm run db:types:check'
+        language: system
+        files: ^(supabase/migrations/.*\.sql|studio/src/lib/supabase/database\.types\.ts)$
+        pass_filenames: false
+
+  # Server: DB types must match migrations
+  - repo: local
+    hooks:
+      - id: server-db-types
+        name: server db types up-to-date
+        entry: bash -c 'source venv/bin/activate && python -m scripts.db.check_db_types'
+        language: system
+        files: ^(supabase/migrations/.*\.sql|src/xscanner/server/db_types\.py|scripts/db/.*\.py)$
+        pass_filenames: false
+
   # E2E tests (real API calls, run before push if OPENAI_API_KEY is set)
   - repo: local
     hooks:

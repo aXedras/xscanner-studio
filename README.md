@@ -4,103 +4,101 @@
 ![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 
-**AI-powered data extraction and Vision API for structured data from bullion bar images**
+**AI-powered bullion data extraction with Vision LLMs**
 
-Extract serial numbers, metal type, weight, fineness, and producer information from gold, silver, platinum, and palladium bar images using Vision LLM and text extraction technologies.
+Extract serial numbers, metal type, weight, fineness, and producer information from precious metal bar images.
+
+---
 
 ## 📚 Documentation
 
-- **[API Documentation](docs/API_DOCUMENTATION.md)** - Complete REST API reference
-- **[Testing Guide](docs/TESTING.md)** - Testing strategy and conventions
-- **[Docker Deployment](docs/DOCKER.md)** - Container setup and deployment
-- **[Pre-commit Setup](docs/PRE_COMMIT_SETUP.md)** - Code quality enforcement
-- **[Development Backlog](docs/BACKLOG.md)** - Feature roadmap and technical debt
-- **[Contributing Guidelines](docs/CONTRIBUTING.md)** - How to contribute to the project
-- **[Changelog](docs/CHANGELOG.md)** - Version history and release notes
+**Complete documentation is organized by component:**
 
-## 🎯 Overview
+### Server/Backend Documentation → [docs/](docs/)
+Python FastAPI extraction service documentation.
 
-REST API and CLI tools for automated extraction of metadata from precious metal bar images. Combines text extraction engines with Vision Language Models for high accuracy.
+- **[API Documentation](docs/API_DOCUMENTATION.md)** - REST API reference
+- **[Testing Guide](docs/TESTING.md)** - Testing strategy
+- **[Docker Deployment](docs/DOCKER.md)** - Container setup
+- **[Contributing](docs/CONTRIBUTING.md)** - Development guidelines
 
-### Key Features
+### Studio/Frontend Documentation → [docs/studio/](docs/studio/)
+React admin UI for extraction management.
 
-- 🤖 **Multiple Strategies**: ChatGPT Vision, Gemini Flash, PaddleOCR engine, Llama Vision, Hybrid
-- 🚀 **REST API**: FastAPI with async support and OpenAPI documentation
-- 📊 **Performance Benchmarking**: Compare strategies with visual reports
-- 🐳 **Docker Support**: Cloud (~300MB) and Full (~3GB) images - see [DOCKER.md](docs/DOCKER.md)
-- 🔄 **CI/CD Pipeline**: Automated testing, linting, and Docker builds
-- 🧪 **Comprehensive Testing**: 49 unit tests, integration tests - see [TESTING.md](docs/TESTING.md)
-
-### Architecture
-
-**Stateless Design**: No database, images processed on-demand, horizontal scalability
-**Python Stack**: FastAPI, PaddleOCR engine, OpenCV, OpenAI/Google APIs
-**Local LLM**: Ollama/Llama 3.2 Vision for privacy-focused deployments
+- **[Studio Overview](docs/studio/README.md)** - Tech stack & workflow
+- **[UI Architecture](docs/studio/UI_ARCHITECTURE.md)** - Components & routing
+- **[Design System](docs/studio/DESIGN_SYSTEM.md)** - Brand colors & CSS classes
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
-- Python 3.11+
-- (Optional) Ollama for local LLM inference
-- (Optional) Docker for containerized deployment
-
 ### Installation
 
 ```bash
-# Clone repository
 git clone https://github.com/aXedras/xScanner.git
 cd xScanner
 
-# Install as package (recommended - new structure)
+# Install server
 pip install -e ".[dev]"
 
-# Or install from requirements files
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+# Install studio
+cd studio && npm install
 
-# Configure API keys (create .env.local file)
-# See docs/API_DOCUMENTATION.md for details
+# Configure environment
+cp .env.local.example .env.local  # Add API keys
 ```
 
-### Running the Server
+### Run Server
 
 ```bash
-# Using Python module (recommended)
+# Start FastAPI server (port 8010)
+make start-server
+
+# Or with Python
 python -m xscanner.server.server
-
-# Development tools (outside package)
-python -m tools.cli.test --list-strategies
-python -m tools.benchmark.comparator --quick
-
-# Or with uvicorn
-uvicorn xscanner.server.server:app --reload
-
-# Or with Make
-make run
 ```
 
-Server: `http://localhost:8000` | Docs: `http://localhost:8000/docs`
+Docs: http://localhost:8010/docs
 
-### Quick API Example
-
-See [API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for complete reference.
+### Run Studio
 
 ```bash
-# Extract from uploaded image
-curl -X POST "http://localhost:8000/extract/upload" \
-  -F "file=@bullion_bar.jpg" \
-  -F "strategy=cloud"
+# Start all services (Supabase + Server + Studio)
+make start-all
+
+# Or studio only
+make start-studio
 ```
+
+Studio UI: http://localhost:8084
 
 ---
 
-## 📊 Testing & Benchmarking
+## 🎯 Key Features
+
+### Server
+- 🤖 Multiple extraction strategies (ChatGPT Vision, Gemini, PaddleOCR, Llama Vision)
+- 🚀 REST API with FastAPI + OpenAPI docs
+- 📊 Benchmarking & performance comparison
+- 🐳 Docker support (Cloud ~300MB, Full ~3GB)
+- 🧪 Comprehensive test suite
+
+### Studio
+- 🎨 Modern React + TypeScript UI
+- 🔐 Supabase authentication & database
+- 📦 Extraction management & editing
+- 🖼️ Image storage & viewer
+- ✨ xApp design system
+
+---
+
+## 🔧 Development
+
+### Testing
 
 ```bash
-# Unit tests (fast, no external dependencies)
+# Unit tests (fast)
 make test-unit
 
 # Integration tests (mocked APIs, no API keys needed)
@@ -108,16 +106,9 @@ make test-integration
 
 # Coverage report
 make test-coverage
-
-# Strategy comparison / benchmarking
-make cli-benchmark
 ```
 
 See [TESTING.md](docs/TESTING.md) for detailed testing guide.
-
----
-
-## 🔧 Development
 
 ### Code Quality
 
@@ -128,7 +119,6 @@ pre-commit install
 # Run code quality checks
 make lint
 make format
-make typecheck
 ```
 
 See [PRE_COMMIT_SETUP.md](docs/PRE_COMMIT_SETUP.md) for details on hooks and enforcement.
@@ -162,85 +152,42 @@ See [DOCKER.md](docs/DOCKER.md) for complete deployment guide.
 
 ## 📁 Project Structure
 
-**New Package Structure** (v1.1.0+):
-
 ```
 xScanner/
-├── src/xscanner/                 # Main package (installable)
-│   ├── server/                   # FastAPI server & services
-│   │   ├── server.py             # REST API endpoints
-│   │   ├── config.py             # Configuration management
-│   │   ├── extraction.py         # Extraction service
-│   │   └── axedras_client.py     # BIL integration
-│   ├── strategy/                 # Extraction strategies
-│   │   ├── base.py               # Strategy interface
-│   │   ├── chatgpt_vision_strategy.py
-│   │   ├── gemini_flash_strategy.py
-│   │   ├── paddleocr_strategy.py  # PaddleOCR engine strategy
-│   │   ├── ollama_vision_strategy.py
-│   │   ├── paddle_llama_hybrid_strategy.py
-│   │   └── parser.py             # Data parser
-├── tools/                        # Development tools (not installed)
-│   ├── cli/                      # CLI tools
-│   │   └── cli.py                # Interactive strategy testing
-├── tests/                        # Test suite
-│   ├── unit/                     # Unit tests (49 tests)
-│   ├── integration/              # Integration tests
-│   └── conftest.py               # Pytest fixtures
-├── docs/                         # Documentation
-├── config/                       # Prompt templates
-├── scripts/                      # Utility scripts
-└── pyproject.toml                # Package configuration
+├── src/xscanner/        # Server package
+│   ├── server/          # FastAPI REST API
+│   └── strategy/        # Extraction strategies
+├── studio/              # React frontend
+│   └── src/
+│       ├── components/  # UI components
+│       └── lib/         # Supabase client
+├── docs/                # Server documentation
+├── docs/studio/         # Studio documentation
+├── tests/               # Test suite
+└── supabase/            # Database migrations
 ```
 
----
-
-## 🔑 Configuration
-
-Create `.env.local` file for API keys:
-
-```bash
-OPENAI_API_KEY=sk-...
-GOOGLE_API_KEY=...
-OLLAMA_BASE_URL=http://localhost:11434
-```
-
-See [API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) for all configuration options.
+See [docs/](docs/) and [docs/studio/](docs/studio/) for detailed documentation.
 
 ---
 
 ## 🤝 Contributing
 
-See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
-
-Quick start:
-```bash
-# 1. Fork and clone
-# 2. Install dependencies
-pip install -e ".[dev]"
-
-# 3. Install pre-commit hooks (required!)
-pre-commit install
-
-# 4. Create feature branch
-git checkout -b feature/my-feature
-
-# 5. Make changes, run tests
-make test-unit
-
-# 6. Commit with conventional commits
-git commit -m "feat: add my feature"
-```
+1. Read [CONTRIBUTING.md](docs/CONTRIBUTING.md)
+2. Install pre-commit hooks: `pre-commit install`
+3. Run tests: `make test-unit`
+4. Follow conventional commits
 
 ---
 
 ## 📄 License
 
-MIT License - See LICENSE file for details
+MIT License
 
 ---
 
-## 📞 Support & Links
+## 🔗 Links
 
-- **Issues**: [GitHub Issues](https://github.com/aXedras/xScanner/issues)
-- **Related**: [aXedras Bullion Integrity Ledger](https://github.com/aXedras/BIL)
+- [GitHub Issues](https://github.com/aXedras/xScanner/issues)
+- [API Docs](docs/API_DOCUMENTATION.md)
+- [Changelog](docs/CHANGELOG.md)

@@ -1,0 +1,61 @@
+services:
+  xscanner-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      # Server
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: 8000
+      SERVER_WORKERS: 2
+
+      # Persistence to local Supabase (internal Docker network)
+      SUPABASE_URL: ${SUPABASE_INTERNAL_URL}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+      SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET:-extractions}
+
+      # Providers
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+
+      # Optional integration
+      AXEDRAS_BASE_URL: ${AXEDRAS_BASE_URL:-}
+      AXEDRAS_KEYCLOAK_URL: ${AXEDRAS_KEYCLOAK_URL:-}
+      AXEDRAS_REALM: ${AXEDRAS_REALM:-}
+      AXEDRAS_CLIENT_ID: ${AXEDRAS_CLIENT_ID:-}
+      AXEDRAS_USERNAME: ${AXEDRAS_USERNAME:-}
+      AXEDRAS_PASSWORD: ${AXEDRAS_PASSWORD:-}
+
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_FILE: /app/logs/xscanner.log
+    volumes:
+      - ./logs:/app/logs
+    ports:
+      - "8010:8000"
+    networks:
+      - default
+      - supabase
+    restart: unless-stopped
+
+  xscanner-studio:
+    build:
+      context: ./studio
+      dockerfile: Dockerfile
+      args:
+        # Use nginx proxy to reach API without exposing a separate port
+        VITE_API_URL: /api
+        VITE_SUPABASE_URL: ${SUPABASE_PUBLIC_URL}
+        VITE_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+        VITE_SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET:-extractions}
+        VITE_LOG_LEVEL: ${STUDIO_LOG_LEVEL:-info}
+    ports:
+      - "8090:80"
+    depends_on:
+      - xscanner-api
+    restart: unless-stopped
+
+networks:
+  supabase:
+    external: true
+    name: supabase_network_xScanner

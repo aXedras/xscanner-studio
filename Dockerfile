@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy application code
-COPY src/xscanner/ ./src/xscanner/
+COPY src/ ./src/
 COPY config/prompt_template_image.txt config/system_prompt_image.txt ./config/
 COPY pyproject.toml ./
 
@@ -36,6 +36,7 @@ USER appuser
 # Environment defaults
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app/src \
     SERVER_HOST=0.0.0.0 \
     SERVER_PORT=8000 \
     SERVER_WORKERS=4

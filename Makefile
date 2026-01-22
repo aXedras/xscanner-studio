@@ -1,4 +1,11 @@
-.PHONY: install dev format lint test test-all test-unit test-integration test-e2e test-coverage test-quick ci-local pre-commit-all server docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report cli-report-history
+.PHONY: install dev format lint test test-all test-unit test-integration test-e2e test-coverage test-quick ci-local pre-commit-all db-types db-types-generate db-types-check start start-server start-studio start-supabase start-all docker-build docker-run clean cli cli-help cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report cli-report-history
+
+# Load environment variables from .env.local
+-include .env.local
+export
+
+# Extract Studio port from vite.config.ts
+STUDIO_PORT := $(shell grep -oP 'port:\s*\K\d+' studio/vite.config.ts 2>/dev/null || echo 8084)
 
 # Install production dependencies
 install:
@@ -19,10 +26,23 @@ format:
 	ruff check --fix .
 
 # Lint code (no fixes)
-lint:
+lint: db-types-check
 	ruff check .
 	ruff format --check .
 	mypy src/xscanner/ --ignore-missing-imports
+
+# DB types (server)
+db-types:
+	@echo "🧬 Server DB Types"
+	@echo ""
+	@echo "  make db-types-generate   Generate src/xscanner/server/db_types.py"
+	@echo "  make db-types-check      Verify DB types match supabase/migrations"
+
+db-types-generate:
+	@venv/bin/python -m scripts.db.gen_db_types
+
+db-types-check:
+	@venv/bin/python -m scripts.db.check_db_types
 
 # Run ALL CI checks locally (exactly what CI runs)
 ci-local: lint test
@@ -51,38 +71,86 @@ test:
 # Run ALL tests
 test-all:
 	@echo "🧪 Running all tests (unit + integration + e2e)..."
-	pytest tests/ -v
+	@venv/bin/python -m pytest tests/ -v
 
 # Run only fast unit tests
 test-unit:
 	@echo "⚡ Running unit tests only..."
-	pytest tests/unit/ -v
+	@venv/bin/python -m pytest tests/unit/ -v
 
 # Run only integration tests
 test-integration:
 	@echo "🔌 Running integration tests (mocked APIs, no API keys needed)..."
-	pytest tests/integration/ -v -m integration
+	@venv/bin/python -m pytest tests/integration/ -v -m integration
 
 # Run only e2e tests
 test-e2e:
 	@echo "🚀 Running e2e tests (requires API keys & services)..."
-	pytest tests/e2e/ -v -m e2e
+	@venv/bin/python -m pytest tests/e2e/ -v -m e2e
 
 # Run tests with coverage report
 test-coverage:
 	@echo "📊 Running tests with coverage..."
-	pytest tests/ --cov=src/xscanner --cov-report=html --cov-report=term
+	@venv/bin/python -m pytest tests/ --cov=src/xscanner --cov-report=html --cov-report=term
 	@echo ""
 	@echo "✅ Coverage report generated: htmlcov/index.html"
 
 # Run quick tests (unit only, for pre-commit)
 test-quick:
 	@echo "⚡ Running quick tests..."
-	pytest tests/unit/ -q
+	@venv/bin/python -m pytest tests/unit/ -q
 
-# Run server locally
-server:
-	@bash scripts/start-server.sh $(PORT)
+# Start services (show help)
+start:
+	@echo "🚀 xScanner Services"
+	@echo ""
+	@echo "Available start commands:"
+	@echo ""
+	@echo "  make start-supabase  Start/check Supabase"
+	@echo "  make start-server    Start FastAPI backend"
+	@echo "  make start-studio    Start Vite UI"
+	@echo "  make start-all       Start all services (Supabase + Server + Studio)"
+	@echo ""
+	@echo "Prerequisites:"
+	@echo "  • Python:    source venv/bin/activate"
+	@echo "  • Node:      cd studio && npm install"
+
+# Start FastAPI backend
+start-server:
+	@bash scripts/start-server.sh
+
+# Start Vite studio UI
+start-studio:
+	@cd studio && npm run dev
+
+# Start or check Supabase
+start-supabase:
+	@if ! supabase status >/dev/null 2>&1; then \
+		echo "🚀 Starting Supabase..."; \
+		supabase start; \
+		echo ""; \
+	fi
+
+# Start all services (Supabase + FastAPI + Studio)
+start-all: start-supabase
+	@echo "🚀 Starting all xScanner services..."
+	@echo ""
+	@echo "Supabase:"
+	@if supabase status >/dev/null 2>&1; then \
+		echo "   Status:           ✅ Running"; \
+	fi
+	@echo "   API:              $(SUPABASE_URL)"
+	@echo "   Studio:           $(SUPABASE_STUDIO_URL)"
+	@echo ""
+	@echo "xScanner Server:"
+	@echo "   API:              http://localhost:$(SERVER_PORT)"
+	@echo "   Swagger Docs:     http://localhost:$(SERVER_PORT)/docs"
+	@echo "   ReDoc:            http://localhost:$(SERVER_PORT)/redoc"
+	@echo ""
+	@echo "xScanner Studio:"
+	@echo "   UI:               http://localhost:$(STUDIO_PORT)"
+	@echo ""
+	@make start-server & make start-studio
 
 # CLI Tools - Unified tool for testing and benchmarking
 cli:

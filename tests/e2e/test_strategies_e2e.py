@@ -10,8 +10,8 @@ Required configuration:
 """
 
 import pytest
-from test_helpers import get_random_test_image
 
+from tests.integration.test_helpers import get_random_test_image
 from tools.cli.validator import parse_filename_ground_truth, validate_extraction
 from xscanner.server.config import get_config
 from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy
@@ -19,7 +19,10 @@ from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy
 
 # Check if PaddleOCR is available for hybrid strategy
 try:
-    from xscanner.strategy.paddle_ollama_hybrid_strategy import PaddleLlamaHybridStrategy
+    from xscanner.strategy.paddle_ollama_hybrid_strategy import (
+        IS_APPLE_SILICON,
+        PaddleLlamaHybridStrategy,
+    )
 
     PADDLE_AVAILABLE = True
 except ImportError:
@@ -78,6 +81,9 @@ def hybrid_strategy(config):
     if not PADDLE_AVAILABLE:
         pytest.skip("PaddleOCR not installed")
 
+    if IS_APPLE_SILICON:
+        pytest.skip("Hybrid strategy disables PaddleOCR on Apple Silicon")
+
     if not config.ollama.base_url:
         pytest.skip("Ollama base URL not configured")
 
@@ -91,7 +97,10 @@ def hybrid_strategy(config):
     except Exception:
         pytest.skip("Ollama service not reachable")
 
-    return PaddleLlamaHybridStrategy(base_url=config.ollama.base_url)
+    strategy = PaddleLlamaHybridStrategy(base_url=config.ollama.base_url)
+    if getattr(strategy, "paddle_strategy", None) is None:
+        pytest.skip("Hybrid strategy running in Ollama-only fallback mode")
+    return strategy
 
 
 def _validate_strategy_result(strategy_name: str, result, test_image, ground_truth):
@@ -151,6 +160,7 @@ def test_chatgpt_e2e(chatgpt_strategy, test_image_with_ground_truth):
     _validate_strategy_result("ChatGPT Vision", result, test_image, ground_truth)
 
 
+@pytest.mark.skip(reason="No budget for Gemini API calls")
 def test_gemini_e2e(gemini_strategy, test_image_with_ground_truth):
     """End-to-end test: Real Gemini API call validated against ground truth."""
     test_image, ground_truth = test_image_with_ground_truth

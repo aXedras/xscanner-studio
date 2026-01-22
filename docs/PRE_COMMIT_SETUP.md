@@ -5,6 +5,7 @@
 **Pre-commit (every commit):**
 - ✅ Code formatting (Ruff)
 - ✅ Type checking (Mypy)
+- ✅ DB types up-to-date (generated from migrations; see [PERSISTENCE.md](PERSISTENCE.md))
 - ✅ Security checks (no private keys)
 - ✅ Unit tests (fast, ~0.04s)
 - ✅ Integration tests (mocked APIs, ~0.07s)

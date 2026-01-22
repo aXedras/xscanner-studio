@@ -21,6 +21,24 @@ from PIL import Image
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 
 
+def _remove_supabase_env(env: dict[str, str]) -> dict[str, str]:
+    """Return a copy of env with all SUPABASE_* vars removed.
+
+    Integration tests should not depend on Supabase persistence.
+    """
+
+    cleaned = dict(env)
+    for key in list(cleaned.keys()):
+        if key.startswith("SUPABASE_"):
+            cleaned.pop(key, None)
+
+    # Prevent python-dotenv from loading Supabase credentials from .env.local.
+    # load_dotenv(..., override=False) still sets variables that are missing.
+    cleaned["SUPABASE_URL"] = ""
+    cleaned["SUPABASE_SERVICE_ROLE_KEY"] = ""
+    return cleaned
+
+
 @pytest.fixture(scope="module")
 def free_port():
     """Get a free port for the test server."""
@@ -36,9 +54,13 @@ def server(free_port):
     """Start FastAPI server on a free port for integration testing."""
     server_url = f"http://127.0.0.1:{free_port}"
 
-    # Set PYTHONPATH to include src directory
-    env = os.environ.copy()
-    env["PYTHONPATH"] = str(PROJECT_ROOT / "src")
+    env = _remove_supabase_env(
+        {
+            **os.environ,
+            "PYTHONPATH": str(PROJECT_ROOT / "src"),
+            "XSCANNER_DOTENV_OVERRIDE": "false",
+        }
+    )
 
     # Start server process
     process = subprocess.Popen(
@@ -75,6 +97,70 @@ def server(free_port):
     yield server_url
 
     # Cleanup
+    process.terminate()
+    try:
+        process.wait(timeout=3)
+    except subprocess.TimeoutExpired:
+        process.kill()
+
+
+@pytest.fixture
+def server_with_mock_error():
+    """Start a server instance that forces mock errors.
+
+    We use a separate server instance so only tests that need mock errors
+    opt into the behavior.
+    """
+
+    # Get a free port
+    sock = socket.socket()
+    sock.bind(("", 0))
+    port = sock.getsockname()[1]
+    sock.close()
+
+    server_url = f"http://127.0.0.1:{port}"
+
+    env = _remove_supabase_env(
+        {
+            **os.environ,
+            "PYTHONPATH": str(PROJECT_ROOT / "src"),
+            "XSCANNER_DOTENV_OVERRIDE": "false",
+            "XSCANNER_MOCK_FORCE_ERROR": "true",
+        }
+    )
+
+    process = subprocess.Popen(
+        [
+            sys.executable,
+            "-m",
+            "uvicorn",
+            "xscanner.server.server:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            str(port),
+            "--log-level",
+            "warning",
+        ],
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    # Wait for server to start
+    for _ in range(20):
+        try:
+            response = httpx.get(f"{server_url}/health", timeout=1.0)
+            if response.status_code == 200:
+                break
+        except (httpx.ConnectError, httpx.TimeoutException, httpx.ReadTimeout):
+            time.sleep(0.5)
+    else:
+        process.kill()
+        raise RuntimeError(f"Server failed to start on port {port}")
+
+    yield server_url
+
     process.terminate()
     try:
         process.wait(timeout=3)
@@ -186,6 +272,26 @@ class TestServerExtractEndpoint:
         assert "(mock)" in data["strategy_used"]
         assert "structured_data" in data
         assert "request_id" in data
+
+    def test_extract_with_forced_mock_error(self, server_with_mock_error, test_image_bytes):
+        """Mock error forcing should produce a deterministic error response."""
+        image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
+
+        response = httpx.post(
+            f"{server_with_mock_error}/extract",
+            json={
+                "image_base64": image_b64,
+                "strategy": "local",
+                "use_mock": True,
+            },
+            timeout=10.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is False
+        assert data.get("error")
+        assert data.get("request_id")
 
     def test_extract_upload_with_mock_mode(self, server, test_image_bytes):
         """Test /extract/upload endpoint with mock mode enabled (cloud=ChatGPT/Gemini)."""

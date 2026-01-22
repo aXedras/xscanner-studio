@@ -52,6 +52,7 @@ server = [
     "pydantic>=2.5.0",
     "redis>=5.0.0",
     "aiofiles>=23.2.0",
+    "httpx>=0.25.0",
 ]
 
 dev = [
@@ -117,3 +118,7 @@ python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
 pythonpath = ["src"]
+markers = [
+    "integration: integration tests (no external API keys required)",
+    "e2e: end-to-end tests (may require external services and/or API keys)",
+]

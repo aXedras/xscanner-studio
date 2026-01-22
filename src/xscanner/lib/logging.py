@@ -9,6 +9,35 @@ from pathlib import Path
 _logging_configured = False
 
 
+THIRD_PARTY_LOGGERS: tuple[str, ...] = (
+    # HTTP clients
+    "urllib3",
+    "urllib3.connectionpool",
+    "requests",
+    "httpx",
+    "httpcore",
+    "httpcore.connection",
+    # ASGI / web stack
+    "uvicorn",
+    "uvicorn.error",
+    "uvicorn.access",
+    "fastapi",
+    "starlette",
+    "multipart",
+    "python_multipart",
+    "python_multipart.multipart",
+    # Integrations / SDKs
+    "openai",
+    "google",
+    "google.generativeai",
+    # IO / infrastructure
+    "aiofiles",
+    "redis",
+    # Imaging
+    "PIL",
+)
+
+
 def setup_logging() -> None:
     """Configure logging system from environment config.
 
@@ -55,8 +84,8 @@ def setup_logging() -> None:
         root_logger.addHandler(console_handler)
 
     # Suppress noisy third-party loggers
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
-    logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
+    for logger_name in THIRD_PARTY_LOGGERS:
+        logging.getLogger(logger_name).setLevel(logging.WARNING)
 
     _logging_configured = True
 

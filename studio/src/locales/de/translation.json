@@ -1,0 +1,217 @@
+{
+  "common": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "extractions": "Extraktionen"
+    },
+    "toast": {
+      "save": {
+        "title": "Gespeichert",
+        "description": "Die Änderungen wurden erfolgreich gespeichert."
+      },
+      "upload": {
+        "title": "Extraktion gestartet",
+        "description": "Der Upload wurde verarbeitet und das Ergebnis wurde gespeichert."
+      },
+      "delete": {
+        "title": "Gelöscht",
+        "description": "Der Eintrag wurde erfolgreich gelöscht."
+      },
+      "update": {
+        "title": "Aktualisiert",
+        "description": "Die Daten wurden erfolgreich aktualisiert."
+      },
+      "error": {
+        "title": "Fehler",
+        "description": "Ein Fehler ist aufgetreten."
+      },
+      "bulkReject": {
+        "title": "Verworfen",
+        "description": "{{count}} Eintrag(e) verworfen."
+      },
+      "bulkRejectFailed": {
+        "description": "{{count}} Eintrag(e) konnten nicht verworfen werden."
+      }
+    },
+    "action": {
+      "save": "Speichern",
+      "correct": "Korrigieren",
+      "cancel": "Abbrechen",
+      "delete": "Löschen",
+      "edit": "Bearbeiten",
+      "showDetails": "Details anzeigen",
+      "register": "Registrieren",
+      "reject": "Verwerfen",
+      "rejectSelected": "{{count}} Einträge verwerfen",
+      "clearSelection": "Auswahl aufheben",
+      "create": "Erstellen",
+      "back": "Zurück",
+      "search": "Suchen",
+      "clear": "Zurücksetzen",
+      "reset": "Zurücksetzen",
+      "filters": "Filter",
+      "previous": "Zurück",
+      "next": "Weiter",
+      "upload": "Hochladen",
+      "download": "Herunterladen",
+      "close": "Schließen"
+    },
+    "status": {
+      "loading": "Lädt...",
+      "saving": "Speichert...",
+      "uploading": "Lädt hoch...",
+      "success": "Erfolgreich",
+      "error": "Fehler"
+    },
+    "validation": {
+      "required": "{{field}} ist erforderlich",
+      "invalid": "{{field}} ist ungültig"
+    },
+    "error": {
+      "title": "Etwas ist schiefgelaufen",
+      "network": "Netzwerkfehler. Bitte prüfe deine Verbindung.",
+      "unauthorized": "Nicht autorisiert. Bitte melde dich erneut an.",
+      "forbidden": "Du hast keine Berechtigung für diese Aktion.",
+      "notFound": "Die angeforderte Ressource wurde nicht gefunden.",
+      "server": "Serverfehler. Bitte versuche es später erneut.",
+      "unknown": "Ein unerwarteter Fehler ist aufgetreten.",
+      "goBack": "Zurück",
+      "goHome": "Zum Dashboard"
+    },
+    "fields": {
+      "search": "Suche",
+      "from": "Von",
+      "to": "Bis",
+      "serialNumber": "Seriennummer",
+      "metal": "Metall",
+      "weight": "Gewicht",
+      "purity": "Feinheit",
+      "manufacturer": "Hersteller",
+      "createdAt": "Erstellt am",
+      "updatedAt": "Aktualisiert am"
+    },
+    "table": {
+      "rowsPerPage": "Zeilen pro Seite",
+      "page": "Seite",
+      "selected": "{{count}} ausgewählt",
+      "selectAll": "Alle auswählen",
+      "selectRow": "Zeile auswählen"
+    },
+    "imageInspector": {
+      "inspect": "Vergrößern",
+      "close": "Schließen",
+      "reset": "Zurücksetzen",
+      "zoomIn": "Vergrößern",
+      "zoomOut": "Verkleinern",
+      "zoom": "Zoom",
+      "hint": "Mausrad zum Zoomen, ziehen zum Verschieben (wenn gezoomt), Esc zum Schließen."
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "xScanner Studio",
+      "subtitle": "Anmelden",
+      "action": "Anmelden"
+    },
+    "signup": {
+      "subtitle": "Account erstellen",
+      "action": "Registrieren",
+      "displayName": "Anzeigename",
+      "displayNamePlaceholder": "Max Mustermann",
+      "checkEmail": "Bitte bestätige deinen Account per E-Mail und melde dich danach an."
+    },
+    "fields": {
+      "email": "E-Mail",
+      "password": "Passwort"
+    },
+    "errors": {
+      "invalidCredentials": "E-Mail oder Passwort ist falsch.",
+      "emailNotConfirmed": "Bitte bestätige zuerst deine E-Mail-Adresse.",
+      "userAlreadyExists": "Es gibt bereits einen Account mit dieser E-Mail-Adresse.",
+      "weakPassword": "Dein Passwort ist zu schwach. Bitte wähle ein stärkeres.",
+      "tooManyRequests": "Zu viele Versuche. Bitte später erneut versuchen."
+    },
+    "logout": "Abmelden"
+  },
+  "extraction": {
+    "title": "xScanner Studio",
+    "welcome": {
+      "title": "Willkommen zurück! 👋",
+      "subtitle": "Verwalte deine Bullion-Extraktionen und optimiere deine Workflows."
+    },
+    "stats": {
+      "total": "Gesamt",
+      "pending": "Ausstehend",
+      "validated": "Validiert",
+      "errors": "Fehler"
+    },
+    "upload": {
+      "title": "Hochladen & Extrahieren",
+      "description": "Lade Bullion-Bilder hoch und extrahiere automatisch Metadaten mit KI.",
+      "action": "Neue Extraktion starten",
+      "processing": "Extraktion läuft… das kann ein paar Sekunden dauern.",
+      "aiStrategy": "AI Strategie",
+      "strategyCloud": "Cloud",
+      "strategyLocal": "Local",
+      "useMock": "Mock-Daten verwenden",
+      "registerOnBil": "Auf Bullion Integrity Ledger registrieren"
+    },
+    "history": {
+      "title": "Extraktionen durchsuchen",
+      "description": "Durchsuche und verwalte alle deine bisherigen Extraktionen.",
+      "action": "Zur Übersicht"
+    },
+    "fields": {
+      "status": "Status",
+      "strategy": "Strategie",
+      "confidence": "Confidence",
+      "weightUnit": "Einheit",
+      "error": "Fehler"
+    },
+    "list": {
+      "title": "Extraktionen",
+      "subtitle": "Qualitätskontrolle und Korrekturen mit vollständigem Audit-Trail.",
+      "empty": "Keine Extraktionen gefunden.",
+      "stats": {
+        "pending": "Ausstehend",
+        "corrected": "Korrigiert",
+        "validated": "Validiert",
+        "rejected": "Verworfen",
+        "errors": "Fehler"
+      }
+    },
+    "detail": {
+      "title": "Extraktion",
+      "subtitle": "Original-ID: {{originalId}}",
+      "certificateIdLabel": "Zertifikat-ID",
+      "strategyTitle": "Extraktionsstrategie",
+      "missingId": "Original-ID fehlt.",
+      "notFound": "Extraktion nicht gefunden.",
+      "imageAlt": "Bullion-Bild",
+      "imageUnavailable": "Bildvorschau nicht verfügbar.",
+      "bil": {
+        "title": "BIL Registration",
+        "empty": "Keine Registrierungsversuche vorhanden.",
+        "version": "Version",
+        "source": "Quelle",
+        "result": "Ergebnis",
+        "certificateId": "Zertifikat-ID",
+        "processingTime": "Verarbeitungszeit",
+        "httpStatus": "HTTP-Status",
+        "details": "Details",
+        "errorDetails": "Fehlerdetails",
+        "payloadSent": "Gesendete Daten",
+        "payloadReceived": "Empfangene Daten"
+      },
+      "fields": "Felder",
+      "history": "Historie",
+      "audit": {
+        "when": "Version",
+        "by": "Von",
+        "changes": "Änderungen",
+        "you": "Du",
+        "system": "System"
+      }
+    }
+  }
+}
