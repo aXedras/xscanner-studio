@@ -22,6 +22,9 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 
 cd /d "%~dp0\..\..\.."
 
+REM Ensure gh is discoverable even if installer didn't update PATH
+if exist "%ProgramFiles%\GitHub CLI\gh.exe" set "PATH=%ProgramFiles%\GitHub CLI;%PATH%"
+
 call :check_prereqs
 if %errorlevel% neq 0 exit /b %errorlevel%
 
@@ -38,7 +41,8 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 
 if /I "%ORIGIN%"=="main" (
 	call :verify_ci_main_strict
-	if %errorlevel% neq 0 exit /b %errorlevel%
+	set "RC=!errorlevel!"
+	if not "!RC!"=="0" exit /b !RC!
 )
 
 if not exist ".env.preprod" goto missing_env
@@ -118,7 +122,6 @@ echo Building Studio image ^(release mode^)...
 docker compose --env-file .env.preprod -f docker-compose.preprod.yml build xscanner-studio
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-echo Starting API + Studio ^(release mode^)...
 docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d xscanner-api-release xscanner-studio
 if %errorlevel% neq 0 exit /b %errorlevel%
 
