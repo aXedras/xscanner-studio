@@ -57,6 +57,21 @@ if [ ! -f ".env.preprod" ]; then
   exit 1
 fi
 
+# Warn for a very common pre-prod misconfiguration:
+# If the Studio is opened from a remote browser, SUPABASE_PUBLIC_URL must not be localhost/127.0.0.1.
+supabase_public_url="$(grep -E '^SUPABASE_PUBLIC_URL=' .env.preprod 2>/dev/null | tail -n 1 | cut -d= -f2- | tr -d '"' | tr -d "'")"
+if [ -n "$supabase_public_url" ]; then
+  case "$supabase_public_url" in
+    http://localhost:*|https://localhost:*|http://127.0.0.1:*|https://127.0.0.1:*|http://0.0.0.0:*|https://0.0.0.0:*)
+      echo -e "${BLUE}Warning:${NC} SUPABASE_PUBLIC_URL is set to ${supabase_public_url}." >&2
+      echo -e "${BLUE}Why:${NC} Studio runs in your browser; remote browsers cannot reach localhost on the VM." >&2
+      echo -e "${BLUE}Fix:${NC} set SUPABASE_PUBLIC_URL=http://<vm-ip-or-domain>:56321 in .env.preprod" >&2
+      ;;
+  esac
+else
+  echo -e "${BLUE}Warning:${NC} SUPABASE_PUBLIC_URL is not set in .env.preprod (Studio auth will fail)." >&2
+fi
+
 # For release-based deploys and for ORIGIN=main (CI verification), we rely on GitHub.
 if [ "$ORIGIN" != "local" ]; then
   if ! command -v gh >/dev/null 2>&1; then
