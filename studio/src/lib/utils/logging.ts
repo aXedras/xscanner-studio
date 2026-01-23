@@ -57,9 +57,7 @@ const shouldShipToFile = (): boolean => {
 }
 
 const getIngestPath = (): string => {
-  return (
-    getRuntimeEnv('VITE_LOG_INGEST_PATH') || (import.meta.env.VITE_LOG_INGEST_PATH as string) || '/__studio_log'
-  )
+  return getRuntimeEnv('VITE_LOG_INGEST_PATH') || (import.meta.env.VITE_LOG_INGEST_PATH as string) || '/__studio_log'
 }
 
 const shipToFile = (payload: LogPayload): void => {
