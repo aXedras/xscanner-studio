@@ -2,7 +2,10 @@
 setlocal EnableExtensions EnableDelayedExpansion
 
 set "STRICT=0"
-if "%~1"=="--strict" set "STRICT=1"
+if "%~1"=="--strict" (
+  set "STRICT=1"
+  shift
+)
 
 for %%I in ("%~dp0..\..\..") do set "REPO_ROOT=%%~fI"
 cd /d "%REPO_ROOT%" || exit /b 1
@@ -24,8 +27,10 @@ if errorlevel 1 (
   exit /b 0
 )
 
-set "HEAD_SHA="
-for /f "usebackq delims=" %%S in (`git rev-parse HEAD 2^>NUL`) do set "HEAD_SHA=%%S"
+set "HEAD_SHA=%~1"
+if "%HEAD_SHA%"=="" (
+  for /f "usebackq delims=" %%S in (`git rev-parse HEAD 2^>NUL`) do set "HEAD_SHA=%%S"
+)
 if not defined HEAD_SHA (
   echo Error: cannot read HEAD sha
   exit /b 1
