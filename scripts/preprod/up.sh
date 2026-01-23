@@ -27,6 +27,31 @@ if [ "$MODE" != "cloud" ] && [ "$MODE" != "full" ]; then
 	exit 1
 fi
 
+resolve_release_tag() {
+	local origin="$1"
+	local tag=""
+
+	if [ "$origin" = "latest" ]; then
+		if ! command -v gh >/dev/null 2>&1; then
+			return 2
+		fi
+		tag="$(gh release view --repo aXedras/xScanner --json tagName --jq .tagName 2>/dev/null || true)"
+		echo "$tag"
+		return 0
+	fi
+
+	if [[ "$origin" == release-* ]]; then
+		tag="${origin#release-}"
+		if [[ "$tag" != v* ]]; then
+			tag="v$tag"
+		fi
+		echo "$tag"
+		return 0
+	fi
+
+	return 1
+}
+
 compute_release_tag_from_pyproject() {
 	local repo_root="$1"
 	local py=""
@@ -64,14 +89,44 @@ if [ "$ORIGIN" != "main" ]; then
 	echo -e "${BLUE}🚀 Starting API + Studio (pre-prod compose, release mode)...${NC}"
 
 	if [ -z "${XSCANNER_API_IMAGE:-}" ]; then
-		export XSCANNER_API_IMAGE="ghcr.io/axedras/xscanner:${MODE}-release"
+		need_tag=1
+	else
+		need_tag=0
 	fi
 	if [ -z "${XSCANNER_RELEASE_TAG:-}" ]; then
-		export XSCANNER_RELEASE_TAG="dev"
+		need_tag=1
+	fi
+
+	TAG=""
+	if [ "${need_tag:-0}" -eq 1 ]; then
+		TAG="$(resolve_release_tag "$ORIGIN")" || rc=$?
+		if [ "${rc:-0}" -eq 2 ]; then
+			echo -e "${RED}Error:${NC} gh CLI not found in PATH, required for ORIGIN=latest." >&2
+			echo -e "${BLUE}Fix:${NC} install GitHub CLI or use ORIGIN=release-x.y.z (or set XSCANNER_API_IMAGE + XSCANNER_RELEASE_TAG explicitly)." >&2
+			exit 1
+		fi
+		if [ "${rc:-0}" -ne 0 ]; then
+			echo -e "${RED}Error: invalid ORIGIN (expected main|latest|release-x.y.z): ${ORIGIN}${NC}" >&2
+			exit 1
+		fi
+		if [ -z "$TAG" ]; then
+			echo -e "${RED}Error:${NC} could not resolve release tag for ORIGIN=${ORIGIN}." >&2
+			exit 1
+		fi
+	fi
+
+	if [ -z "${XSCANNER_API_IMAGE:-}" ]; then
+		export XSCANNER_API_IMAGE="ghcr.io/axedras/xscanner:${MODE}-${TAG}"
+	fi
+	if [ -z "${XSCANNER_RELEASE_TAG:-}" ]; then
+		export XSCANNER_RELEASE_TAG="$TAG"
 	fi
 
 	echo -e "${BLUE}Origin:${NC} ${ORIGIN}"
 	echo -e "${BLUE}Mode:${NC} ${MODE}"
+	if [ -n "${TAG:-}" ]; then
+		echo -e "${BLUE}Release tag:${NC} ${TAG}"
+	fi
 	echo -e "${BLUE}API image:${NC} ${XSCANNER_API_IMAGE}"
 
 	docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api-release

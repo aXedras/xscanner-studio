@@ -27,11 +27,20 @@ if /I "%ORIGIN%"=="main" goto :build_mode
 :release_mode
 echo Starting API + Studio (pre-prod compose, release mode)...
 
-if "%XSCANNER_API_IMAGE%"=="" set "XSCANNER_API_IMAGE=ghcr.io/axedras/xscanner:%MODE%-release"
-if "%XSCANNER_RELEASE_TAG%"=="" set "XSCANNER_RELEASE_TAG=dev"
+set "NEED_TAG=0"
+if "%XSCANNER_API_IMAGE%"=="" set "NEED_TAG=1"
+if "%XSCANNER_RELEASE_TAG%"=="" set "NEED_TAG=1"
+
+set "TAG="
+if "%NEED_TAG%"=="1" call :resolve_release_tag
+if errorlevel 1 exit /b 1
+
+if "%XSCANNER_API_IMAGE%"=="" set "XSCANNER_API_IMAGE=ghcr.io/axedras/xscanner:%MODE%-!TAG!"
+if "%XSCANNER_RELEASE_TAG%"=="" set "XSCANNER_RELEASE_TAG=!TAG!"
 
 echo Origin: %ORIGIN%
 echo Mode: %MODE%
+if not "!TAG!"=="" echo Release tag: !TAG!
 echo API image: %XSCANNER_API_IMAGE%
 
 docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api-release
@@ -59,6 +68,36 @@ if errorlevel 1 exit /b 1
 echo Compose is up
 
 exit /b 0
+
+:resolve_release_tag
+if /I "%ORIGIN%"=="latest" goto :resolve_latest
+
+echo %ORIGIN% | findstr /I /R "^release-" >NUL
+if %errorlevel% neq 0 goto :invalid_origin
+set "TAG=%ORIGIN:release-=%"
+if /I not "!TAG:~0,1!"=="v" set "TAG=v!TAG!"
+exit /b 0
+
+:resolve_latest
+gh --version >NUL 2>&1
+if %errorlevel% neq 0 goto :err_no_gh
+
+for /f "usebackq delims=" %%T in (`gh release view --repo aXedras/xScanner --json tagName --jq .tagName 2^>NUL`) do set "TAG=%%T"
+if not defined TAG goto :err_no_tag
+exit /b 0
+
+:err_no_gh
+echo Error: gh CLI not found in PATH, required for ORIGIN=latest.
+echo Fix: install GitHub CLI or use ORIGIN=release-x.y.z ^(or set XSCANNER_API_IMAGE + XSCANNER_RELEASE_TAG explicitly^).
+exit /b 1
+
+:err_no_tag
+echo Error: could not resolve latest release tag via gh.
+exit /b 1
+
+:invalid_origin
+echo Error: invalid ORIGIN ^(expected main^|latest^|release-x.y.z^): %ORIGIN%
+exit /b 1
 
 :derive_main_release_tag
 REM Deterministic version label for ORIGIN=main deployments.
