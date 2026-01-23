@@ -100,6 +100,55 @@ for version_file in "src/xscanner/__init__.py" "src/xscanner/server/__init__.py"
   fi
 done
 
+STUDIO_PACKAGE_JSON="studio/package.json"
+STUDIO_PACKAGE_LOCK="studio/package-lock.json"
+
+if [ ! -f "$STUDIO_PACKAGE_JSON" ]; then
+  echo -e "${RED}Error: missing ${STUDIO_PACKAGE_JSON}${NC}" >&2
+  exit 1
+fi
+
+if [ ! -f "$STUDIO_PACKAGE_LOCK" ]; then
+  echo -e "${RED}Error: missing ${STUDIO_PACKAGE_LOCK}${NC}" >&2
+  exit 1
+fi
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo -e "${RED}Error: python3 is required to validate Studio package versions${NC}" >&2
+  exit 1
+fi
+
+python3 - <<PY
+import json
+
+expected = "${VERSION_NO_V}"
+
+with open("${STUDIO_PACKAGE_JSON}", "r", encoding="utf-8") as f:
+    pkg = json.load(f)
+
+pkg_version = str(pkg.get("version", "")).strip()
+if pkg_version != expected:
+    raise SystemExit(
+        f"Error: {STUDIO_PACKAGE_JSON} version must match {expected} (found: {pkg_version!r})"
+    )
+
+with open("${STUDIO_PACKAGE_LOCK}", "r", encoding="utf-8") as f:
+    lock = json.load(f)
+
+lock_version = str(lock.get("version", "")).strip()
+if lock_version != expected:
+    raise SystemExit(
+        f"Error: {STUDIO_PACKAGE_LOCK} version must match {expected} (found: {lock_version!r})"
+    )
+
+root_pkg = ((lock.get("packages") or {}).get("") or {})
+root_version = str(root_pkg.get("version", "")).strip()
+if root_version != expected:
+    raise SystemExit(
+        f"Error: {STUDIO_PACKAGE_LOCK} packages[''] version must match {expected} (found: {root_version!r})"
+    )
+PY
+
 BRANCH="$(git branch --show-current)"
 if [ "$BRANCH" != "main" ]; then
   echo -e "${RED}Error: releases must be created from main (current: ${BRANCH})${NC}" >&2

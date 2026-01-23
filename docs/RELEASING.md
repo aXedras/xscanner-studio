@@ -13,6 +13,7 @@ This document defines the release flow for xScanner, the container image tags pr
 xScanner publishes two API image flavors:
 
 - **Cloud**: `ghcr.io/axedras/xscanner:cloud` (moving)
+- **Cloud (alias)**: `ghcr.io/axedras/xscanner:latest` (moving, same as `:cloud`)
 - **Full**: `ghcr.io/axedras/xscanner:full` (moving)
 
 On every non-PR CI run, the moving tags are updated (overwritten) and do not accumulate long-term storage.
@@ -27,11 +28,16 @@ And two moving "latest release channel" tags:
 - Cloud latest release: `ghcr.io/axedras/xscanner:cloud-release`
 - Full latest release: `ghcr.io/axedras/xscanner:full-release`
 
+xScanner also publishes a Studio (nginx) image:
+
+- **Studio (branch moving tags)**: `ghcr.io/axedras/xscanner-studio:main` and `ghcr.io/axedras/xscanner-studio:develop`
+- **Studio (immutable release tag)**: `ghcr.io/axedras/xscanner-studio:vX.Y.Z`
+- **Studio (latest release channel)**: `ghcr.io/axedras/xscanner-studio:release`
+
 ## Creating a release
 
 Versioning note:
-- xScanner has no historical GitHub Releases yet.
-- The first planned release is `v0.1.0`.
+- The first release was `v0.1.0`.
 
 Prerequisites:
 - You are on `main` and it is up to date
@@ -42,6 +48,7 @@ Mandatory docs step (manual):
 - Update `docs/CHANGELOG.md` and ensure the release section exists (e.g. `## [X.Y.Z] - YYYY-MM-DD`).
 - Update `pyproject.toml` `[project].version` to `X.Y.Z`.
 - Update `src/xscanner/__init__.py` and `src/xscanner/server/__init__.py` `__version__` to `X.Y.Z`.
+- Update `studio/package.json` and `studio/package-lock.json` version to `X.Y.Z`.
 - The release script enforces that the changelog contains the release entry.
 
 Notes:
@@ -74,13 +81,18 @@ make preprod-deploy ORIGIN=release-X.Y.Z
 make preprod-deploy ORIGIN=release-X.Y.Z MODE=cloud
 
 # Deploy from main (local build)
+# Deploy from main (pull moving GHCR images)
 make preprod-deploy ORIGIN=main MODE=cloud
+
+# Deploy from local worktree (build, allows uncommitted changes)
+make preprod-deploy ORIGIN=local MODE=cloud
 ```
 
 Notes:
-- In release mode, the deploy script checks out the release tag locally (so Studio is built from the same release source).
-- API is pulled from GHCR using the release tags.
-- Studio is built locally because Vite configuration is baked at build time.
+- In release mode, the deploy script checks out the release tag locally and pulls the API + Studio images from GHCR.
+- Studio runtime config is injected via container env vars at startup (no rebuild required).
+- In main mode, the deploy script pulls moving images from GHCR (API: `:cloud`/`:full`, Studio: `:main`).
+- In local mode (build), Studio is built locally because Vite configuration is baked at build time.
 
 Compose note:
 - Pre-prod uses one compose file with two API services (`xscanner-api-release` vs `xscanner-api-build`).
@@ -89,3 +101,6 @@ Compose note:
 Where the release is shown:
 - Studio footer shows the baked `VITE_XSCANNER_RELEASE_TAG`.
 - Swagger/OpenAPI shows the API version based on `XSCANNER_RELEASE_TAG`.
+
+Note:
+- `XSCANNER_RELEASE_TAG` is derived by the deploy scripts from `ORIGIN` (release tag / `main` / local worktree) to avoid mismatched labels.
