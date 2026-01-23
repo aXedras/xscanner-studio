@@ -133,6 +133,14 @@ for /f "usebackq delims=" %%B in (`git branch --show-current 2^>NUL`) do set "OR
 git fetch --tags origin
 if %errorlevel% neq 0 exit /b %errorlevel%
 
+set "TAG_SHA="
+for /f "delims=" %%S in ('git rev-parse "!TAG!" 2^>NUL') do set "TAG_SHA=%%S"
+if not defined TAG_SHA (
+	echo Error: cannot resolve sha for tag !TAG!
+	if defined ORIGINAL_REF git checkout "!ORIGINAL_REF!" >NUL 2>&1
+	exit /b 1
+)
+
 git checkout "!TAG!"
 if %errorlevel% neq 0 (
 	echo Error: failed to checkout tag !TAG!
@@ -154,7 +162,8 @@ if not exist "scripts\windows\preprod\health.bat" goto missing_windows_helpers
 if not exist "scripts\windows\preprod\database-start.bat" goto missing_windows_helpers
 if not exist "scripts\windows\preprod\verify-ci-sha.bat" goto missing_windows_helpers
 
-call scripts\windows\preprod\verify-ci-sha.bat --strict
+REM Prefer passing the SHA explicitly to avoid older tags failing to read git HEAD sha on Windows.
+call scripts\windows\preprod\verify-ci-sha.bat --strict !TAG_SHA!
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 if not defined XSCANNER_API_IMAGE set "XSCANNER_API_IMAGE=ghcr.io/axedras/xscanner:%MODE%-!TAG!"
