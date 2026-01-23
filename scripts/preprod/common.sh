@@ -83,6 +83,10 @@ preprod_image_revision() {
 preprod_normalize_origin() {
 	local raw="$1"
 
+	# Be tolerant to common shell/make typos like `ORIGIN=latest,`.
+	# We only want to error on unexpected parameter *names*.
+	raw="${raw%,}"
+
 	if [[ "$raw" =~ ^[Mm][Aa][Ii][Nn]$ ]]; then
 		echo "main"
 		return 0
@@ -106,6 +110,10 @@ preprod_normalize_origin() {
 
 preprod_normalize_mode() {
 	local raw="$1"
+
+	# Be tolerant to common shell/make typos like `MODE=full,`.
+	# We only want to error on unexpected parameter *names*.
+	raw="${raw%,}"
 
 	if [ -z "$raw" ]; then
 		echo ""

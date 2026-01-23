@@ -63,6 +63,9 @@ exit /b 2
 :preprod_normalize_origin
 if "%ORIGIN%"=="" exit /b 0
 
+REM Be tolerant to common make/shell typos like ORIGIN=latest,
+if "%ORIGIN:~-1%"=="," set "ORIGIN=%ORIGIN:~0,-1%"
+
 if /I "%ORIGIN%"=="main" set "ORIGIN=main" & exit /b 0
 if /I "%ORIGIN%"=="local" set "ORIGIN=local" & exit /b 0
 if /I "%ORIGIN%"=="latest" set "ORIGIN=latest" & exit /b 0
@@ -77,6 +80,9 @@ exit /b 0
 
 :preprod_normalize_mode
 if "%MODE%"=="" exit /b 0
+
+REM Be tolerant to common make/shell typos like MODE=full,
+if "%MODE:~-1%"=="," set "MODE=%MODE:~0,-1%"
 
 if /I "%MODE%"=="cloud" set "MODE=cloud" & exit /b 0
 if /I "%MODE%"=="full" set "MODE=full" & exit /b 0
