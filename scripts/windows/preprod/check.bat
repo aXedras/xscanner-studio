@@ -1,10 +1,15 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
+call "%~dp0common.bat" :preprod_parse_args %*
+if errorlevel 1 exit /b %errorlevel%
+
 for %%I in ("%~dp0..\..\..") do set "REPO_ROOT=%%~fI"
 cd /d "%REPO_ROOT%" || exit /b 1
 
 if "%ORIGIN%"=="" set "ORIGIN=latest"
+
+call "%~dp0common.bat" :preprod_normalize_origin
 
 if defined XSCANNER_RELEASE_TAG (
 	echo Error: XSCANNER_RELEASE_TAG must not be set manually

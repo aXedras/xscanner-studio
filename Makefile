@@ -350,9 +350,13 @@ preprod:
 	@echo "  make preprod-logs          Tail docker compose logs"
 	@echo "  make preprod-deploy        Deploy (default: latest GitHub release)"
 	@echo ""
-	@echo "Deploy options:"
+	@echo "Options (apply to preprod-up and preprod-deploy):"
 	@echo "  - ORIGIN=main|local|latest|release-x.y.z (default: latest)"
-	@echo "  - MODE=cloud|full (default: full for releases, cloud for main/local)"
+	@echo "  - MODE=cloud|full (default: cloud for ORIGIN=main/local; full for ORIGIN=latest/release-*)"
+	@echo ""
+	@echo "Notes:"
+	@echo "  - preprod-up: starts/recreates containers (no CI verification)"
+	@echo "  - preprod-deploy: includes checks + CI verification + healthcheck"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make preprod-deploy                         # ORIGIN=latest, MODE=full"
@@ -363,6 +367,8 @@ preprod:
 	@echo "  make preprod-deploy ORIGIN=main MODE=full   # pull moving GHCR images (full)"
 	@echo "  make preprod-deploy ORIGIN=local MODE=cloud # local build from current worktree (cloud)"
 	@echo "  make preprod-deploy ORIGIN=local MODE=full  # local build from current worktree (full)"
+	@echo "  make preprod-up ORIGIN=main MODE=cloud      # pull moving GHCR images (cloud)"
+	@echo "  make preprod-up ORIGIN=local MODE=cloud     # local build from current worktree (cloud)"
 	@echo ""
 	@echo "Env files:"
 	@echo "  .env.preprod.example -> .env.preprod (do not commit secrets)"
@@ -431,6 +437,17 @@ ifeq ($(OS),Windows_NT)
 	@scripts\\windows\\preprod\\deploy.bat
 else
 	@bash scripts/preprod/deploy.sh
+endif
+
+# Guard against unknown make CLI overrides for preprod targets.
+# Example: `make preprod-up origin=main` would otherwise ignore `origin` and fall back to ORIGIN=latest.
+ifneq ($(filter preprod preprod-%,$(MAKECMDGOALS)),)
+PREPROD_ALLOWED_OVERRIDES := ORIGIN MODE PREPROD_API_URL PREPROD_HEALTH_MAX_ATTEMPTS LOG_LEVEL STUDIO_LOG_LEVEL
+PREPROD_CMDLINE_VARS := $(sort $(foreach v,$(.VARIABLES),$(if $(filter command line,$(origin $(v))),$(v),)))
+PREPROD_UNKNOWN_KEYS := $(filter-out $(PREPROD_ALLOWED_OVERRIDES),$(PREPROD_CMDLINE_VARS))
+ifneq ($(strip $(PREPROD_UNKNOWN_KEYS)),)
+$(error Unknown parameter(s): $(PREPROD_UNKNOWN_KEYS). Allowed: $(PREPROD_ALLOWED_OVERRIDES))
+endif
 endif
 
 # Releases

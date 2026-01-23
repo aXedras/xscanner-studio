@@ -11,7 +11,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 cd "$REPO_ROOT"
 
+# shellcheck source=./common.sh
+source "$SCRIPT_DIR/common.sh"
+preprod_guard_unknown_env_var_names
+preprod_guard_no_positional_args "$@"
+
 ORIGIN="${ORIGIN:-latest}"
+
+ORIGIN="$(preprod_normalize_origin "$ORIGIN")"
 
 if [ -n "${XSCANNER_RELEASE_TAG:-}" ]; then
   echo -e "${RED}Error: XSCANNER_RELEASE_TAG must not be set manually${NC}" >&2

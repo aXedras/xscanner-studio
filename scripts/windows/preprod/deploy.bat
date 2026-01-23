@@ -7,6 +7,9 @@ REM - ORIGIN=latest|release-x.y.z: resolve tag -> check -> checkout tag -> verif
 
 setlocal EnableExtensions EnableDelayedExpansion
 
+call "%~dp0common.bat" :preprod_parse_args %*
+if errorlevel 1 exit /b %errorlevel%
+
 if defined XSCANNER_RELEASE_TAG (
 	echo Error: XSCANNER_RELEASE_TAG must not be set manually.
 	echo Why: pre-prod scripts derive it from ORIGIN to avoid mismatched labels.
@@ -17,13 +20,10 @@ if defined XSCANNER_RELEASE_TAG (
 REM Inputs (provided via environment; Makefile exports variables)
 if "%ORIGIN%"=="" set "ORIGIN=latest"
 
-if "%MODE%"=="" (
-	if /I "%ORIGIN%"=="main" (
-		set "MODE=cloud"
-	) else (
-		set "MODE=full"
-	)
-)
+call "%~dp0common.bat" :preprod_normalize_origin
+call "%~dp0common.bat" :preprod_normalize_mode
+call "%~dp0common.bat" :preprod_apply_default_mode
+if errorlevel 1 exit /b %errorlevel%
 
 call :validate_mode
 if %errorlevel% neq 0 exit /b %errorlevel%

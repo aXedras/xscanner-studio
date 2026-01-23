@@ -9,8 +9,16 @@ NC='\033[0m'
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# shellcheck source=./common.sh
+source "$SCRIPT_DIR/common.sh"
+preprod_guard_unknown_env_var_names
+preprod_guard_no_positional_args "$@"
+
 ORIGIN="${ORIGIN:-latest}"
 MODE="${MODE:-}"
+
+ORIGIN="$(preprod_normalize_origin "$ORIGIN")"
+MODE="$(preprod_normalize_mode "$MODE")"
 
 if [ -n "${XSCANNER_RELEASE_TAG:-}" ]; then
 	echo -e "${RED}Error:${NC} XSCANNER_RELEASE_TAG must not be set manually." >&2

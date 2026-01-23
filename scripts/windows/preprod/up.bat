@@ -1,6 +1,9 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
+call "%~dp0common.bat" :preprod_parse_args %*
+if errorlevel 1 exit /b %errorlevel%
+
 for %%I in ("%~dp0..\..\..") do set "REPO_ROOT=%%~fI"
 cd /d "%REPO_ROOT%" || exit /b 1
 
@@ -9,15 +12,11 @@ echo Error: .env.preprod not found. Create it from .env.preprod.example
 exit /b 1
 :env_ok
 
-echo Fix: install GitHub CLI or use ORIGIN=release-x.y.z.
-
-if not "%MODE%"=="" goto :mode_set
-if /I "%ORIGIN%"=="main" set "MODE=cloud"
-
-call :derive_local_release_tag
-echo %ORIGIN% | findstr /I /R "^release-" >NUL
-if %errorlevel%==0 set "MODE=full"
-:mode_set
+if "%ORIGIN%"=="" set "ORIGIN=latest"
+call "%~dp0common.bat" :preprod_normalize_origin
+call "%~dp0common.bat" :preprod_normalize_mode
+call "%~dp0common.bat" :preprod_apply_default_mode
+if errorlevel 1 exit /b %errorlevel%
 
 if /I "%MODE%"=="cloud" goto :mode_ok
 if /I "%MODE%"=="full" goto :mode_ok
