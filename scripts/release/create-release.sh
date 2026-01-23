@@ -172,4 +172,7 @@ echo -e "${BLUE}Creating GitHub release:${NC} ${TAG}"
 # CI will build/push the release images for this tag.
 gh release create "$TAG" --generate-notes --repo aXedras/xScanner
 
+# Keep GitHub auto-generated notes, but prepend our curated changelog section.
+VERSION="$VERSION" bash "$SCRIPT_DIR/sync-release-notes.sh"
+
 echo -e "${GREEN}✓ Release created:${NC} ${TAG}"
