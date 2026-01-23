@@ -63,6 +63,10 @@ VERSION=X.Y.Z bash scripts/release/create-release.sh
 
 This creates the git tag `vX.Y.Z`, pushes it, and creates a GitHub Release. CI will then build and publish the release image tags.
 
+Release notes:
+- The GitHub Release is created with GitHub auto-generated notes.
+- The release script then runs `scripts/release/sync-release-notes.sh` to prepend the curated `docs/CHANGELOG.md` section and a `## Contributors` section (formatted like GitHub auto-notes, using `* @login`).
+
 ## Deploying to pre-prod
 
 Pre-prod deploy defaults to the latest GitHub Release tag:
