@@ -29,7 +29,7 @@ if errorlevel 1 (
 
 set "HEAD_SHA=%~1"
 if "%HEAD_SHA%"=="" (
-  for /f "usebackq delims=" %%S in (`git rev-parse HEAD 2^>NUL`) do set "HEAD_SHA=%%S"
+  for /f "delims=" %%S in ('git rev-parse HEAD 2^>NUL') do set "HEAD_SHA=%%S"
 )
 if not defined HEAD_SHA (
   echo Error: cannot read HEAD sha
@@ -37,7 +37,7 @@ if not defined HEAD_SHA (
 )
 
 set "MATCHED_CONCLUSION="
-for /f "usebackq delims=" %%C in (`gh api "repos/aXedras/xScanner/actions/workflows/ci.yml/runs?per_page=100" --jq ".workflow_runs[] | select(.head_sha == \"!HEAD_SHA!\") | .conclusion" 2^>NUL`) do (
+for /f "delims=" %%C in ('gh api "repos/aXedras/xScanner/actions/workflows/ci.yml/runs?per_page=100" --jq ".workflow_runs[] | select(.head_sha == \"!HEAD_SHA!\") | .conclusion" 2^>NUL') do (
   set "MATCHED_CONCLUSION=%%C"
   goto :got_ci
 )

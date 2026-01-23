@@ -40,19 +40,19 @@ if errorlevel 1 (
 
 set "MATCHED_CONCLUSION="
 if "%LATEST%"=="1" (
-  for /f "usebackq delims=" %%C in (`gh api "repos/aXedras/xScanner/actions/workflows/ci.yml/runs?branch=main^&per_page=1" --jq ".workflow_runs[0].conclusion" 2^>NUL`) do (
+  for /f "delims=" %%C in ('gh api "repos/aXedras/xScanner/actions/workflows/ci.yml/runs?branch=main^&per_page=1" --jq ".workflow_runs[0].conclusion" 2^>NUL') do (
     set "MATCHED_CONCLUSION=%%C"
     goto :got_ci
   )
 ) else (
   set "HEAD_SHA="
-  for /f "usebackq delims=" %%S in (`git rev-parse HEAD 2^>NUL`) do set "HEAD_SHA=%%S"
+  for /f "delims=" %%S in ('git rev-parse HEAD 2^>NUL') do set "HEAD_SHA=%%S"
   if not defined HEAD_SHA (
     echo Error: cannot read HEAD sha
     exit /b 1
   )
 
-  for /f "usebackq delims=" %%C in (`gh api "repos/aXedras/xScanner/actions/workflows/ci.yml/runs?branch=main^&per_page=50" --jq ".workflow_runs[] | select(.head_sha == \"!HEAD_SHA!\") | .conclusion" 2^>NUL`) do (
+  for /f "delims=" %%C in ('gh api "repos/aXedras/xScanner/actions/workflows/ci.yml/runs?branch=main^&per_page=50" --jq ".workflow_runs[] | select(.head_sha == \"!HEAD_SHA!\") | .conclusion" 2^>NUL') do (
     set "MATCHED_CONCLUSION=%%C"
     goto :got_ci
   )
