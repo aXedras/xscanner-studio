@@ -376,6 +376,11 @@ preprod-check:
 ifeq ($(OS),Windows_NT)
 	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		exit 2; \
+	fi
 	@bash scripts/preprod/check.sh
 
 preprod-update-main:
@@ -383,6 +388,11 @@ preprod-update-main:
 ifeq ($(OS),Windows_NT)
 	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		exit 2; \
+	fi
 	@bash scripts/preprod/update-main.sh
 
 preprod-up:
@@ -390,6 +400,11 @@ preprod-up:
 ifeq ($(OS),Windows_NT)
 	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		exit 2; \
+	fi
 	@bash scripts/preprod/database-start.sh
 	@bash scripts/preprod/up.sh
 
@@ -398,6 +413,11 @@ preprod-down:
 ifeq ($(OS),Windows_NT)
 	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		exit 2; \
+	fi
 	@bash scripts/preprod/down.sh
 
 preprod-health:
@@ -405,6 +425,11 @@ preprod-health:
 ifeq ($(OS),Windows_NT)
 	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		exit 2; \
+	fi
 	@bash scripts/preprod/health.sh
 
 preprod-status:
@@ -412,6 +437,11 @@ preprod-status:
 ifeq ($(OS),Windows_NT)
 	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		exit 2; \
+	fi
 	@bash scripts/preprod/status.sh
 
 preprod-logs:
@@ -419,6 +449,11 @@ preprod-logs:
 ifeq ($(OS),Windows_NT)
 	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		exit 2; \
+	fi
 	@bash scripts/preprod/logs.sh
 
 preprod-deploy:
@@ -426,6 +461,11 @@ preprod-deploy:
 ifeq ($(OS),Windows_NT)
 	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		exit 2; \
+	fi
 	@bash scripts/preprod/deploy.sh
 
 # Guard against unknown make CLI overrides for preprod targets.
