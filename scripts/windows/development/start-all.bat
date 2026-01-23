@@ -6,7 +6,16 @@ setlocal
 echo Starting all xScanner services (development)...
 echo.
 
-call scripts\windows\preprod\database-start.bat
+REM Start Supabase (dev) directly via Supabase CLI.
+where supabase >NUL 2>&1
+if %errorlevel% neq 0 (
+	echo Error: supabase CLI not found in PATH
+	echo Fix: install Supabase CLI and ensure it is available in this terminal
+	exit /b 1
+)
+
+echo Starting Supabase...
+supabase start
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo Starting xScanner Server...
@@ -24,3 +33,5 @@ echo.
 echo Supabase Studio:  http://127.0.0.1:56323
 echo xScanner Server:  http://localhost:8010/docs
 echo xScanner Studio:  http://localhost:8084
+
+endlocal

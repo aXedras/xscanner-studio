@@ -38,31 +38,6 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
   exit 1
 fi
 
-# Windows pre-prod helper scripts must be part of the release tag.
-# This ensures Windows deploy can checkout the tag and still run.
-WINDOWS_PREPROD_FILES=(
-  "scripts/windows/preprod/deploy.bat"
-  "scripts/windows/preprod/check.bat"
-  "scripts/windows/preprod/update-main.bat"
-  "scripts/windows/preprod/verify-ci-main.bat"
-  "scripts/windows/preprod/verify-ci-sha.bat"
-  "scripts/windows/preprod/database-start.bat"
-  "scripts/windows/preprod/database-stop.bat"
-  "scripts/windows/preprod/up.bat"
-  "scripts/windows/preprod/down.bat"
-  "scripts/windows/preprod/health.bat"
-  "scripts/windows/preprod/status.bat"
-  "scripts/windows/preprod/logs.bat"
-)
-
-for f in "${WINDOWS_PREPROD_FILES[@]}"; do
-  if ! git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
-    echo -e "${RED}Error: missing required Windows pre-prod helper script in git:${NC} $f" >&2
-    echo "This file must be committed before creating a release tag." >&2
-    exit 1
-  fi
-done
-
 CHANGELOG_FILE="docs/CHANGELOG.md"
 VERSION_NO_V="${TAG#v}"
 
