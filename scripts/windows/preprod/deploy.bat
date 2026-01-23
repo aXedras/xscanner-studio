@@ -88,7 +88,7 @@ if not defined TAG (
 goto deploy_release_common
 
 :deploy_main
-if not defined XSCANNER_RELEASE_TAG set "XSCANNER_RELEASE_TAG=dev"
+if not defined XSCANNER_RELEASE_TAG call :derive_main_release_tag
 set "API_SERVICE=xscanner-api-build"
 echo Building API + Studio images ^(build mode^)...
 docker compose --env-file .env.preprod -f docker-compose.preprod.yml build xscanner-api-build xscanner-studio
@@ -98,6 +98,28 @@ echo Starting API + Studio ^(build mode^)...
 docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d xscanner-api-build xscanner-studio
 if %errorlevel% neq 0 exit /b %errorlevel%
 goto after_deploy
+
+:derive_main_release_tag
+REM Deterministic version label for ORIGIN=main deployments.
+REM Prefer v<pyproject version>+g<shortsha>. Fall back to v<version> or dev.
+
+set "PYPROJECT_VERSION="
+for /f "usebackq delims=" %%V in (`powershell -NoProfile -Command "$m = (Select-String -Path 'pyproject.toml' -Pattern '^version\s*=\s*\"(.+)\"' -List).Matches; if ($m.Count -gt 0) { $m[0].Groups[1].Value }" 2^>NUL`) do set "PYPROJECT_VERSION=%%V"
+
+set "SHORT_SHA="
+for /f "usebackq delims=" %%S in (`git rev-parse --short HEAD 2^>NUL`) do set "SHORT_SHA=%%S"
+
+if defined PYPROJECT_VERSION (
+	if defined SHORT_SHA (
+		set "XSCANNER_RELEASE_TAG=v%PYPROJECT_VERSION%+g%SHORT_SHA%"
+	) else (
+		set "XSCANNER_RELEASE_TAG=v%PYPROJECT_VERSION%"
+	)
+) else (
+	set "XSCANNER_RELEASE_TAG=dev"
+)
+
+exit /b 0
 
 :deploy_release_common
 REM Best-effort: checkout tag so repo reflects deployed version
