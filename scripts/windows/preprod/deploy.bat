@@ -2,7 +2,7 @@
 REM Pre-prod deploy on Windows VM
 REM Flow:
 REM - ORIGIN=main: check -> update main (ff-only) -> verify-ci-main --strict -> database-start -> up -> health
-REM - ORIGIN=latest|release-x.y.z: resolve tag -> check -> verify-ci-sha --strict (tag sha) -> database-start -> up -> health
+REM - ORIGIN=latest|release-x.y.z: resolve tag -> check -> checkout tag -> verify-ci-sha --strict -> database-start -> up -> health
 
 setlocal EnableExtensions EnableDelayedExpansion
 
@@ -97,17 +97,26 @@ REM For releases, check requires gh + auth and a clean worktree.
 call scripts\windows\preprod\check.bat
 if %errorlevel% neq 0 exit /b %errorlevel%
 
+set "ORIGINAL_REF="
+for /f "usebackq delims=" %%B in (`git branch --show-current 2^>NUL`) do set "ORIGINAL_REF=%%B"
+
 git fetch --tags origin
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-set "TAG_SHA="
-for /f "usebackq delims=" %%S in (`git rev-parse "!TAG!^{commit}" 2^>NUL`) do set "TAG_SHA=%%S"
-if not defined TAG_SHA (
-	echo Error: could not resolve sha for tag !TAG!
+git checkout "!TAG!"
+if %errorlevel% neq 0 (
+	echo Error: failed to checkout tag !TAG!
+	if defined ORIGINAL_REF git checkout "!ORIGINAL_REF!" >NUL 2>&1
 	exit /b 1
 )
 
-call scripts\windows\preprod\verify-ci-sha.bat --strict !TAG_SHA!
+REM Guard: release tags must include the Windows preprod helper scripts.
+if not exist "scripts\windows\preprod\up.bat" goto missing_windows_helpers
+if not exist "scripts\windows\preprod\health.bat" goto missing_windows_helpers
+if not exist "scripts\windows\preprod\database-start.bat" goto missing_windows_helpers
+if not exist "scripts\windows\preprod\verify-ci-sha.bat" goto missing_windows_helpers
+
+call scripts\windows\preprod\verify-ci-sha.bat --strict
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 if not defined XSCANNER_API_IMAGE set "XSCANNER_API_IMAGE=ghcr.io/axedras/xscanner:%MODE%-!TAG!"
@@ -122,8 +131,18 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 call scripts\windows\preprod\health.bat
 if %errorlevel% neq 0 exit /b %errorlevel%
 
+if defined ORIGINAL_REF (
+	git checkout "!ORIGINAL_REF!" >NUL 2>&1
+)
+
 echo Deploy complete
 exit /b 0
+
+:missing_windows_helpers
+echo Error: release tag !TAG! does not contain required Windows preprod helper scripts.
+echo Fix: create a new release that includes scripts/windows/preprod/*.bat.
+if defined ORIGINAL_REF git checkout "!ORIGINAL_REF!" >NUL 2>&1
+exit /b 1
 
 :invalid_origin
 echo Error: invalid ORIGIN (expected main^|latest^|release-x.y.z): %ORIGIN%
