@@ -368,8 +368,7 @@ preprod:
 preprod-check:
 
 ifeq ($(OS),Windows_NT)
-	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod targets (except database-start/stop/deploy). & exit /b 1)
-	@bash scripts/preprod/check.sh
+	@scripts\\windows\\preprod\\check.bat
 else
 	@bash scripts/preprod/check.sh
 endif
@@ -377,8 +376,7 @@ endif
 preprod-update-main:
 
 ifeq ($(OS),Windows_NT)
-	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod targets (except database-start/stop/deploy). & exit /b 1)
-	@bash scripts/preprod/update-main.sh
+	@scripts\\windows\\preprod\\update-main.bat
 else
 	@bash scripts/preprod/update-main.sh
 endif

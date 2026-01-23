@@ -1,8 +1,8 @@
 @echo off
 REM Pre-prod deploy on Windows VM
 REM Flow:
-REM - ORIGIN=main: update main (ff-only) -> ensure Supabase running -> docker compose up (build)
-REM - ORIGIN=latest|release-x.y.z: checkout tag (best-effort) -> ensure Supabase running -> docker pull + compose up (release)
+REM - ORIGIN=main: check -> update main (ff-only) -> verify-ci-main --strict -> database-start -> up -> health
+REM - ORIGIN=latest|release-x.y.z: resolve tag -> check -> checkout tag -> verify-ci-sha --strict -> database-start -> up -> health
 
 setlocal EnableExtensions EnableDelayedExpansion
 
@@ -29,35 +29,6 @@ if not defined GH_DIR if exist "%ProgramFiles%\GitHub CLI\gh.exe" set "GH_DIR=%P
 if not defined GH_DIR if exist "C:\Program Files\GitHub CLI\gh.exe" set "GH_DIR=C:\Program Files\GitHub CLI"
 if defined GH_DIR set "PATH=%GH_DIR%;%PATH%"
 
-call :check_prereqs
-if %errorlevel% neq 0 exit /b %errorlevel%
-
-echo Updating main...
-
-call :ensure_clean_worktree
-if %errorlevel% neq 0 exit /b %errorlevel%
-
-git checkout main
-if %errorlevel% neq 0 exit /b %errorlevel%
-
-git pull --ff-only origin main
-if %errorlevel% neq 0 exit /b %errorlevel%
-
-if /I "%ORIGIN%"=="main" (
-	call :verify_ci_main_strict
-	set "RC=!errorlevel!"
-	if not "!RC!"=="0" exit /b !RC!
-)
-
-if not exist ".env.preprod" goto missing_env
-
-call scripts\windows\preprod\database-start.bat
-if %errorlevel% neq 0 exit /b %errorlevel%
-
-echo Stopping existing API + Studio ^(if any^)...
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml down --remove-orphans
-if %errorlevel% neq 0 exit /b %errorlevel%
-
 REM Deploy
 if /I "%ORIGIN%"=="main" goto deploy_main
 if /I "%ORIGIN%"=="latest" goto deploy_latest
@@ -66,122 +37,101 @@ echo %ORIGIN% | findstr /I /R "^release-" >NUL
 if %errorlevel% neq 0 goto invalid_origin
 set "TAG=%ORIGIN:release-=%"
 if /I not "!TAG:~0,1!"=="v" set "TAG=v!TAG!"
-goto deploy_release_common
+goto deploy_release
 
 :deploy_latest
 gh --version >NUL 2>&1
-if %errorlevel% neq 0 (
-	echo Error: gh CLI not found in PATH. Install GitHub CLI or set ORIGIN=release-x.y.z.
-	exit /b 1
-)
+if %errorlevel% neq 0 goto err_no_gh
 gh release view --repo aXedras/xScanner --json tagName --jq .tagName >NUL 2>&1
-if %errorlevel% neq 0 (
-	echo Error: no GitHub Releases found for aXedras/xScanner.
-	echo Tip: use ORIGIN=main ^(local build^) or ORIGIN=release-x.y.z once releases exist.
-	exit /b 1
-)
+if %errorlevel% neq 0 goto err_no_releases
 for /f "usebackq delims=" %%T in (`gh release view --repo aXedras/xScanner --json tagName --jq .tagName 2^>NUL`) do set "TAG=%%T"
-if not defined TAG (
-	echo Error: could not resolve latest release tag via gh.
-	exit /b 1
-)
-goto deploy_release_common
+if not defined TAG goto err_no_tag
+goto deploy_release
 
-:deploy_main
-if not defined XSCANNER_RELEASE_TAG call :derive_main_release_tag
-set "API_SERVICE=xscanner-api-build"
-echo Building API + Studio images ^(build mode^)...
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml build xscanner-api-build xscanner-studio
-if %errorlevel% neq 0 exit /b %errorlevel%
-
-echo Starting API + Studio ^(build mode^)...
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d xscanner-api-build xscanner-studio
-if %errorlevel% neq 0 exit /b %errorlevel%
-goto after_deploy
-
-:derive_main_release_tag
-REM Deterministic version label for ORIGIN=main deployments.
-REM Prefer v<pyproject version>+g<shortsha>. Fall back to v<version> or dev.
-
-set "PYPROJECT_VERSION="
-for /f "usebackq delims=" %%V in (`powershell -NoProfile -Command "$m = (Select-String -Path 'pyproject.toml' -Pattern '^version\s*=\s*\"(.+)\"' -List).Matches; if ($m.Count -gt 0) { $m[0].Groups[1].Value }" 2^>NUL`) do set "PYPROJECT_VERSION=%%V"
-
-set "SHORT_SHA="
-for /f "usebackq delims=" %%S in (`git rev-parse --short HEAD 2^>NUL`) do set "SHORT_SHA=%%S"
-
-if defined PYPROJECT_VERSION (
-	if defined SHORT_SHA (
-		set "XSCANNER_RELEASE_TAG=v%PYPROJECT_VERSION%+g%SHORT_SHA%"
-	) else (
-		set "XSCANNER_RELEASE_TAG=v%PYPROJECT_VERSION%"
-	)
-) else (
-	set "XSCANNER_RELEASE_TAG=dev"
-)
-
-exit /b 0
-
-:deploy_release_common
-REM Best-effort: checkout tag so repo reflects deployed version
-set "ORIGINAL_REF="
-for /f "usebackq delims=" %%B in (`git branch --show-current 2^>NUL`) do set "ORIGINAL_REF=%%B"
-git fetch --tags origin >NUL 2>&1
-git checkout "!TAG!" >NUL 2>&1
-
-if not defined XSCANNER_API_IMAGE set "XSCANNER_API_IMAGE=ghcr.io/axedras/xscanner:%MODE%-!TAG!"
-if not defined XSCANNER_RELEASE_TAG set "XSCANNER_RELEASE_TAG=!TAG!"
-
-call :ensure_ghcr_login
-if %errorlevel% neq 0 exit /b %errorlevel%
-
-set "API_SERVICE=xscanner-api-release"
-
-echo Pulling release image: !XSCANNER_API_IMAGE!
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api-release
-if %errorlevel% neq 0 (
-	echo Error: failed to pull release image. If you see 'unauthorized', run: docker login ghcr.io
-	exit /b %errorlevel%
-)
-
-echo Starting API + Studio ^(release mode^)...
-echo Building Studio image ^(release mode^)...
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml build xscanner-studio
-if %errorlevel% neq 0 exit /b %errorlevel%
-
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d xscanner-api-release xscanner-studio
-if %errorlevel% neq 0 exit /b %errorlevel%
-
-if defined ORIGINAL_REF (
-	git checkout "!ORIGINAL_REF!" >NUL 2>&1
-)
-goto after_deploy
-
-:after_deploy
-
-echo Healthcheck...
-set "HEALTH_URL=http://127.0.0.1:8010/health"
-curl -fsS "%HEALTH_URL%" >nul 2>&1
-if %errorlevel% equ 0 goto health_ok
-goto health_fail
-
-:health_fail
-echo Healthcheck failed: %HEALTH_URL%
-echo Tip: this script intentionally fails fast; just run it again once the build/pull is ready.
-if defined API_SERVICE (
-	echo Recent logs ^(%API_SERVICE%^):
-	docker compose --env-file .env.preprod -f docker-compose.preprod.yml logs --tail 200 %API_SERVICE%
-)
+:err_no_gh
+echo Error: gh CLI not found in PATH. Install GitHub CLI or set ORIGIN=release-x.y.z.
 exit /b 1
 
-:health_ok
-echo Healthcheck OK
+:err_no_releases
+echo Error: no GitHub Releases found for aXedras/xScanner.
+echo Tip: use ORIGIN=main (local build) or ORIGIN=release-x.y.z once releases exist.
+exit /b 1
+
+:err_no_tag
+echo Error: could not resolve latest release tag via gh.
+exit /b 1
+
+:deploy_main
+echo Origin: main (deploy from main HEAD, local build)
+echo Mode: %MODE%
+
+set "ORIGIN=main"
+call scripts\windows\preprod\check.bat
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+call scripts\windows\preprod\update-main.bat
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+call scripts\windows\preprod\verify-ci-main.bat --strict
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+call scripts\windows\preprod\database-start.bat
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+call scripts\windows\preprod\up.bat
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+call scripts\windows\preprod\health.bat
+if %errorlevel% neq 0 exit /b %errorlevel%
 
 echo Deploy complete
 exit /b 0
 
-:missing_env
-echo Missing .env.preprod - create it from .env.preprod.example
-exit /b 1
+
+:deploy_release
+echo Origin: %ORIGIN%
+echo Mode: %MODE%
+echo Release tag: !TAG!
+
+REM For releases, check requires gh + auth and a clean worktree.
+call scripts\windows\preprod\check.bat
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+set "ORIGINAL_REF="
+for /f "usebackq delims=" %%B in (`git branch --show-current 2^>NUL`) do set "ORIGINAL_REF=%%B"
+git fetch --tags origin
+if %errorlevel% neq 0 exit /b %errorlevel%
+git checkout "!TAG!"
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+call scripts\windows\preprod\verify-ci-sha.bat --strict
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+if not defined XSCANNER_API_IMAGE set "XSCANNER_API_IMAGE=ghcr.io/axedras/xscanner:%MODE%-!TAG!"
+if not defined XSCANNER_RELEASE_TAG set "XSCANNER_RELEASE_TAG=!TAG!"
+
+call scripts\windows\preprod\database-start.bat
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+call scripts\windows\preprod\up.bat
+set "UP_RC=!errorlevel!"
+if not "!UP_RC!"=="0" goto restore_and_exit_up
+
+call scripts\windows\preprod\health.bat
+set "HC_RC=!errorlevel!"
+if defined ORIGINAL_REF (
+	git checkout "!ORIGINAL_REF!" >NUL 2>&1
+)
+if not "!HC_RC!"=="0" exit /b !HC_RC!
+
+echo Deploy complete
+exit /b 0
+
+:restore_and_exit_up
+if defined ORIGINAL_REF (
+	git checkout "!ORIGINAL_REF!" >NUL 2>&1
+)
+exit /b !UP_RC!
 
 :invalid_origin
 echo Error: invalid ORIGIN (expected main^|latest^|release-x.y.z): %ORIGIN%
@@ -193,135 +143,4 @@ if /I "%MODE%"=="full" exit /b 0
 echo Error: invalid MODE (expected cloud^|full): %MODE%
 exit /b 1
 
-:check_prereqs
-where docker >NUL 2>&1
-if %errorlevel% neq 0 (
-	echo Error: docker not found in PATH
-	exit /b 1
-)
 
-docker compose version >NUL 2>&1
-if %errorlevel% neq 0 (
-	echo Error: docker compose not available
-	exit /b 1
-)
-
-where supabase >NUL 2>&1
-if %errorlevel% neq 0 (
-	echo Error: supabase CLI not found in PATH
-	exit /b 1
-)
-
-if not exist ".env.preprod" (
-	echo Error: missing .env.preprod
-	echo Create it from .env.preprod.example ^(do not commit secrets^).
-	exit /b 1
-)
-
-REM For release-based deploys, require gh + auth
-if /I not "%ORIGIN%"=="main" (
-	gh --version >NUL 2>&1
-	if %errorlevel% neq 0 (
-		echo Error: gh CLI not found in PATH ^(required for ORIGIN != main^)
-		exit /b 1
-	)
-	gh auth status -h github.com >NUL 2>&1
-	if %errorlevel% neq 0 (
-		echo Error: gh is not authenticated ^(required for ORIGIN != main^)
-		echo Run: gh auth login
-		exit /b 1
-	)
-)
-
-exit /b 0
-
-:ensure_clean_worktree
-REM Guard against local modifications (match scripts/preprod/check.sh intent)
-git diff --quiet
-if %errorlevel% neq 0 goto worktree_dirty
-git diff --cached --quiet
-if %errorlevel% neq 0 goto worktree_dirty
-exit /b 0
-
-:worktree_dirty
-echo Error: git working tree has uncommitted changes
-echo This is intentional for pre-prod deploys.
-echo Fix: commit, stash, or deploy from a clean clone.
-git status -sb
-exit /b 1
-
-:verify_ci_main_strict
-REM Mirror scripts/preprod/verify-ci-main.sh --strict
-gh --version >NUL 2>&1
-if %errorlevel% neq 0 (
-	echo Error: gh CLI not installed; cannot verify CI status
-	exit /b 1
-)
-
-gh auth status -h github.com >NUL 2>&1
-if %errorlevel% neq 0 (
-	echo Error: gh is not authenticated; cannot verify CI status
-	exit /b 1
-)
-
-set "HEAD_SHA="
-for /f "usebackq delims=" %%S in (`git rev-parse HEAD 2^>NUL`) do set "HEAD_SHA=%%S"
-if not defined HEAD_SHA (
-	echo Error: cannot read HEAD sha
-	exit /b 1
-)
-
-set "MATCHED_CONCLUSION="
-for /f "usebackq delims=" %%C in (`gh api "repos/aXedras/xScanner/actions/workflows/ci.yml/runs?branch=main^&per_page=50" --jq ".workflow_runs[] | select(.head_sha == \"!HEAD_SHA!\") | .conclusion" 2^>NUL`) do (
-	set "MATCHED_CONCLUSION=%%C"
-	goto got_ci
-)
-:got_ci
-
-if not defined MATCHED_CONCLUSION (
-	echo Error: cannot verify CI for sha !HEAD_SHA!
-	echo Ensure gh is authenticated and the workflow run exists for this commit.
-	exit /b 1
-)
-
-if /I not "!MATCHED_CONCLUSION!"=="success" (
-	echo Error: CI for sha !HEAD_SHA! is not successful ^(conclusion=!MATCHED_CONCLUSION!^)
-	exit /b 1
-)
-
-echo CI successful for sha: !HEAD_SHA!
-exit /b 0
-
-:ensure_ghcr_login
-REM Best-effort GHCR auth to avoid 401 when pulling private images.
-where docker >NUL 2>&1
-if %errorlevel% neq 0 (
-  echo Error: docker not found in PATH.
-  exit /b 1
-)
-
-gh --version >NUL 2>&1
-if %errorlevel% neq 0 (
-  REM No gh: user must login manually.
-  exit /b 0
-)
-
-REM Ensure gh is authenticated
-gh auth status -h github.com >NUL 2>&1
-if %errorlevel% neq 0 (
-  echo Note: gh not authenticated. If GHCR pull fails, run: gh auth login
-  exit /b 0
-)
-
-set "GH_USER="
-for /f "usebackq delims=" %%U in (`gh api user --jq .login 2^>NUL`) do set "GH_USER=%%U"
-if not defined GH_USER set "GH_USER=%GITHUB_ACTOR%"
-if not defined GH_USER set "GH_USER=github"
-
-set "GH_TOKEN="
-for /f "usebackq delims=" %%T in (`gh auth token 2^>NUL`) do set "GH_TOKEN=%%T"
-if not defined GH_TOKEN exit /b 0
-
-echo Logging into ghcr.io (best-effort)...
-echo !GH_TOKEN! | docker login ghcr.io -u !GH_USER! --password-stdin >NUL 2>&1
-exit /b 0
