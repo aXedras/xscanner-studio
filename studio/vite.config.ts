@@ -1,13 +1,30 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
+import { execSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
+
+const computeReleaseTag = (explicitTag: string | undefined): string => {
+  const trimmed = (explicitTag || '').trim()
+  if (trimmed) return trimmed
+
+  try {
+    return execSync('git describe --tags --always --dirty', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim()
+  } catch {
+    return 'dev'
+  }
+}
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   // Load ALL env vars for the dev server (not only VITE_*)
   const env = loadEnv(mode, process.cwd(), '')
+
+  const releaseTag = computeReleaseTag(env.VITE_XSCANNER_RELEASE_TAG)
 
   const ingestEnabled = env.STUDIO_LOG_INGEST_ENABLED === 'true'
   const ingestPath = env.STUDIO_LOG_INGEST_PATH || env.VITE_LOG_INGEST_PATH || '/__studio_log'
@@ -48,6 +65,9 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
+    define: {
+      __XSCANNER_RELEASE_TAG__: JSON.stringify(releaseTag),
+    },
     plugins: [
       react(),
       {

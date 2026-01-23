@@ -1,6 +1,6 @@
 export default function Footer() {
   const currentYear = new Date().getFullYear()
-  const releaseLabel = import.meta.env.VITE_XSCANNER_RELEASE_TAG || 'dev'
+  const releaseLabel = import.meta.env.VITE_XSCANNER_RELEASE_TAG || __XSCANNER_RELEASE_TAG__ || 'dev'
 
   return (
     <footer className="mt-auto w-full">
