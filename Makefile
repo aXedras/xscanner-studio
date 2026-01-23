@@ -387,8 +387,7 @@ preprod-up:
 
 ifeq ($(OS),Windows_NT)
 	@scripts\\windows\\preprod\\database-start.bat
-	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod-up (up.sh). & exit /b 1)
-	@bash scripts/preprod/up.sh
+	@scripts\\windows\\preprod\\up.bat
 else
 	@bash scripts/preprod/database-start.sh
 	@bash scripts/preprod/up.sh
@@ -397,8 +396,7 @@ endif
 preprod-down:
 
 ifeq ($(OS),Windows_NT)
-	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod targets (except database-start/stop/deploy). & exit /b 1)
-	@bash scripts/preprod/down.sh
+	@scripts\\windows\\preprod\\down.bat
 else
 	@bash scripts/preprod/down.sh
 endif
@@ -406,8 +404,7 @@ endif
 preprod-health:
 
 ifeq ($(OS),Windows_NT)
-	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod targets (except database-start/stop/deploy). & exit /b 1)
-	@bash scripts/preprod/health.sh
+	@scripts\\windows\\preprod\\health.bat
 else
 	@bash scripts/preprod/health.sh
 endif
@@ -415,8 +412,7 @@ endif
 preprod-status:
 
 ifeq ($(OS),Windows_NT)
-	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod targets (except database-start/stop/deploy). & exit /b 1)
-	@bash scripts/preprod/status.sh
+	@scripts\\windows\\preprod\\status.bat
 else
 	@bash scripts/preprod/status.sh
 endif
@@ -424,8 +420,7 @@ endif
 preprod-logs:
 
 ifeq ($(OS),Windows_NT)
-	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash for preprod targets (except database-start/stop/deploy). & exit /b 1)
-	@bash scripts/preprod/logs.sh
+	@scripts\\windows\\preprod\\logs.bat
 else
 	@bash scripts/preprod/logs.sh
 endif
