@@ -101,7 +101,7 @@ resolve_previous_tag() {
   echo "$prev"
 }
 
-collect_contributor_logins() {
+collect_contributors_with_links() {
   local current_tag="$1"
   local prev_tag="$2"
 
@@ -110,9 +110,9 @@ collect_contributor_logins() {
   fi
 
   gh api "repos/aXedras/xScanner/compare/${prev_tag}...${current_tag}" \
-    --jq '.commits[] | (.author.login // .committer.login // empty)' 2>/dev/null \
-    | sed '/^\s*$/d' \
-    | sort -u
+    --jq '.commits[] | [(.author.login // .committer.login // empty), .html_url] | @tsv' 2>/dev/null \
+    | awk -F $'\t' 'NF >= 2 && $1 != "" && !seen[$1]++ { print $1 "\t" $2 }' \
+    | sort -t $'\t' -k1,1
 }
 
 generate_github_notes() {
@@ -134,7 +134,7 @@ generate_github_notes() {
 EXISTING_BODY="$(gh release view "$TAG" --repo aXedras/xScanner --json body --jq .body 2>/dev/null || true)"
 
 PREV_TAG="$(resolve_previous_tag "$TAG")"
-CONTRIBUTOR_LOGINS="$(collect_contributor_logins "$TAG" "$PREV_TAG" || true)"
+CONTRIBUTORS_WITH_LINKS="$(collect_contributors_with_links "$TAG" "$PREV_TAG" || true)"
 
 # Prefer GitHub's generated notes (stable + avoids losing auto-notes on repeated syncs).
 GITHUB_NOTES_BODY="$(generate_github_notes "$TAG" "$PREV_TAG" 2>/dev/null || true)"
@@ -152,13 +152,14 @@ trap 'rm -f "$TMP_FILE"' EXIT
   printf "%s" "$CHANGELOG_SECTION"
   echo
 
-  if [ -n "$CONTRIBUTOR_LOGINS" ]; then
+  if [ -n "$CONTRIBUTORS_WITH_LINKS" ]; then
     echo "## Contributors"
     echo
-    while IFS= read -r login; do
+    while IFS=$'\t' read -r login url; do
       [ -z "$login" ] && continue
-      echo "* @$login"
-    done <<<"$CONTRIBUTOR_LOGINS"
+      [ -z "$url" ] && continue
+      echo "* @$login in $url"
+    done <<<"$CONTRIBUTORS_WITH_LINKS"
     echo
   fi
 

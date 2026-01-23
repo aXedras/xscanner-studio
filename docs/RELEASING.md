@@ -65,7 +65,7 @@ This creates the git tag `vX.Y.Z`, pushes it, and creates a GitHub Release. CI w
 
 Release notes:
 - The GitHub Release is created with GitHub auto-generated notes.
-- The release script then runs `scripts/release/sync-release-notes.sh` to prepend the curated `docs/CHANGELOG.md` section and a `## Contributors` section (formatted like GitHub auto-notes, using `* @login`).
+- The release script then runs `scripts/release/sync-release-notes.sh` to prepend the curated `docs/CHANGELOG.md` section and a `## Contributors` section (formatted like GitHub auto-notes, using `* @login in <url>`).
 
 ## Deploying to pre-prod
 
