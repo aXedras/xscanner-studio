@@ -12,7 +12,8 @@ cd "$REPO_ROOT"
 
 echo -e "${BLUE}🧹 Stopping API + Studio (pre-prod compose)...${NC}"
 echo -e "${BLUE}Note:${NC} Supabase will keep running"
+echo -e "${BLUE}Note:${NC} also removing orphan containers (safe for this compose project)"
 
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml down
+docker compose --env-file .env.preprod -f docker-compose.preprod.yml down --remove-orphans
 
 echo -e "${GREEN}✓ Compose is down${NC}"

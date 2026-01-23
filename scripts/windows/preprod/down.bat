@@ -11,8 +11,9 @@ if not exist ".env.preprod" (
 
 echo Stopping API + Studio (pre-prod compose)...
 echo Note: Supabase will keep running
+echo Note: also removing orphan containers (safe for this compose project)
 
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml down
+docker compose --env-file .env.preprod -f docker-compose.preprod.yml down --remove-orphans
 if errorlevel 1 exit /b 1
 
 echo Compose is down
