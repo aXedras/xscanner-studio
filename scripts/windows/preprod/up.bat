@@ -87,8 +87,14 @@ echo Mode: main (pull moving GHCR images)
 if "%XSCANNER_API_IMAGE%"=="" set "XSCANNER_API_IMAGE=ghcr.io/axedras/xscanner:%MODE%"
 if "%XSCANNER_STUDIO_IMAGE%"=="" set "XSCANNER_STUDIO_IMAGE=ghcr.io/axedras/xscanner-studio:main"
 
-REM Deterministic label for this origin.
-set "XSCANNER_RELEASE_TAG=main"
+REM Derive label from latest release and the pulled image revision.
+REM Example: v0.1.1+gabc1234 (or v0.1.1+main if revision is unavailable)
+set "LATEST_RELEASE_TAG="
+gh --version >NUL 2>&1
+if %errorlevel%==0 (
+	for /f "usebackq delims=" %%T in (`gh release view --repo aXedras/xScanner --json tagName --jq .tagName 2^>NUL`) do set "LATEST_RELEASE_TAG=%%T"
+)
+if not defined LATEST_RELEASE_TAG set "LATEST_RELEASE_TAG=main"
 
 echo Origin: %ORIGIN%
 echo Mode: %MODE%
@@ -98,6 +104,24 @@ echo Actions: pull xscanner-api-release xscanner-studio-release ^& up -d xscanne
 
 docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api-release xscanner-studio-release
 if errorlevel 1 exit /b 1
+
+set "REVISION="
+for /f "usebackq delims=" %%R in (`powershell -NoProfile -Command "try { $img='%XSCANNER_API_IMAGE%'; $rev=(docker image inspect $img | ConvertFrom-Json)[0].Config.Labels.'org.opencontainers.image.revision'; if ($rev) { $rev } } catch { }" 2^>NUL`) do set "REVISION=%%R"
+
+set "SHORT_REV="
+if defined REVISION set "SHORT_REV=%REVISION:~0,7%"
+
+if /I not "%LATEST_RELEASE_TAG%"=="main" (
+	if defined SHORT_REV (
+		set "XSCANNER_RELEASE_TAG=%LATEST_RELEASE_TAG%+g%SHORT_REV%"
+	) else (
+		set "XSCANNER_RELEASE_TAG=%LATEST_RELEASE_TAG%+main"
+	)
+) else (
+	set "XSCANNER_RELEASE_TAG=main"
+)
+
+echo Release tag: %XSCANNER_RELEASE_TAG%
 
 docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d xscanner-api-release xscanner-studio-release
 if errorlevel 1 exit /b 1

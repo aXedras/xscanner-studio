@@ -160,8 +160,12 @@ elif [ "$ORIGIN" = "main" ]; then
 		export XSCANNER_STUDIO_IMAGE="ghcr.io/axedras/xscanner-studio:main"
 	fi
 
-	# Deterministic label for this origin.
-	export XSCANNER_RELEASE_TAG="main"
+	# Derive label from latest release and the pulled image revision.
+	# Example: v0.1.1+gabc1234 (or v0.1.1+main if revision is unavailable)
+	latest_release_tag="$(preprod_latest_github_release_tag)"
+	if [ -z "$latest_release_tag" ]; then
+		latest_release_tag="main"
+	fi
 
 	echo -e "${BLUE}Origin:${NC} ${ORIGIN}"
 	echo -e "${BLUE}Mode:${NC} ${MODE}"
@@ -170,6 +174,21 @@ elif [ "$ORIGIN" = "main" ]; then
 	echo -e "${BLUE}Actions:${NC} pull xscanner-api-release xscanner-studio-release; up -d xscanner-api-release xscanner-studio-release"
 
 	docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api-release xscanner-studio-release
+
+	revision="$(preprod_image_revision "$XSCANNER_API_IMAGE")"
+	short_revision=""
+	if [ -n "$revision" ]; then
+		short_revision="${revision:0:7}"
+	fi
+	if [ -n "$short_revision" ] && [ "$latest_release_tag" != "main" ]; then
+		export XSCANNER_RELEASE_TAG="${latest_release_tag}+g${short_revision}"
+	elif [ "$latest_release_tag" != "main" ]; then
+		export XSCANNER_RELEASE_TAG="${latest_release_tag}+main"
+	else
+		export XSCANNER_RELEASE_TAG="main"
+	fi
+
+	echo -e "${BLUE}Release tag:${NC} ${XSCANNER_RELEASE_TAG}"
 
 	docker compose --env-file .env.preprod -f docker-compose.preprod.yml \
 		up -d xscanner-api-release xscanner-studio-release

@@ -58,6 +58,28 @@ preprod_ensure_default_platform_for_pulls() {
 	fi
 }
 
+preprod_latest_github_release_tag() {
+	# Returns the latest GitHub release tag (e.g. v0.1.1) or empty string.
+	# Best-effort: ORIGIN=main/preprod-up may be used without gh installed.
+	local tag=""
+	if ! command -v gh >/dev/null 2>&1; then
+		echo ""
+		return 0
+	fi
+	tag="$(gh release view --repo aXedras/xScanner --json tagName --jq .tagName 2>/dev/null || true)"
+	echo "$tag"
+}
+
+preprod_image_revision() {
+	# Returns the OCI revision label (full sha) or empty string.
+	local image="$1"
+	if ! command -v docker >/dev/null 2>&1; then
+		echo ""
+		return 0
+	fi
+	docker image inspect "$image" --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' 2>/dev/null || true
+}
+
 preprod_normalize_origin() {
 	local raw="$1"
 
