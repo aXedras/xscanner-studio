@@ -185,9 +185,9 @@ else
 	echo -e "${BLUE}Mode:${NC} ${MODE}"
 	echo -e "${BLUE}Release tag:${NC} ${XSCANNER_RELEASE_TAG}"
 	echo -e "${BLUE}API dockerfile:${NC} Dockerfile.${MODE}"
-	echo -e "${BLUE}Actions:${NC} up -d --build xscanner-api-build xscanner-studio"
+	echo -e "${BLUE}Actions:${NC} up -d --build xscanner-api-build xscanner-studio-build"
 	docker compose --env-file .env.preprod -f docker-compose.preprod.yml \
-		up -d --build xscanner-api-build xscanner-studio
+		up -d --build xscanner-api-build xscanner-studio-build
 fi
 
 echo -e "${GREEN}✓ Compose is up${NC}"

@@ -85,7 +85,7 @@ services:
       supabase: {}
     restart: unless-stopped
 
-  xscanner-studio:
+  xscanner-studio-build:
     build:
       context: ./studio
       dockerfile: Dockerfile

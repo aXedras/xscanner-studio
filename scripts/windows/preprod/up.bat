@@ -75,9 +75,9 @@ echo Origin: %ORIGIN%
 echo Mode: %MODE%
 echo Release tag: %XSCANNER_RELEASE_TAG%
 echo API dockerfile: Dockerfile.%MODE%
-echo Actions: up -d --build xscanner-api-build xscanner-studio
+echo Actions: up -d --build xscanner-api-build xscanner-studio-build
 
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d --build xscanner-api-build xscanner-studio
+docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d --build xscanner-api-build xscanner-studio-build
 if errorlevel 1 exit /b 1
 
 goto :done
