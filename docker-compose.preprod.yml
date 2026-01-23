@@ -101,6 +101,20 @@ services:
       - "8090:80"
     restart: unless-stopped
 
+  xscanner-studio-release:
+    image: ${XSCANNER_STUDIO_IMAGE:-ghcr.io/axedras/xscanner-studio:${XSCANNER_RELEASE_TAG:-dev}}
+    environment:
+      # Runtime public configuration (generated into /env.js at container start)
+      VITE_API_URL: /api
+      VITE_SUPABASE_URL: ${SUPABASE_PUBLIC_URL}
+      VITE_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      VITE_SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET:-extractions}
+      VITE_LOG_LEVEL: ${STUDIO_LOG_LEVEL:-info}
+      VITE_XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG:-dev}
+    ports:
+      - "8090:80"
+    restart: unless-stopped
+
 networks:
   supabase:
     external: true

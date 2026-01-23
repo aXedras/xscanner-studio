@@ -27,6 +27,10 @@ if [ "$MODE" != "cloud" ] && [ "$MODE" != "full" ]; then
 	exit 1
 fi
 
+echo -e "${BLUE}🚀 Pre-prod up${NC}"
+echo -e "${BLUE}Note:${NC} this command may pull images, rebuild Studio, and recreate containers."
+echo -e "${BLUE}Compose:${NC} docker-compose.preprod.yml"
+
 resolve_release_tag() {
 	local origin="$1"
 	local tag=""
@@ -86,7 +90,7 @@ compute_short_sha() {
 
 
 if [ "$ORIGIN" != "main" ]; then
-	echo -e "${BLUE}🚀 Starting API + Studio (pre-prod compose, release mode)...${NC}"
+	echo -e "${BLUE}Mode:${NC} release (API from GHCR image)"
 
 	if [ -z "${XSCANNER_API_IMAGE:-}" ]; then
 		need_tag=1
@@ -128,13 +132,14 @@ if [ "$ORIGIN" != "main" ]; then
 		echo -e "${BLUE}Release tag:${NC} ${TAG}"
 	fi
 	echo -e "${BLUE}API image:${NC} ${XSCANNER_API_IMAGE}"
+	echo -e "${BLUE}Actions:${NC} pull xscanner-api-release xscanner-studio-release; up -d xscanner-api-release xscanner-studio-release"
 
-	docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api-release
+	docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api-release xscanner-studio-release
 
 	docker compose --env-file .env.preprod -f docker-compose.preprod.yml \
-		up -d --build xscanner-api-release xscanner-studio
+		up -d xscanner-api-release xscanner-studio-release
 else
-	echo -e "${BLUE}🚀 Starting API + Studio (pre-prod compose, build mode)...${NC}"
+	echo -e "${BLUE}Mode:${NC} build (API built from source)"
 	export MODE
 	if [ -z "${XSCANNER_RELEASE_TAG:-}" ]; then
 		version="$(compute_release_tag_from_pyproject "$REPO_ROOT" 2>/dev/null || true)"
@@ -153,6 +158,7 @@ else
 	echo -e "${BLUE}Mode:${NC} ${MODE}"
 	echo -e "${BLUE}Release tag:${NC} ${XSCANNER_RELEASE_TAG}"
 	echo -e "${BLUE}API dockerfile:${NC} Dockerfile.${MODE}"
+	echo -e "${BLUE}Actions:${NC} up -d --build xscanner-api-build xscanner-studio"
 	docker compose --env-file .env.preprod -f docker-compose.preprod.yml \
 		up -d --build xscanner-api-build xscanner-studio
 fi

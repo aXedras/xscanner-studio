@@ -30,7 +30,14 @@ RUN npm run build
 
 FROM nginx:1.27-alpine
 
+RUN apk add --no-cache gettext
+
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Runtime config injection
+COPY env.template.js /usr/share/nginx/html/env.template.js
+COPY docker-entrypoint.d/99-env.sh /docker-entrypoint.d/99-env.sh
+RUN chmod +x /docker-entrypoint.d/99-env.sh
 
 EXPOSE 80

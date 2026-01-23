@@ -22,10 +22,14 @@ echo Error: invalid MODE ^(expected cloud^|full^): %MODE%
 exit /b 1
 :mode_ok
 
+echo Pre-prod up
+echo Note: this command may pull images, rebuild Studio, and recreate containers.
+echo Compose: docker-compose.preprod.yml
+
 if /I "%ORIGIN%"=="main" goto :build_mode
 
 :release_mode
-echo Starting API + Studio (pre-prod compose, release mode)...
+echo Mode: release (API from GHCR image)
 
 set "NEED_TAG=0"
 if "%XSCANNER_API_IMAGE%"=="" set "NEED_TAG=1"
@@ -42,16 +46,17 @@ echo Origin: %ORIGIN%
 echo Mode: %MODE%
 if not "!TAG!"=="" echo Release tag: !TAG!
 echo API image: %XSCANNER_API_IMAGE%
+echo Actions: pull xscanner-api-release xscanner-studio-release ^& up -d xscanner-api-release xscanner-studio-release
 
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api-release
+docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api-release xscanner-studio-release
 if errorlevel 1 exit /b 1
 
-docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d --build xscanner-api-release xscanner-studio
+docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d xscanner-api-release xscanner-studio-release
 if errorlevel 1 exit /b 1
 goto :done
 
 :build_mode
-echo Starting API + Studio (pre-prod compose, build mode)...
+echo Mode: build (API built from source)
 
 if "%XSCANNER_RELEASE_TAG%"=="" call :derive_main_release_tag
 
@@ -59,6 +64,7 @@ echo Origin: %ORIGIN%
 echo Mode: %MODE%
 echo Release tag: %XSCANNER_RELEASE_TAG%
 echo API dockerfile: Dockerfile.%MODE%
+echo Actions: up -d --build xscanner-api-build xscanner-studio
 
 docker compose --env-file .env.preprod -f docker-compose.preprod.yml up -d --build xscanner-api-build xscanner-studio
 if errorlevel 1 exit /b 1

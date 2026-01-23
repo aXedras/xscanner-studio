@@ -29,6 +29,13 @@ type LogPayload = {
   data?: unknown
 }
 
+const getRuntimeEnv = (key: string): string | undefined => {
+  if (typeof window === 'undefined') return undefined
+  const value = window.__ENV__?.[key]
+  const trimmed = (value || '').trim()
+  return trimmed ? trimmed : undefined
+}
+
 const redactSensitive = (value: unknown): unknown => {
   if (!value || typeof value !== 'object') return value
   if (Array.isArray(value)) return value.map(redactSensitive)
@@ -45,11 +52,14 @@ const redactSensitive = (value: unknown): unknown => {
 }
 
 const shouldShipToFile = (): boolean => {
-  return Boolean(import.meta.env.DEV) && import.meta.env.VITE_LOG_TO_FILE === 'true'
+  const value = getRuntimeEnv('VITE_LOG_TO_FILE') || (import.meta.env.VITE_LOG_TO_FILE as string)
+  return Boolean(import.meta.env.DEV) && value === 'true'
 }
 
 const getIngestPath = (): string => {
-  return (import.meta.env.VITE_LOG_INGEST_PATH as string) || '/__studio_log'
+  return (
+    getRuntimeEnv('VITE_LOG_INGEST_PATH') || (import.meta.env.VITE_LOG_INGEST_PATH as string) || '/__studio_log'
+  )
 }
 
 const shipToFile = (payload: LogPayload): void => {
@@ -90,12 +100,12 @@ class Logger implements ILogger {
   }
 
   private getLogLevel(): LogLevel {
-    const level = import.meta.env.VITE_LOG_LEVEL as LogLevel
+    const level = (getRuntimeEnv('VITE_LOG_LEVEL') as LogLevel) || (import.meta.env.VITE_LOG_LEVEL as LogLevel)
     return level || (import.meta.env.DEV ? 'debug' : 'error')
   }
 
   private getEnabledCategories(): Set<string> | null {
-    const categories = import.meta.env.VITE_LOG_CATEGORIES as string
+    const categories = getRuntimeEnv('VITE_LOG_CATEGORIES') || (import.meta.env.VITE_LOG_CATEGORIES as string)
     if (!categories) return null
     return new Set(categories.split(',').map(c => c.trim()))
   }

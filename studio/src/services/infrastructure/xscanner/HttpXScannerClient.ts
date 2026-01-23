@@ -8,7 +8,10 @@ import type {
 } from '../../core/extraction/types'
 import { createHttpJsonClient } from '../http/httpClient'
 
-const DEFAULT_API_BASE_URL = (import.meta.env.VITE_API_URL as string) || 'http://localhost:8000'
+import { getRuntimeEnv } from '../../../lib/runtimeEnv'
+
+const DEFAULT_API_BASE_URL =
+  (getRuntimeEnv('VITE_API_URL') as string) || (import.meta.env.VITE_API_URL as string) || 'http://localhost:8000'
 
 const EXTRACT_UPLOAD_TIMEOUT_MS = 300_000
 
