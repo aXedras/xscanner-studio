@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile.${MODE:-cloud}
     environment:
       # Release
-      XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG:-dev}
+      XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG-}
 
       # Server
       SERVER_HOST: 0.0.0.0
@@ -47,7 +47,7 @@ services:
     image: ${XSCANNER_API_IMAGE:-ghcr.io/axedras/xscanner:full-release}
     environment:
       # Release
-      XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG:-dev}
+      XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG-}
 
       # Server
       SERVER_HOST: 0.0.0.0
@@ -96,7 +96,7 @@ services:
         VITE_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
         VITE_SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET:-extractions}
         VITE_LOG_LEVEL: ${STUDIO_LOG_LEVEL:-info}
-        VITE_XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG:-dev}
+        VITE_XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG-}
     ports:
       - "8090:80"
     restart: unless-stopped
@@ -110,7 +110,7 @@ services:
       VITE_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
       VITE_SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET:-extractions}
       VITE_LOG_LEVEL: ${STUDIO_LOG_LEVEL:-info}
-      VITE_XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG:-dev}
+      VITE_XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG-}
     ports:
       - "8090:80"
     restart: unless-stopped

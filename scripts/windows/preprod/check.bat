@@ -6,6 +6,13 @@ cd /d "%REPO_ROOT%" || exit /b 1
 
 if "%ORIGIN%"=="" set "ORIGIN=latest"
 
+if defined XSCANNER_RELEASE_TAG (
+	echo Error: XSCANNER_RELEASE_TAG must not be set manually
+	echo Why: pre-prod scripts derive it from ORIGIN to avoid mismatched labels.
+	echo Fix: unset XSCANNER_RELEASE_TAG and use ORIGIN=main^|local^|release-x.y.z.
+	exit /b 2
+)
+
 REM Ensure gh is on PATH (Windows installers don't always update PATH for all shells)
 set "GH_DIR="
 if exist "%ProgramW6432%\GitHub CLI\gh.exe" set "GH_DIR=%ProgramW6432%\GitHub CLI"
@@ -24,7 +31,7 @@ if errorlevel 1 goto :err_supabase
 
 if not exist ".env.preprod" goto :err_env
 
-if /I "%ORIGIN%"=="main" goto :gh_ok
+if /I "%ORIGIN%"=="local" goto :gh_ok
 
 where gh >nul 2>&1
 if errorlevel 1 goto :err_gh
@@ -34,10 +41,17 @@ if errorlevel 1 goto :err_gh_auth
 
 :gh_ok
 
+REM Guard against local modifications only when we depend on git operations (release checkouts).
+REM ORIGIN=local and ORIGIN=main are allowed to be dirty.
+if /I "%ORIGIN%"=="main" goto :status
+if /I "%ORIGIN%"=="local" goto :status
+
 git diff --quiet
 if errorlevel 1 goto :dirty
 git diff --cached --quiet
 if errorlevel 1 goto :dirty
+
+:status
 
 for /f %%B in ('git branch --show-current') do set "BRANCH=%%B"
 for /f %%H in ('git rev-parse --short HEAD') do set "HEAD=%%H"
@@ -71,10 +85,10 @@ echo Create it from .env.preprod.example - do not commit secrets.
 exit /b 1
 
 :err_gh
-echo Error: gh CLI not found in PATH - required for ORIGIN not main
+echo Error: gh CLI not found in PATH - required for ORIGIN not local
 exit /b 1
 
 :err_gh_auth
-echo Error: gh is not authenticated - required for ORIGIN not main
+echo Error: gh is not authenticated - required for ORIGIN not local
 echo Run: gh auth login
 exit /b 1

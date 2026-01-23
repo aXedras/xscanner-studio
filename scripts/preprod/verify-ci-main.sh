@@ -12,6 +12,11 @@ if [[ "${1:-}" == "--strict" ]]; then
   STRICT=1
 fi
 
+LATEST=0
+if [[ "${1:-}" == "--latest" ]] || [[ "${2:-}" == "--latest" ]]; then
+  LATEST=1
+fi
+
 if ! command -v gh >/dev/null 2>&1; then
   if [ "$STRICT" -eq 1 ]; then
     echo -e "${RED}Error: gh CLI not installed; cannot verify CI status${NC}" >&2
@@ -21,13 +26,24 @@ if ! command -v gh >/dev/null 2>&1; then
   exit 0
 fi
 
-HEAD_SHA="$(git rev-parse HEAD)"
+if [ "$LATEST" -eq 1 ]; then
+  HEAD_SHA=""
+else
+  HEAD_SHA="$(git rev-parse HEAD)"
+fi
 
 set +e
-MATCHED_CONCLUSION="$(gh api \
-  "repos/aXedras/xScanner/actions/workflows/ci.yml/runs?branch=main&per_page=50" \
-  --jq ".workflow_runs[] | select(.head_sha == \"$HEAD_SHA\") | .conclusion" \
-  2>/dev/null | head -n 1)"
+if [ "$LATEST" -eq 1 ]; then
+  MATCHED_CONCLUSION="$(gh api \
+    "repos/aXedras/xScanner/actions/workflows/ci.yml/runs?branch=main&per_page=1" \
+    --jq ".workflow_runs[0].conclusion" \
+    2>/dev/null | head -n 1)"
+else
+  MATCHED_CONCLUSION="$(gh api \
+    "repos/aXedras/xScanner/actions/workflows/ci.yml/runs?branch=main&per_page=50" \
+    --jq ".workflow_runs[] | select(.head_sha == \"$HEAD_SHA\") | .conclusion" \
+    2>/dev/null | head -n 1)"
+fi
 GH_EXIT=$?
 set -e
 
@@ -42,8 +58,16 @@ if [ "$GH_EXIT" -ne 0 ] || [ -z "${MATCHED_CONCLUSION:-}" ]; then
 fi
 
 if [ "$MATCHED_CONCLUSION" != "success" ]; then
-  echo -e "${RED}Error: CI for sha ${HEAD_SHA} is not successful (conclusion=${MATCHED_CONCLUSION})${NC}" >&2
+  if [ "$LATEST" -eq 1 ]; then
+    echo -e "${RED}Error: latest CI run for main is not successful (conclusion=${MATCHED_CONCLUSION})${NC}" >&2
+  else
+    echo -e "${RED}Error: CI for sha ${HEAD_SHA} is not successful (conclusion=${MATCHED_CONCLUSION})${NC}" >&2
+  fi
   exit 1
 fi
 
-echo -e "${GREEN}✓ CI successful for sha:${NC} ${HEAD_SHA}"
+if [ "$LATEST" -eq 1 ]; then
+  echo -e "${GREEN}✓ Latest CI successful for branch:${NC} main"
+else
+  echo -e "${GREEN}✓ CI successful for sha:${NC} ${HEAD_SHA}"
+fi

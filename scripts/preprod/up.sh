@@ -14,8 +14,15 @@ cd "$REPO_ROOT"
 ORIGIN="${ORIGIN:-latest}"
 MODE="${MODE:-}"
 
+if [ -n "${XSCANNER_RELEASE_TAG:-}" ]; then
+	echo -e "${RED}Error:${NC} XSCANNER_RELEASE_TAG must not be set manually." >&2
+	echo -e "${BLUE}Why:${NC} the pre-prod scripts derive it from ORIGIN to avoid mismatched labels." >&2
+	echo -e "${BLUE}Fix:${NC} unset XSCANNER_RELEASE_TAG and use ORIGIN=main|local|release-x.y.z." >&2
+	exit 2
+fi
+
 if [ -z "$MODE" ]; then
-	if [ "$ORIGIN" = "main" ]; then
+	if [ "$ORIGIN" = "main" ] || [ "$ORIGIN" = "local" ]; then
 		MODE="cloud"
 	else
 		MODE="full"
@@ -89,41 +96,36 @@ compute_short_sha() {
 }
 
 
-if [ "$ORIGIN" != "main" ]; then
+if [ "$ORIGIN" != "main" ] && [ "$ORIGIN" != "local" ]; then
 	echo -e "${BLUE}Mode:${NC} release (API from GHCR image)"
 
 	if [ -z "${XSCANNER_API_IMAGE:-}" ]; then
-		need_tag=1
-	else
-		need_tag=0
-	fi
-	if [ -z "${XSCANNER_RELEASE_TAG:-}" ]; then
-		need_tag=1
+		:
 	fi
 
-	TAG=""
-	if [ "${need_tag:-0}" -eq 1 ]; then
-		TAG="$(resolve_release_tag "$ORIGIN")" || rc=$?
-		if [ "${rc:-0}" -eq 2 ]; then
-			echo -e "${RED}Error:${NC} gh CLI not found in PATH, required for ORIGIN=latest." >&2
-			echo -e "${BLUE}Fix:${NC} install GitHub CLI or use ORIGIN=release-x.y.z (or set XSCANNER_API_IMAGE + XSCANNER_RELEASE_TAG explicitly)." >&2
-			exit 1
-		fi
-		if [ "${rc:-0}" -ne 0 ]; then
-			echo -e "${RED}Error: invalid ORIGIN (expected main|latest|release-x.y.z): ${ORIGIN}${NC}" >&2
-			exit 1
-		fi
-		if [ -z "$TAG" ]; then
-			echo -e "${RED}Error:${NC} could not resolve release tag for ORIGIN=${ORIGIN}." >&2
-			exit 1
-		fi
+	TAG="$(resolve_release_tag "$ORIGIN")" || rc=$?
+	if [ "${rc:-0}" -eq 2 ]; then
+		echo -e "${RED}Error:${NC} gh CLI not found in PATH, required for ORIGIN=latest." >&2
+		echo -e "${BLUE}Fix:${NC} install GitHub CLI or use ORIGIN=release-x.y.z." >&2
+		exit 1
+	fi
+	if [ "${rc:-0}" -ne 0 ]; then
+		echo -e "${RED}Error: invalid ORIGIN (expected main|latest|release-x.y.z): ${ORIGIN}${NC}" >&2
+		exit 1
+	fi
+	if [ -z "$TAG" ]; then
+		echo -e "${RED}Error:${NC} could not resolve release tag for ORIGIN=${ORIGIN}." >&2
+		exit 1
 	fi
 
 	if [ -z "${XSCANNER_API_IMAGE:-}" ]; then
 		export XSCANNER_API_IMAGE="ghcr.io/axedras/xscanner:${MODE}-${TAG}"
 	fi
-	if [ -z "${XSCANNER_RELEASE_TAG:-}" ]; then
-		export XSCANNER_RELEASE_TAG="$TAG"
+
+	# Always derive the release label from the resolved tag to avoid mismatches.
+	export XSCANNER_RELEASE_TAG="$TAG"
+	if [ -z "${XSCANNER_STUDIO_IMAGE:-}" ]; then
+		export XSCANNER_STUDIO_IMAGE="ghcr.io/axedras/xscanner-studio:${TAG}"
 	fi
 
 	echo -e "${BLUE}Origin:${NC} ${ORIGIN}"
@@ -138,20 +140,45 @@ if [ "$ORIGIN" != "main" ]; then
 
 	docker compose --env-file .env.preprod -f docker-compose.preprod.yml \
 		up -d xscanner-api-release xscanner-studio-release
-else
-	echo -e "${BLUE}Mode:${NC} build (API built from source)"
-	export MODE
-	if [ -z "${XSCANNER_RELEASE_TAG:-}" ]; then
-		version="$(compute_release_tag_from_pyproject "$REPO_ROOT" 2>/dev/null || true)"
-		sha="$(compute_short_sha "$REPO_ROOT")"
+elif [ "$ORIGIN" = "main" ]; then
+	echo -e "${BLUE}Mode:${NC} main (pull moving GHCR images)"
 
-		if [ -n "$version" ] && [ -n "$sha" ]; then
-			export XSCANNER_RELEASE_TAG="v${version}+g${sha}"
-		elif [ -n "$version" ]; then
-			export XSCANNER_RELEASE_TAG="v${version}"
-		else
-			export XSCANNER_RELEASE_TAG="dev"
-		fi
+	if [ -z "${XSCANNER_API_IMAGE:-}" ]; then
+		export XSCANNER_API_IMAGE="ghcr.io/axedras/xscanner:${MODE}"
+	fi
+	if [ -z "${XSCANNER_STUDIO_IMAGE:-}" ]; then
+		export XSCANNER_STUDIO_IMAGE="ghcr.io/axedras/xscanner-studio:main"
+	fi
+
+	# Deterministic label for this origin.
+	export XSCANNER_RELEASE_TAG="main"
+
+	echo -e "${BLUE}Origin:${NC} ${ORIGIN}"
+	echo -e "${BLUE}Mode:${NC} ${MODE}"
+	echo -e "${BLUE}API image:${NC} ${XSCANNER_API_IMAGE}"
+	echo -e "${BLUE}Studio image:${NC} ${XSCANNER_STUDIO_IMAGE}"
+	echo -e "${BLUE}Actions:${NC} pull xscanner-api-release xscanner-studio-release; up -d xscanner-api-release xscanner-studio-release"
+
+	docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api-release xscanner-studio-release
+
+	docker compose --env-file .env.preprod -f docker-compose.preprod.yml \
+		up -d xscanner-api-release xscanner-studio-release
+else
+	echo -e "${BLUE}Mode:${NC} local (build from current worktree)"
+	export MODE
+	version="$(compute_release_tag_from_pyproject "$REPO_ROOT" 2>/dev/null || true)"
+	sha="$(compute_short_sha "$REPO_ROOT")"
+	dirty=""
+	if ! git -C "$REPO_ROOT" diff --quiet 2>/dev/null || ! git -C "$REPO_ROOT" diff --cached --quiet 2>/dev/null; then
+		dirty="-dirty"
+	fi
+
+	if [ -n "$version" ] && [ -n "$sha" ]; then
+		export XSCANNER_RELEASE_TAG="v${version}+g${sha}${dirty}"
+	elif [ -n "$version" ]; then
+		export XSCANNER_RELEASE_TAG="v${version}${dirty}"
+	else
+		export XSCANNER_RELEASE_TAG="dev${dirty}"
 	fi
 
 	echo -e "${BLUE}Origin:${NC} ${ORIGIN}"

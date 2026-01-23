@@ -12,10 +12,19 @@ if errorlevel 1 (
   exit /b 1
 )
 
-curl -fsS "%API_URL%" >NUL
-if errorlevel 1 (
-  echo API healthcheck failed
-  exit /b 1
+set "MAX_ATTEMPTS=%PREPROD_HEALTH_MAX_ATTEMPTS%"
+if "%MAX_ATTEMPTS%"=="" set "MAX_ATTEMPTS=30"
+
+for /L %%I in (1,1,%MAX_ATTEMPTS%) do (
+  curl -fsS "%API_URL%" >NUL 2>&1
+  if not errorlevel 1 (
+    echo API healthy
+    exit /b 0
+  )
+
+  echo Waiting: API not ready yet (attempt %%I/%MAX_ATTEMPTS%)
+  timeout /t 1 /nobreak >NUL
 )
 
-echo API healthy
+echo API healthcheck failed
+exit /b 1

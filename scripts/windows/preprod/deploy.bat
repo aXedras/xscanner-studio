@@ -1,10 +1,18 @@
 @echo off
 REM Pre-prod deploy on Windows VM
 REM Flow:
-REM - ORIGIN=main: check -> update main (ff-only) -> verify-ci-main --strict -> database-start -> up -> health
+REM - ORIGIN=main: check -> verify-ci-main --strict -> database-start -> up -> health (pull moving images)
+REM - ORIGIN=local: check -> database-start -> up -> health (local build from worktree)
 REM - ORIGIN=latest|release-x.y.z: resolve tag -> check -> checkout tag -> verify-ci-sha --strict -> database-start -> up -> health
 
 setlocal EnableExtensions EnableDelayedExpansion
+
+if defined XSCANNER_RELEASE_TAG (
+	echo Error: XSCANNER_RELEASE_TAG must not be set manually.
+	echo Why: pre-prod scripts derive it from ORIGIN to avoid mismatched labels.
+	echo Fix: unset XSCANNER_RELEASE_TAG and use ORIGIN=main^|local^|release-x.y.z.
+	exit /b 2
+)
 
 REM Inputs (provided via environment; Makefile exports variables)
 if "%ORIGIN%"=="" set "ORIGIN=latest"
@@ -30,6 +38,7 @@ if not defined GH_DIR if exist "C:\Program Files\GitHub CLI\gh.exe" set "GH_DIR=
 if defined GH_DIR set "PATH=%GH_DIR%;%PATH%"
 
 REM Deploy
+if /I "%ORIGIN%"=="local" goto deploy_local
 if /I "%ORIGIN%"=="main" goto deploy_main
 if /I "%ORIGIN%"=="latest" goto deploy_latest
 
@@ -46,6 +55,9 @@ gh release view --repo aXedras/xScanner --json tagName --jq .tagName >NUL 2>&1
 if %errorlevel% neq 0 goto err_no_releases
 for /f "usebackq delims=" %%T in (`gh release view --repo aXedras/xScanner --json tagName --jq .tagName 2^>NUL`) do set "TAG=%%T"
 if not defined TAG goto err_no_tag
+
+REM Ensure downstream scripts do not need gh for ORIGIN=latest.
+set "ORIGIN=release-!TAG!"
 goto deploy_release
 
 :err_no_gh
@@ -54,7 +66,7 @@ exit /b 1
 
 :err_no_releases
 echo Error: no GitHub Releases found for aXedras/xScanner.
-echo Tip: use ORIGIN=main (local build) or ORIGIN=release-x.y.z once releases exist.
+echo Tip: use ORIGIN=main (pull moving images) or ORIGIN=local (local build) until releases exist.
 exit /b 1
 
 :err_no_tag
@@ -62,17 +74,35 @@ echo Error: could not resolve latest release tag via gh.
 exit /b 1
 
 :deploy_main
-echo Origin: main (deploy from main HEAD, local build)
+echo Origin: main (deploy by pulling GHCR images)
 echo Mode: %MODE%
 
 set "ORIGIN=main"
 call scripts\windows\preprod\check.bat
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-call scripts\windows\preprod\update-main.bat
+call scripts\windows\preprod\verify-ci-main.bat --strict --latest
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-call scripts\windows\preprod\verify-ci-main.bat --strict
+call scripts\windows\preprod\database-start.bat
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+call scripts\windows\preprod\up.bat
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+call scripts\windows\preprod\health.bat
+if %errorlevel% neq 0 exit /b %errorlevel%
+
+echo Deploy complete
+exit /b 0
+
+
+:deploy_local
+echo Origin: local (deploy from current worktree, local build)
+echo Mode: %MODE%
+
+set "ORIGIN=local"
+call scripts\windows\preprod\check.bat
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 call scripts\windows\preprod\database-start.bat
@@ -128,7 +158,6 @@ call scripts\windows\preprod\verify-ci-sha.bat --strict
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 if not defined XSCANNER_API_IMAGE set "XSCANNER_API_IMAGE=ghcr.io/axedras/xscanner:%MODE%-!TAG!"
-if not defined XSCANNER_RELEASE_TAG set "XSCANNER_RELEASE_TAG=!TAG!"
 
 call scripts\windows\preprod\database-start.bat
 if %errorlevel% neq 0 exit /b %errorlevel%
@@ -161,5 +190,3 @@ if /I "%MODE%"=="cloud" exit /b 0
 if /I "%MODE%"=="full" exit /b 0
 echo Error: invalid MODE (expected cloud^|full): %MODE%
 exit /b 1
-
-
