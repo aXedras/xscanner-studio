@@ -70,6 +70,12 @@ ORIGINAL_REF="$(git symbolic-ref --quiet --short HEAD || true)"
 git fetch --tags origin
 git checkout "$TAG"
 
+if ! grep -q '^  xscanner-studio-release:' docker-compose.preprod.yml; then
+	echo -e "${RED}Error:${NC} release tag ${TAG} does not support pulling the Studio image (missing xscanner-studio-release in docker-compose.preprod.yml)." >&2
+	echo -e "${BLUE}Fix:${NC} create a new release after the Studio GHCR publishing was added." >&2
+	exit 1
+fi
+
 bash "$SCRIPT_DIR/verify-ci-sha.sh" --strict
 
 export XSCANNER_API_IMAGE="ghcr.io/axedras/xscanner:${MODE}-${TAG}"

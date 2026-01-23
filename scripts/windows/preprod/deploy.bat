@@ -110,6 +110,14 @@ if %errorlevel% neq 0 (
 	exit /b 1
 )
 
+findstr /B /C:"  xscanner-studio-release:" docker-compose.preprod.yml >NUL
+if %errorlevel% neq 0 (
+	echo Error: release tag !TAG! does not support pulling the Studio image ^(missing xscanner-studio-release in docker-compose.preprod.yml^).
+	echo Fix: create a new release after the Studio GHCR publishing was added.
+	if defined ORIGINAL_REF git checkout "!ORIGINAL_REF!" >NUL 2>&1
+	exit /b 1
+)
+
 REM Guard: release tags must include the Windows preprod helper scripts.
 if not exist "scripts\windows\preprod\up.bat" goto missing_windows_helpers
 if not exist "scripts\windows\preprod\health.bat" goto missing_windows_helpers
