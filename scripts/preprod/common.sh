@@ -24,12 +24,42 @@ preprod_guard_unknown_env_var_names() {
 	fi
 }
 
-preprod_guard_no_positional_args() {
-	if [ "$#" -gt 0 ]; then
-		echo "Error: unexpected arguments: $*" >&2
-		echo "Fix: pass configuration via environment variables, e.g. ORIGIN=main MODE=cloud." >&2
-		exit 2
-	fi
+preprod_parse_args() {
+	# Optional KEY=VALUE args.
+	# - Supports ORIGIN=... and MODE=...
+	# - Errors for unknown keys to avoid silent fallback to defaults.
+	# - Explicitly errors for common typo: origin=... / mode=...
+	while [ "$#" -gt 0 ]; do
+		case "$1" in
+			origin=*)
+				echo 'Error: unknown parameter "origin". Did you mean ORIGIN=... ?' >&2
+				exit 2
+				;;
+			mode=*)
+				echo 'Error: unknown parameter "mode". Did you mean MODE=cloud|full ?' >&2
+				exit 2
+				;;
+			ORIGIN=*)
+				export ORIGIN="${1#ORIGIN=}"
+				shift
+				;;
+			MODE=*)
+				export MODE="${1#MODE=}"
+				shift
+				;;
+			*=*)
+				key="${1%%=*}"
+				echo "Error: unknown parameter \"${key}\"." >&2
+				echo 'Fix: use ORIGIN=... and MODE=... as environment variables or pass them as ORIGIN=... MODE=... args.' >&2
+				exit 2
+				;;
+			*)
+				echo "Error: unexpected argument: $1" >&2
+				echo 'Fix: pass ORIGIN=... and MODE=... or use environment variables.' >&2
+				exit 2
+				;;
+		esac
+	done
 }
 
 preprod_host_arch() {

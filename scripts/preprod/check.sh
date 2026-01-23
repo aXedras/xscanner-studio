@@ -14,7 +14,7 @@ cd "$REPO_ROOT"
 # shellcheck source=./common.sh
 source "$SCRIPT_DIR/common.sh"
 preprod_guard_unknown_env_var_names
-preprod_guard_no_positional_args "$@"
+preprod_parse_args "$@"
 
 ORIGIN="${ORIGIN:-latest}"
 

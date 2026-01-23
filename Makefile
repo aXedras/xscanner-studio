@@ -134,11 +134,9 @@ check-fast: lint test-quick studio-check-fast
 check-all:
 
 ifeq ($(OS),Windows_NT)
-	@where bash >NUL 2>&1 || (echo bash not found. Install Git Bash or use WSL to run check-all. & exit /b 1)
-	@bash scripts/ci-check-local.sh
-else
-	@bash scripts/ci-check-local.sh
+	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run this from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@bash scripts/ci-check-local.sh
 
 studio:
 	@echo "🎛️  xScanner Studio"
@@ -290,7 +288,7 @@ start:
 ifeq ($(OS),Windows_NT)
 	@echo "Windows notes:"
 	@echo "  • Python:    venv\\Scripts\\activate"
-	@echo "  • Some targets require Git Bash (bash) or WSL"
+	@echo "  • Some targets require a Bash terminal (VS Code Bash / Git Bash)"
 endif
 
 # Start FastAPI backend
@@ -323,18 +321,18 @@ database:
 	@echo "  - preprod-down intentionally keeps Supabase running"
 
 database-start:
+
 ifeq ($(OS),Windows_NT)
-	@scripts\\windows\\preprod\\database-start.bat
-else
-	@bash scripts/preprod/database-start.sh
+	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run these targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@bash scripts/preprod/database-start.sh
 
 database-stop:
+
 ifeq ($(OS),Windows_NT)
-	@scripts\\windows\\preprod\\database-stop.bat
-else
-	@bash scripts/preprod/database-stop.sh
+	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run these targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@bash scripts/preprod/database-stop.sh
 
 preprod:
 	@echo "🚀 xScanner Pre-prod"
@@ -376,68 +374,59 @@ preprod:
 preprod-check:
 
 ifeq ($(OS),Windows_NT)
-	@scripts\\windows\\preprod\\check.bat
-else
-	@bash scripts/preprod/check.sh
+	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@bash scripts/preprod/check.sh
 
 preprod-update-main:
 
 ifeq ($(OS),Windows_NT)
-	@scripts\\windows\\preprod\\update-main.bat
-else
-	@bash scripts/preprod/update-main.sh
+	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@bash scripts/preprod/update-main.sh
 
 preprod-up:
 
 ifeq ($(OS),Windows_NT)
-	@scripts\\windows\\preprod\\database-start.bat
-	@scripts\\windows\\preprod\\up.bat
-else
+	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
+endif
 	@bash scripts/preprod/database-start.sh
 	@bash scripts/preprod/up.sh
-endif
 
 preprod-down:
 
 ifeq ($(OS),Windows_NT)
-	@scripts\\windows\\preprod\\down.bat
-else
-	@bash scripts/preprod/down.sh
+	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@bash scripts/preprod/down.sh
 
 preprod-health:
 
 ifeq ($(OS),Windows_NT)
-	@scripts\\windows\\preprod\\health.bat
-else
-	@bash scripts/preprod/health.sh
+	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@bash scripts/preprod/health.sh
 
 preprod-status:
 
 ifeq ($(OS),Windows_NT)
-	@scripts\\windows\\preprod\\status.bat
-else
-	@bash scripts/preprod/status.sh
+	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@bash scripts/preprod/status.sh
 
 preprod-logs:
 
 ifeq ($(OS),Windows_NT)
-	@scripts\\windows\\preprod\\logs.bat
-else
-	@bash scripts/preprod/logs.sh
+	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@bash scripts/preprod/logs.sh
 
 preprod-deploy:
 
 ifeq ($(OS),Windows_NT)
-	@scripts\\windows\\preprod\\deploy.bat
-else
-	@bash scripts/preprod/deploy.sh
+	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run preprod targets from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@bash scripts/preprod/deploy.sh
 
 # Guard against unknown make CLI overrides for preprod targets.
 # Example: `make preprod-up origin=main` would otherwise ignore `origin` and fall back to ORIGIN=latest.
@@ -473,11 +462,9 @@ release-create:
 	$(if $(strip $(VERSION)),,$(error VERSION is required. Usage: make release-create VERSION=X.Y.Z))
 
 ifeq ($(OS),Windows_NT)
-	@where bash >NUL 2>&1 || (echo bash not found. Use WSL/Git Bash to run release-create. & exit /b 1)
-	@VERSION="$(VERSION)" bash scripts/release/create-release.sh
-else
-	@VERSION="$(VERSION)" bash scripts/release/create-release.sh
+	@command -v bash >/dev/null 2>&1 || { echo "Error: bash not found. Run this from a Bash terminal (VS Code Bash / Git Bash)."; exit 1; }
 endif
+	@VERSION="$(VERSION)" bash scripts/release/create-release.sh
 
 release-list:
 ifeq ($(OS),Windows_NT)
