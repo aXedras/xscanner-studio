@@ -7,9 +7,9 @@ REM - ORIGIN=latest|release-x.y.z: resolve tag -> check -> checkout tag -> verif
 setlocal EnableExtensions EnableDelayedExpansion
 
 REM Inputs (provided via environment; Makefile exports variables)
-if not defined ORIGIN set "ORIGIN=latest"
+if "%ORIGIN%"=="" set "ORIGIN=latest"
 
-if not defined MODE (
+if "%MODE%"=="" (
 	if /I "%ORIGIN%"=="main" (
 		set "MODE=cloud"
 	) else (
