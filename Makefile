@@ -467,8 +467,13 @@ endif
 	@VERSION="$(VERSION)" bash scripts/release/create-release.sh
 
 release-list:
+
 ifeq ($(OS),Windows_NT)
+ifneq ($(strip $(MSYSTEM)),)
+	@if ! command -v gh >/dev/null 2>&1; then echo "Error: gh CLI not found in PATH" >&2; exit 1; fi
+else
 	@where gh >NUL 2>&1 || (echo Error: gh CLI not found in PATH & exit /b 1)
+endif
 else
 	@if ! command -v gh >/dev/null 2>&1; then \
 		echo "Error: gh CLI not found in PATH" >&2; \
@@ -480,12 +485,25 @@ endif
 release-status:
 
 ifeq ($(OS),Windows_NT)
+ifneq ($(strip $(MSYSTEM)),)
+	@if ! command -v gh >/dev/null 2>&1; then echo "Error: gh CLI not found in PATH" >&2; exit 1; fi
+	@echo "Latest GitHub release tag:"
+	@if gh release view --repo aXedras/xScanner >/dev/null 2>&1; then \
+		gh release view --repo aXedras/xScanner --json tagName,publishedAt --jq '"  " + .tagName + " (publishedAt=" + (.publishedAt // "") + ")"'; \
+	else \
+		echo "  (none)"; \
+	fi
+	@echo ""
+	@echo "Recent releases:"
+	@gh release list --repo aXedras/xScanner -L $(or $(LIMIT),20) || true
+else
 	@where gh >NUL 2>&1 || (echo Error: gh CLI not found in PATH & exit /b 1)
 	@echo "Latest GitHub release tag:"
 	@powershell -NoProfile -Command "$$json = (gh release view --repo aXedras/xScanner --json tagName,publishedAt 2>$$null); if ($$LASTEXITCODE -ne 0 -or -not $$json) { Write-Output '  (none)'; exit 0 }; $$o = $$json | ConvertFrom-Json; $$published = $$o.publishedAt; if (-not $$published) { $$published = '' }; Write-Output ('  ' + $$o.tagName + ' (publishedAt=' + $$published + ')')"
 	@echo.
 	@echo Recent releases:
 	@gh release list --repo aXedras/xScanner -L $(or $(LIMIT),20) || exit /b 1
+endif
 else
 	@if ! command -v gh >/dev/null 2>&1; then \
 		echo "Error: gh CLI not found in PATH" >&2; \
@@ -505,11 +523,19 @@ endif
 version:
 
 ifeq ($(OS),Windows_NT)
+ifneq ($(strip $(MSYSTEM)),)
+	@echo "Local repo:"
+	@echo "  branch=$$(git branch --show-current) sha=$$(git rev-parse --short HEAD) tag=$$(git describe --tags --always 2>/dev/null || echo '-')"
+	@echo "  pyproject=$$( $(VENV_PYTHON) -c 'import tomllib;print(tomllib.load(open("pyproject.toml","rb"))["project"]["version"])' 2>/dev/null || echo '-' )"
+	@echo ""
+	@$(MAKE) release-status LIMIT=$(or $(LIMIT),20)
+else
 	@echo "Local repo:"
 	@powershell -NoProfile -Command "$$b=(git branch --show-current); $$s=(git rev-parse --short HEAD); $$t=(git describe --tags --always 2>$$null); if(-not $$t){$$t='-'}; Write-Output ('  branch=' + $$b + ' sha=' + $$s + ' tag=' + $$t)"
 	@powershell -NoProfile -Command "$$v=(& '$(VENV_PYTHON)' -c \"import tomllib;print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])\" 2>$$null); if(-not $$v){$$v='-'}; Write-Output ('  pyproject=' + $$v)"
 	@echo ""
 	@$(MAKE) release-status LIMIT=$(or $(LIMIT),20)
+endif
 else
 	@echo "Local repo:"
 	@echo "  branch=$$(git branch --show-current) sha=$$(git rev-parse --short HEAD) tag=$$(git describe --tags --always 2>/dev/null || echo '-')"
