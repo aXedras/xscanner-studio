@@ -1,7 +1,9 @@
+import { getRuntimeEnv } from '../lib/runtimeEnv'
+
 export default function Footer() {
   const currentYear = new Date().getFullYear()
   const releaseLabel =
-    (typeof window !== 'undefined' && window.__ENV__?.VITE_XSCANNER_RELEASE_TAG) ||
+    getRuntimeEnv('VITE_XSCANNER_RELEASE_TAG') ||
     import.meta.env.VITE_XSCANNER_RELEASE_TAG ||
     __XSCANNER_RELEASE_TAG__ ||
     'dev'
