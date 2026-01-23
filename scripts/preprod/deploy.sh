@@ -20,6 +20,8 @@ MODE="${MODE:-}"
 ORIGIN="$(preprod_normalize_origin "$ORIGIN")"
 MODE="$(preprod_normalize_mode "$MODE")"
 
+preprod_ensure_default_platform_for_pulls "$ORIGIN"
+
 if [ -n "${XSCANNER_RELEASE_TAG:-}" ]; then
 	echo -e "${RED}Error:${NC} XSCANNER_RELEASE_TAG must not be set manually." >&2
 	echo -e "${BLUE}Why:${NC} the pre-prod scripts derive it from ORIGIN to avoid mismatched labels." >&2

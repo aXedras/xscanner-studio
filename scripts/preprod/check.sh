@@ -20,6 +20,15 @@ ORIGIN="${ORIGIN:-latest}"
 
 ORIGIN="$(preprod_normalize_origin "$ORIGIN")"
 
+# Inform about platform behavior on Apple Silicon for pulled images.
+if [ "$ORIGIN" != "local" ]; then
+  arch="$(preprod_host_arch)"
+  if { [ "$arch" = "arm64" ] || [ "$arch" = "aarch64" ]; } && [ -z "${DOCKER_DEFAULT_PLATFORM:-}" ]; then
+    echo -e "${BLUE}Note:${NC} host arch is ${arch}; pulled GHCR images may be amd64-only." >&2
+    echo -e "${BLUE}Tip:${NC} set DOCKER_DEFAULT_PLATFORM=linux/amd64 (or enable multi-arch images)." >&2
+  fi
+fi
+
 if [ -n "${XSCANNER_RELEASE_TAG:-}" ]; then
   echo -e "${RED}Error: XSCANNER_RELEASE_TAG must not be set manually${NC}" >&2
   echo -e "${BLUE}Why:${NC} pre-prod scripts derive it from ORIGIN to avoid mismatched labels." >&2

@@ -32,6 +32,32 @@ preprod_guard_no_positional_args() {
 	fi
 }
 
+preprod_host_arch() {
+	uname -m 2>/dev/null || true
+}
+
+preprod_ensure_default_platform_for_pulls() {
+	# Apple Silicon (arm64) hosts cannot run amd64-only images without emulation.
+	# Default to amd64 for pulled images if not explicitly set.
+	local origin="$1"
+	local arch
+	arch="$(preprod_host_arch)"
+
+	if [ "$origin" = "local" ]; then
+		return 0
+	fi
+
+	if [ -n "${DOCKER_DEFAULT_PLATFORM:-}" ]; then
+		return 0
+	fi
+
+	if [ "$arch" = "arm64" ] || [ "$arch" = "aarch64" ]; then
+		export DOCKER_DEFAULT_PLATFORM="linux/amd64"
+		echo "Note: host arch is ${arch}; setting DOCKER_DEFAULT_PLATFORM=linux/amd64 for GHCR pulls." >&2
+		echo "Tip: to disable this, export DOCKER_DEFAULT_PLATFORM=linux/arm64 (requires arm64 images)." >&2
+	fi
+}
+
 preprod_normalize_origin() {
 	local raw="$1"
 
