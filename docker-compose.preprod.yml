@@ -21,6 +21,10 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
 
+      # Mock mode (optional)
+      # When requests are sent with `use_mock: true` and `strategy=cloud`, this forces which mock dataset is used.
+      XSCANNER_MOCK_CLOUD_STRATEGY: ${XSCANNER_MOCK_CLOUD_STRATEGY:-}
+
       # Local strategy (LoRA server running externally)
       # IMPORTANT: "localhost" here would point to the container itself.
       # Provide a reachable URL, e.g.:
@@ -69,6 +73,10 @@ services:
       # Providers
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+
+      # Mock mode (optional)
+      # When requests are sent with `use_mock: true` and `strategy=cloud`, this forces which mock dataset is used.
+      XSCANNER_MOCK_CLOUD_STRATEGY: ${XSCANNER_MOCK_CLOUD_STRATEGY:-}
 
       # Local strategy (LoRA server running externally)
       # IMPORTANT: "localhost" here would point to the container itself.
