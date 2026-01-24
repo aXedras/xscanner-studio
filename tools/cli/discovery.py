@@ -1,4 +1,9 @@
-"""Image and strategy discovery utilities for CLI tools."""
+"""Image and strategy discovery utilities for CLI tools.
+
+The CLI supports:
+- Cloud: ChatGPT Vision, Gemini Flash (when API keys are configured)
+- Local: LoRA fine-tuned (only local strategy)
+"""
 
 import os
 import sys
@@ -13,33 +18,10 @@ from xscanner.strategy.base import ExtractionStrategy  # noqa: E402
 from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy  # noqa: E402
 from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy  # noqa: E402
 
-# Optional local / hybrid strategies
 try:  # noqa: E402
     from xscanner.strategy.lora_finetuned_strategy import LoRAFinetunedStrategy
-    from xscanner.strategy.minicpm_v_strategy import MiniCPMVStrategy
-    from xscanner.strategy.qwen3_vision_strategy import Qwen3VisionStrategy
 except Exception:  # pragma: no cover
     LoRAFinetunedStrategy = None
-    MiniCPMVStrategy = None
-    Qwen3VisionStrategy = None
-
-try:  # noqa: E402
-    from xscanner.strategy.hybrid import (
-        MiniCPMQwenHybridV2,
-        MiniCPMQwenHybridV3,
-        QwenMiniCPMHybridV2,
-        QwenMiniCPMHybridV3,
-    )
-except Exception:  # pragma: no cover
-    MiniCPMQwenHybridV2 = None
-    MiniCPMQwenHybridV3 = None
-    QwenMiniCPMHybridV2 = None
-    QwenMiniCPMHybridV3 = None
-
-try:  # noqa: E402
-    from xscanner.strategy.paddle_ollama_hybrid_strategy import PaddleLlamaHybridStrategy
-except Exception:  # pragma: no cover
-    PaddleLlamaHybridStrategy = None
 
 IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")
 SEARCH_PATHS = [
@@ -78,27 +60,20 @@ def get_available_strategies() -> dict[str, type[ExtractionStrategy]]:
     if os.environ.get("GOOGLE_API_KEY"):
         strategies["gemini"] = GeminiFlashStrategy
 
-    if Qwen3VisionStrategy and Qwen3VisionStrategy.is_available():
-        strategies["qwen3"] = Qwen3VisionStrategy
+    if not LoRAFinetunedStrategy:
+        return strategies
 
-    if MiniCPMVStrategy and MiniCPMVStrategy.is_available():
-        strategies["minicpm"] = MiniCPMVStrategy
+    base_url = os.environ.get("LORA_BASE_URL")
+    if not base_url:
+        try:
+            from xscanner.server.config import get_config
 
-    if LoRAFinetunedStrategy and LoRAFinetunedStrategy.is_available():
+            base_url = get_config().lora.base_url
+        except Exception:
+            base_url = None
+
+    if base_url and LoRAFinetunedStrategy.is_available(base_url):
         strategies["lora"] = LoRAFinetunedStrategy
-
-    if QwenMiniCPMHybridV2 and QwenMiniCPMHybridV2.is_available():
-        strategies["hybrid-v2-qwen-first"] = QwenMiniCPMHybridV2
-    if MiniCPMQwenHybridV2 and MiniCPMQwenHybridV2.is_available():
-        strategies["hybrid-v2-minicpm-first"] = MiniCPMQwenHybridV2
-    if QwenMiniCPMHybridV3 and QwenMiniCPMHybridV3.is_available():
-        strategies["hybrid-v3-qwen-first"] = QwenMiniCPMHybridV3
-    if MiniCPMQwenHybridV3 and MiniCPMQwenHybridV3.is_available():
-        strategies["hybrid-v3-minicpm-first"] = MiniCPMQwenHybridV3
-
-    # Legacy hybrid (optional)
-    if PaddleLlamaHybridStrategy and PaddleLlamaHybridStrategy.is_available():
-        strategies["hybrid"] = PaddleLlamaHybridStrategy
 
     return strategies
 
@@ -114,10 +89,24 @@ def create_strategy(strategy_name: str) -> ExtractionStrategy:
 
     if strategy_name == "chatgpt":
         return ChatGPTVisionStrategy()
-    elif strategy_name == "gemini":
+    if strategy_name == "gemini":
         return GeminiFlashStrategy()
-    else:
-        return strategy_class()
+    if strategy_name == "lora":
+        # LoRA strategy needs a base_url.
+        # Prefer env for CLI usage; fall back to server config if available.
+        base_url = os.environ.get("LORA_BASE_URL")
+        if not base_url:
+            try:
+                from xscanner.server.config import get_config
+
+                base_url = get_config().lora.base_url
+            except Exception as exc:
+                raise ValueError(
+                    "LoRA strategy requires LORA_BASE_URL or server config availability"
+                ) from exc
+        return strategy_class(base_url=base_url)
+
+    raise ValueError(f"Strategy '{strategy_name}' not supported by CLI")
 
 
 def list_images_info():

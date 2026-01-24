@@ -6,6 +6,7 @@ to test the full HTTP layer, while keeping tests fast and reliable.
 
 import base64
 import io
+import json
 import os
 import socket
 import subprocess
@@ -16,6 +17,8 @@ from pathlib import Path
 import httpx
 import pytest
 from PIL import Image
+
+from tools.cli.validator import parse_filename_ground_truth, validate_extraction
 
 # Get project root for PYTHONPATH
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -246,7 +249,7 @@ class TestServerExtractEndpoint:
         assert response.status_code == 422  # Validation error
 
     def test_extract_with_mock_mode(self, server, test_image_bytes):
-        """Test extraction endpoint with mock mode enabled (local=Hybrid)."""
+        """Test extraction endpoint with mock mode enabled (local=LoRA)."""
         image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
 
         response = httpx.post(
@@ -263,12 +266,8 @@ class TestServerExtractEndpoint:
         data = response.json()
         # Success can be True or False depending on random mock data (may include errors)
         assert "success" in data
-        # Strategy should be Hybrid-related for local
-        assert (
-            "Hybrid" in data["strategy_used"]
-            or "Ollama" in data["strategy_used"]
-            or "Paddle" in data["strategy_used"]
-        )
+        # Strategy should be LoRA-related for local
+        assert "lora" in data["strategy_used"].lower()
         assert "(mock)" in data["strategy_used"]
         assert "structured_data" in data
         assert "request_id" in data
@@ -315,6 +314,117 @@ class TestServerExtractEndpoint:
         assert "request_id" in data
         assert data["processing_time"] > 0
 
+    def test_extract_upload_mock_selects_response_by_filename(self, server, test_image_bytes):
+        """Mock-mode upload should select the mock entry matching the uploaded filename."""
+
+        mockdata_path = PROJECT_ROOT / "src" / "xscanner" / "mockdata" / "extraction_responses.json"
+        extraction_data = json.loads(mockdata_path.read_text())
+
+        selected_filename = None
+        expected_structured_data = None
+
+        # Pick any entry that has a non-error LoRA result so the response is deterministic.
+        for entry in extraction_data:
+            for strategy_name, result in entry.get("results", {}).items():
+                if (
+                    "LoRA" in strategy_name
+                    and not result.get("error")
+                    and result.get("structured_data")
+                ):
+                    selected_filename = entry.get("image")
+                    expected_structured_data = result.get("structured_data")
+                    break
+            if selected_filename:
+                break
+
+        assert selected_filename, "No suitable LoRA mock entry found in extraction_responses.json"
+        assert expected_structured_data is not None
+
+        response = httpx.post(
+            f"{server}/extract/upload",
+            files={"file": (selected_filename, test_image_bytes, "image/jpeg")},
+            data={
+                "strategy": "local",
+                "use_mock": "true",
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert "lora" in data["strategy_used"].lower()
+        assert "(mock)" in data["strategy_used"]
+        assert data["structured_data"] == expected_structured_data
+
+    def test_extract_upload_mock_matches_ground_truth_for_known_fixture(
+        self, server, test_image_bytes
+    ):
+        """Mock-mode local upload should be consistent with filename ground truth.
+
+        This picks a fixture entry whose LoRA mock structured_data validates against
+        ground truth parsed from the filename.
+        """
+
+        mockdata_path = PROJECT_ROOT / "src" / "xscanner" / "mockdata" / "extraction_responses.json"
+        extraction_data = json.loads(mockdata_path.read_text())
+
+        selected_filename = None
+        expected_ground_truth = None
+
+        for entry in extraction_data:
+            filename = str(entry.get("image") or "").strip()
+            if not filename:
+                continue
+
+            try:
+                ground_truth = parse_filename_ground_truth(Path(filename))
+            except Exception:
+                continue
+
+            if not ground_truth:
+                continue
+
+            for strategy_name, result in entry.get("results", {}).items():
+                if "LoRA" not in strategy_name:
+                    continue
+                if result.get("error"):
+                    continue
+                structured = result.get("structured_data") or {}
+                if not isinstance(structured, dict) or not structured:
+                    continue
+
+                _, errors = validate_extraction(structured, ground_truth)
+                if not errors:
+                    selected_filename = filename
+                    expected_ground_truth = ground_truth
+                    break
+
+            if selected_filename:
+                break
+
+        assert selected_filename, "No LoRA mock entry found that matches filename ground truth"
+        assert expected_ground_truth is not None
+
+        response = httpx.post(
+            f"{server}/extract/upload",
+            files={"file": (selected_filename, test_image_bytes, "image/jpeg")},
+            data={
+                "strategy": "local",
+                "use_mock": "true",
+            },
+            timeout=5.0,
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["success"] is True
+        assert "lora" in data["strategy_used"].lower()
+        assert "(mock)" in data["strategy_used"]
+
+        _, errors = validate_extraction(data["structured_data"], expected_ground_truth)
+        assert errors == [], f"Expected no validation errors, got: {errors}"
+
     def test_extract_endpoint_accepts_valid_request(self, server, test_image_bytes):
         """Test that extraction endpoint accepts valid requests with strategy-specific mocks.
 
@@ -337,11 +447,7 @@ class TestServerExtractEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert "success" in data
-        assert (
-            "Hybrid" in data["strategy_used"]
-            or "Ollama" in data["strategy_used"]
-            or "Paddle" in data["strategy_used"]
-        )
+        assert "lora" in data["strategy_used"].lower()
         assert "structured_data" in data
         assert "request_id" in data
 
@@ -364,11 +470,9 @@ class TestServerUploadEndpointStrategy:
 
         assert response.status_code == 200
         data = response.json()
-        assert (
-            "Hybrid" in data["strategy_used"]
-            or "Ollama" in data["strategy_used"]
-            or "Paddle" in data["strategy_used"]
-        ), f"Expected local strategy, got: {data['strategy_used']}"
+        assert "lora" in data["strategy_used"].lower(), (
+            f"Expected local strategy, got: {data['strategy_used']}"
+        )
 
     def test_upload_strategy_parameter_cloud(self, server, test_image_bytes):
         """Test that strategy='cloud' works with file upload."""
@@ -408,7 +512,7 @@ class TestServerUploadEndpointStrategy:
         )
 
     def test_strategy_parameter_local(self, server, test_image_bytes):
-        """Test that strategy='local' uses Hybrid/Ollama strategy."""
+        """Test that strategy='local' uses LoRA strategy."""
         image_b64 = base64.b64encode(test_image_bytes).decode("utf-8")
 
         response = httpx.post(
@@ -424,11 +528,9 @@ class TestServerUploadEndpointStrategy:
         assert response.status_code == 200
         data = response.json()
         # Verify correct strategy was used
-        assert (
-            "Hybrid" in data["strategy_used"]
-            or "Ollama" in data["strategy_used"]
-            or "Paddle" in data["strategy_used"]
-        ), f"Expected local strategy, got: {data['strategy_used']}"
+        assert "lora" in data["strategy_used"].lower(), (
+            f"Expected local strategy, got: {data['strategy_used']}"
+        )
 
     def test_strategy_parameter_cloud(self, server, test_image_bytes):
         """Test that strategy='cloud' uses ChatGPT/Gemini strategy."""
@@ -515,8 +617,4 @@ class TestServerUploadEndpointStrategy:
 
         assert response.status_code == 200
         data = response.json()
-        assert (
-            "Hybrid" in data["strategy_used"]
-            or "Ollama" in data["strategy_used"]
-            or "Paddle" in data["strategy_used"]
-        )
+        assert "lora" in data["strategy_used"].lower()

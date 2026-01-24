@@ -1,7 +1,7 @@
-"""Integration tests for extraction strategy service interfaces.
+"""Integration tests for extraction strategy interfaces.
 
-These tests validate the strategy interfaces and implementations
-without making real API calls (mocked external dependencies).
+These tests validate the strategy contracts and implementations
+without making real network/API calls (external dependencies are mocked).
 """
 
 import json
@@ -13,21 +13,7 @@ import pytest
 from xscanner.strategy.base import ExtractionResult, ExtractionStrategy
 from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy
 from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy
-
-# Check if PaddleOCR is available by trying to instantiate the strategy
-PADDLE_AVAILABLE = False
-try:
-    from xscanner.strategy.paddle_ollama_hybrid_strategy import PaddleLlamaHybridStrategy
-
-    # Test if we can actually create an instance (checks for PaddleOCR installation)
-    try:
-        _test_strategy = PaddleLlamaHybridStrategy(base_url="http://localhost:11434")
-        PADDLE_AVAILABLE = True
-        del _test_strategy
-    except ImportError:
-        PADDLE_AVAILABLE = False
-except ImportError:
-    PADDLE_AVAILABLE = False
+from xscanner.strategy.lora_finetuned_strategy import LoRAFinetunedStrategy
 
 pytestmark = pytest.mark.integration
 
@@ -43,13 +29,6 @@ def chatgpt_fixture():
 def gemini_fixture():
     """Load realistic Gemini response from fixture."""
     fixture_path = Path(__file__).parent.parent / "fixtures" / "gemini_response.json"
-    return json.loads(fixture_path.read_text())
-
-
-@pytest.fixture(scope="module")
-def hybrid_fixture():
-    """Load realistic Hybrid response from fixture."""
-    fixture_path = Path(__file__).parent.parent / "fixtures" / "hybrid_response.json"
     return json.loads(fixture_path.read_text())
 
 
@@ -195,14 +174,16 @@ class TestGeminiFlashStrategy:
         assert result.error is not None or result.structured_data == {}
 
 
-@pytest.mark.skipif(not PADDLE_AVAILABLE, reason="PaddleOCR not installed")
-class TestPaddleLlamaHybridStrategy:
-    """Test Paddle+Llama Hybrid strategy without real API/OCR calls."""
+class TestLoRAFinetunedStrategy:
+    """Test LoRA fine-tuned strategy without real network calls."""
 
     @pytest.fixture
     def strategy(self):
         """Create strategy with mock configuration."""
-        return PaddleLlamaHybridStrategy(base_url="http://localhost:11434")
+        # LoRA strategy validates base URL at init; mock that in tests.
+        with patch("requests.get") as mock_get:
+            mock_get.return_value = Mock(status_code=200)
+            return LoRAFinetunedStrategy(base_url="http://localhost:8001", timeout=5)
 
     @pytest.fixture
     def mock_image_path(self, tmp_path):
@@ -216,23 +197,27 @@ class TestPaddleLlamaHybridStrategy:
 
     def test_strategy_initialization(self, strategy):
         """Strategy initializes with correct configuration."""
-        assert "Hybrid" in strategy.name or "Paddle" in strategy.name or "Llama" in strategy.name
+        assert strategy.name.startswith("LoRA")
 
-    @patch("xscanner.strategy.ollama_vision_strategy.OllamaVisionStrategy._extract_impl")
-    def test_extract_returns_result(self, mock_extract, strategy, mock_image_path, hybrid_fixture):
+    @patch("requests.post")
+    def test_extract_returns_result(self, mock_post, strategy, mock_image_path):
         """Extract method returns ExtractionResult with realistic mocked response."""
-        from xscanner.strategy.base import ExtractionResult
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "success": True,
+            "data": {
+                "metal": "AU",
+                "weight": 1000,
+                "weight_unit": "g",
+                "fineness": 0.9999,
+                "serial_number": "AR95742",
+                "producer": "Valcambi",
+            },
+            "raw_output": "{...}",
+        }
+        mock_post.return_value = mock_response
 
-        # Mock the internal Ollama Vision extraction with realistic data from fixture
-        mock_extract.return_value = ExtractionResult(
-            raw_text=hybrid_fixture["raw_text"],
-            structured_data=hybrid_fixture["structured_data"],
-            confidence=1.0,
-            processing_time=hybrid_fixture["processing_time"],
-            strategy_name=hybrid_fixture["strategy_name"],
-        )
-
-        # Execute
         result = strategy.extract(mock_image_path)
 
         # Verify structure
@@ -240,10 +225,9 @@ class TestPaddleLlamaHybridStrategy:
         assert result.processing_time >= 0
         assert isinstance(result.structured_data, dict)
 
-        # Verify realistic data from fixture
-        expected = hybrid_fixture["structured_data"]
-        assert result.structured_data.get("Metal") == expected.get("Metal")
-        assert result.structured_data.get("Producer") == expected.get("Producer")
+        assert result.structured_data.get("Metal") == "Gold"
+        assert result.structured_data.get("Producer") == "Valcambi"
+        assert result.structured_data.get("SerialNumber") == "AR95742"
 
     def test_extract_handles_invalid_path(self, strategy):
         """Extract handles non-existent file path gracefully."""

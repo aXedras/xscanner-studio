@@ -412,25 +412,30 @@ def render_aggregate_table(aggregates: dict[str, StrategyAggregate]) -> str:
     Returns:
         HTML table rows
     """
-    sorted_aggs = sorted(
-        aggregates.values(),
-        key=lambda item: item.avg_conf,
-        reverse=True,
-    )
+
+    def _rank_value(item: StrategyAggregate) -> float:
+        # Prefer ground-truth quality when available; fall back to confidence.
+        return item.field_accuracy if item.tests_with_ground_truth > 0 else item.avg_conf
+
+    sorted_aggs = sorted(aggregates.values(), key=_rank_value, reverse=True)
     rows = [
         "<tr>"
         "<th>Strategy</th>"
         "<th>Success Rate</th>"
+        "<th>Field Accuracy</th>"
         "<th>Avg Confidence</th>"
         "<th>Avg Time (s)</th>"
         "<th>Latest Error</th>"
         "</tr>"
     ]
     for agg in sorted_aggs:
+        field_acc = agg.field_accuracy if agg.tests_with_ground_truth > 0 else 0.0
+        field_acc_display = f"{field_acc:.1%}" if agg.tests_with_ground_truth > 0 else "—"
         row_html = (
             "<tr>"
             f"<td>{agg.name}</td>"
             f"<td>{agg.success_rate:.0%}</td>"
+            f"<td>{field_acc_display}</td>"
             f"<td>{agg.avg_conf:.1%}</td>"
             f"<td>{agg.avg_time:.2f}</td>"
             f"<td>{agg.latest_error or '—'}</td>"
@@ -440,7 +445,10 @@ def render_aggregate_table(aggregates: dict[str, StrategyAggregate]) -> str:
     return "\n".join(rows)
 
 
-def render_metal_accuracy_section(metal_aggregates: dict[str, MetalAccuracy]) -> str:
+def render_metal_accuracy_section(
+    metal_aggregates: dict[str, MetalAccuracy],
+    strategy_metal_stats: dict[str, dict[str, StrategyMetalStats]] | None = None,
+) -> str:
     """Render accuracy breakdown by metal type.
 
     Args:
@@ -451,6 +459,26 @@ def render_metal_accuracy_section(metal_aggregates: dict[str, MetalAccuracy]) ->
     """
     if not metal_aggregates:
         return ""
+
+    # Determine best strategy per metal from the existing matrix input.
+    best_by_metal: dict[str, tuple[str, float, float]] = {}
+    # value tuple: (strategy_name, field_accuracy, avg_time)
+    if strategy_metal_stats:
+        for strategy_name, metal_map in strategy_metal_stats.items():
+            for metal_name, stats in metal_map.items():
+                if not stats.total_fields:
+                    # No ground-truth comparisons for this metal/strategy.
+                    continue
+                candidate = (strategy_name, stats.field_accuracy, stats.avg_time)
+                current = best_by_metal.get(metal_name)
+                if current is None:
+                    best_by_metal[metal_name] = candidate
+                    continue
+                # Higher accuracy wins; if tied, faster avg time wins.
+                if candidate[1] > current[1] or (
+                    candidate[1] == current[1] and candidate[2] < current[2]
+                ):
+                    best_by_metal[metal_name] = candidate
 
     # Sort by field accuracy descending
     sorted_metals = sorted(
@@ -473,6 +501,12 @@ def render_metal_accuracy_section(metal_aggregates: dict[str, MetalAccuracy]) ->
         accuracy_pct = metal.field_accuracy * 100
         pass_rate_pct = metal.full_pass_rate * 100
 
+        best_line = "—"
+        best = best_by_metal.get(metal.metal)
+        if best is not None:
+            best_name, best_acc, best_time = best
+            best_line = f"{html.escape(best_name)} ({best_acc * 100:.1f}%, {best_time:.1f}s)"
+
         # Color based on accuracy
         status_color = (
             "#45c486" if accuracy_pct >= 90 else "#ffa726" if accuracy_pct >= 70 else "#ff5f6d"
@@ -493,11 +527,15 @@ def render_metal_accuracy_section(metal_aggregates: dict[str, MetalAccuracy]) ->
                         <span class="metal-value">{metal.total_images}</span>
                     </div>
                     <div class="metal-stat">
+                        <span class="metal-label">Best Strategy (Field Acc.)</span>
+                        <span class="metal-value">{best_line}</span>
+                    </div>
+                    <div class="metal-stat">
                         <span class="metal-label">Field Accuracy</span>
                         <span class="metal-value">{accuracy_pct:.1f}%</span>
                     </div>
                     <div class="metal-stat">
-                        <span class="metal-label">100% Pass Rate</span>
+                        <span class="metal-label">100% Run Pass Rate</span>
                         <span class="metal-value">{pass_rate_pct:.1f}%</span>
                     </div>
                     <div class="metal-stat">

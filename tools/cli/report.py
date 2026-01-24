@@ -31,6 +31,55 @@ OUTPUT_PATH = Path("reports/strategy_benchmark_report.html")
 HISTORY_DIR = Path("reports/history")
 
 
+def generate_reports(
+    *,
+    input_path: Path = DATA_PATH,
+    output_path: Path = OUTPUT_PATH,
+    regenerate: bool = False,
+) -> None:
+    """Generate current HTML report and update history reports + index.
+
+    This is used by both the report CLI entry point and the benchmark runner.
+    """
+    if not input_path.exists():
+        print(f"❌ Error: Input file not found: {input_path}")
+        print("\n💡 Run benchmark first: make cli-benchmark")
+        return
+
+    payload = load_results(input_path)
+    html = build_html(payload, output_path=output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(html, encoding="utf-8")
+    print(f"✅ Current report written to {output_path}")
+
+    if not HISTORY_DIR.exists():
+        print("\n💡 No history directory yet (will be created after first benchmark)")
+        return
+
+    json_files = sorted(HISTORY_DIR.glob("strategy_benchmark_results_*.json"))
+    if not json_files:
+        print("\n💡 No history files found yet")
+        return
+
+    print(f"\n📁 Processing {len(json_files)} history file(s)...")
+
+    generated_count = 0
+    skipped_count = 0
+    for json_file in json_files:
+        result = generate_history_report(json_file, force_regenerate=regenerate)
+        if result:
+            print(f"  ✅ Generated: {result.name}")
+            generated_count += 1
+        else:
+            skipped_count += 1
+
+    if skipped_count > 0:
+        print(f"  ⏭️  Skipped {skipped_count} existing report(s) (use --regenerate to force)")
+
+    print(f"\n📊 Generated {generated_count} history report(s)")
+    generate_index_page(HISTORY_DIR)
+
+
 def build_html(payload: list[dict[str, Any]], output_path: Path = OUTPUT_PATH) -> str:
     """Build complete HTML report from benchmark results.
 
@@ -66,7 +115,7 @@ def build_html(payload: list[dict[str, Any]], output_path: Path = OUTPUT_PATH) -
 
     # Render all sections
     exec_summary = render_executive_summary(aggregates)
-    metal_accuracy_section = render_metal_accuracy_section(metal_aggregates)
+    metal_accuracy_section = render_metal_accuracy_section(metal_aggregates, strategy_metal_stats)
     strategy_metal_matrix = render_strategy_metal_matrix(strategy_metal_stats)
     hybrid_analysis = render_hybrid_analysis(hybrid_potentials)
 
@@ -220,49 +269,7 @@ Examples:
 
     args = parser.parse_args()
 
-    # Generate current report
-    if not args.input.exists():
-        print(f"❌ Error: Input file not found: {args.input}")
-        print("\n💡 Run benchmark first: make cli-benchmark")
-        return
-
-    payload = load_results(args.input)
-    html = build_html(payload, output_path=args.output)
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(html, encoding="utf-8")
-    print(f"✅ Current report written to {args.output}")
-
-    # Generate history reports
-    if HISTORY_DIR.exists():
-        json_files = sorted(HISTORY_DIR.glob("strategy_benchmark_results_*.json"))
-
-        if json_files:
-            print(f"\n📁 Processing {len(json_files)} history file(s)...")
-
-            generated_count = 0
-            skipped_count = 0
-
-            for json_file in json_files:
-                result = generate_history_report(json_file, force_regenerate=args.regenerate)
-                if result:
-                    print(f"  ✅ Generated: {result.name}")
-                    generated_count += 1
-                else:
-                    skipped_count += 1
-
-            if skipped_count > 0:
-                print(
-                    f"  ⏭️  Skipped {skipped_count} existing report(s) (use --regenerate to force)"
-                )
-
-            print(f"\n📊 Generated {generated_count} history report(s)")
-
-            # Always generate index page
-            generate_index_page(HISTORY_DIR)
-        else:
-            print("\n💡 No history files found yet")
-    else:
-        print("\n💡 No history directory yet (will be created after first benchmark)")
+    generate_reports(input_path=args.input, output_path=args.output, regenerate=args.regenerate)
 
 
 if __name__ == "__main__":

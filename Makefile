@@ -626,11 +626,11 @@ cli:
 	@echo "📋 Available modes:"
 	@echo ""
 	@echo "  Interactive Testing:"
-	@echo "    make cli-interactive         Interactive menu-driven test mode"
+	@echo "    make cli-interactive         Interactive menu-driven mode (tests + benchmark)"
 	@echo ""
 	@echo "  Single Image Test:"
 	@echo "    make cli-test IMAGE=path.jpg STRATEGY=chatgpt"
-	@echo "    Available strategies: chatgpt, gemini, hybrid"
+	@echo "    Available strategies: lora, chatgpt, gemini"
 	@echo ""
 	@echo "  List & Info:"
 	@echo "    make cli-list-images         List all available test images"
@@ -638,7 +638,10 @@ cli:
 	@echo ""
 	@echo "  Benchmarking:"
 	@echo "    make cli-benchmark           Full benchmark + HTML report"
-	@echo "    make cli-benchmark-quick     Quick benchmark (3 images) + HTML report"
+	@echo "    make cli-benchmark-quick     Quick benchmark (3 random images) + HTML report"
+	@echo "    make cli-benchmark-sample SAMPLE=5   Sample N random images + HTML report"
+	@echo "    make cli-benchmark-quick STRATEGIES=lora      Quick benchmark but only LoRA"
+	@echo "    make cli-benchmark STRATEGIES=chatgpt,gemini  Full benchmark but only cloud"
 	@echo ""
 	@echo "  Report Generation:"
 	@echo "    make cli-report              Generate current + missing history reports (reports/history/index.html)"
@@ -646,8 +649,9 @@ cli:
 	@echo ""
 	@echo "Examples:"
 	@echo "  make cli-interactive"
-	@echo "  make cli-test IMAGE=barPictures/gold.jpg STRATEGY=chatgpt"
+	@echo "  make cli-test IMAGE=barPictures/gold.jpg STRATEGY=lora"
 	@echo "  make cli-benchmark-quick"
+	@echo "  make cli-benchmark-quick STRATEGIES=lora"
 	@echo "  make cli-report"
 
 cli-help: cli
@@ -667,22 +671,20 @@ cli-list-strategies:
 	@$(VENV_PYTHON) -m tools.cli.cli --list-strategies
 
 cli-benchmark:
-	@echo "🔬 Running full benchmark + generating report..."
-	@$(VENV_PYTHON) -m tools.cli.cli
-	@echo ""
-	@echo "📊 Generating HTML report..."
-	@$(VENV_PYTHON) -m tools.cli.report
-	@echo ""
+	@echo "🔬 Running full benchmark (auto-updates report + history)..."
+	@$(VENV_PYTHON) -m tools.cli.cli $(if $(strip $(STRATEGIES)),--strategies $(STRATEGIES),)
 	@echo "✅ Benchmark complete! View report at: reports/strategy_benchmark_report.html"
 
 cli-benchmark-quick:
-	@echo "⚡ Running quick benchmark (3 random images) + generating report..."
-	@$(VENV_PYTHON) -m tools.cli.cli --quick
-	@echo ""
-	@echo "📊 Generating HTML report..."
-	@$(VENV_PYTHON) -m tools.cli.report
-	@echo ""
+	@echo "⚡ Running quick benchmark (3 random images, auto-updates report + history)..."
+	@$(VENV_PYTHON) -m tools.cli.cli --sample-size 3 $(if $(strip $(STRATEGIES)),--strategies $(STRATEGIES),)
 	@echo "✅ Quick benchmark complete! View report at: reports/strategy_benchmark_report.html"
+
+cli-benchmark-sample:
+	$(if $(strip $(SAMPLE)),,$(error SAMPLE is required. Usage: make cli-benchmark-sample SAMPLE=5 STRATEGIES=lora))
+	@echo "🎲 Running sample benchmark ($(SAMPLE) random images, auto-updates report + history)..."
+	@$(VENV_PYTHON) -m tools.cli.cli --sample-size $(SAMPLE) $(if $(strip $(STRATEGIES)),--strategies $(STRATEGIES),)
+	@echo "✅ Sample benchmark complete! View report at: reports/strategy_benchmark_report.html"
 
 cli-report:
 	@echo "📊 Generating HTML reports..."

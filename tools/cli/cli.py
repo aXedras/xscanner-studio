@@ -1,12 +1,13 @@
-"""CLI entry point for strategy benchmarking and testing tool."""
+"""CLI entry point for strategy testing and benchmarking.
+
+Supported strategies:
+- Cloud: ChatGPT Vision, Gemini Flash
+- Local: LoRA fine-tuned (only local strategy)
+"""
 
 import argparse
 import logging
-import os
 from pathlib import Path
-
-# SET THIS BEFORE ANY OTHER IMPORTS!!!
-os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
 
 from .discovery import (  # noqa: E402
     create_strategy,
@@ -15,7 +16,7 @@ from .discovery import (  # noqa: E402
     list_images_info,
     list_strategies_info,
 )
-from .runner import run_benchmark
+from .runner import get_benchmark_image_pool, run_benchmark
 from .validator import parse_filename_ground_truth, validate_extraction
 
 # Suppress console INFO/DEBUG output - only show WARNING and above
@@ -220,7 +221,7 @@ def run_multiple_tests(image_paths: list[Path], strategy_name: str) -> int:
 
 
 def interactive_mode() -> int:
-    """Interactive menu-driven single test mode."""
+    """Interactive menu-driven mode for tests and benchmarks."""
     images = find_all_images()
 
     if not images:
@@ -234,8 +235,112 @@ def interactive_mode() -> int:
         return 1
 
     print("\n" + "=" * 60)
-    print("🎯 xScanner Interactive Test Tool")
+    print("🎯 xScanner Interactive Tool")
     print("=" * 60)
+
+    print("\nMode:")
+    print("  1. Single test (one strategy)")
+    print("  2. Benchmark (compare strategies)")
+
+    try:
+        mode_choice = input("\n🔢 Select mode (1/2, or 'q' to quit): ").strip().lower()
+        if mode_choice == "q":
+            print("👋 Bye!")
+            return 0
+        if mode_choice not in {"1", "2"}:
+            print("❌ Invalid selection")
+            return 1
+    except (KeyboardInterrupt, EOFError):
+        print("\n❌ Cancelled")
+        return 1
+
+    # Benchmark mode (interactive)
+    if mode_choice == "2":
+        print("\n🤖 Available Strategies:\n")
+        strategy_list = list(strategies.keys())
+        for idx, name in enumerate(strategy_list, 1):
+            print(f"  {idx}. {name}")
+
+        print("\nSelect strategies to benchmark:")
+        print("  - Enter numbers separated by commas (e.g. 1,3)")
+        print("  - Enter 'all' for all available")
+
+        try:
+            raw = input("\n🔢 Strategy selection: ").strip().lower()
+            if raw == "q":
+                print("👋 Bye!")
+                return 0
+
+            if raw == "all":
+                selected = strategy_list
+            else:
+                parts = [p.strip() for p in raw.split(",") if p.strip()]
+                indices = [int(p) for p in parts]
+                selected = []
+                for i in indices:
+                    if i < 1 or i > len(strategy_list):
+                        print("❌ Invalid strategy selection")
+                        return 1
+                    selected.append(strategy_list[i - 1])
+
+                # De-dup while preserving order
+                seen = set()
+                selected = [s for s in selected if not (s in seen or seen.add(s))]
+
+            if not selected:
+                print("❌ No strategies selected")
+                return 1
+        except (ValueError, KeyboardInterrupt, EOFError):
+            print("\n❌ Invalid input or cancelled")
+            return 1
+
+        try:
+            difficult_choice = (
+                input("\n🧪 Difficult-only (barPictures/difficult)? (y/N): ").strip().lower()
+            )
+            difficult_only = difficult_choice == "y"
+
+            pool = get_benchmark_image_pool(difficult_only=difficult_only)
+            available = len(pool)
+            if available == 0:
+                print("❌ No test images found for this selection")
+                return 1
+
+            print("\n📸 How many images?")
+            print(f"  Available: {available}")
+            print("  - Enter a number (e.g. 5) to sample random images")
+            print("  - Enter 'all' to run on all images")
+            raw_count = input("\n🔢 Image selection (number/all): ").strip().lower()
+            if raw_count == "q":
+                print("👋 Bye!")
+                return 0
+
+            if raw_count == "all" or raw_count == "":
+                sample_size = None
+            else:
+                sample_size = int(raw_count)
+                if sample_size <= 0:
+                    print("❌ Please enter a number > 0 or 'all'")
+                    return 1
+                if sample_size > available:
+                    print(f"⚠️  Requested {sample_size}, but only {available} available → using ALL")
+                    sample_size = None
+        except (ValueError, KeyboardInterrupt, EOFError):
+            print("\n❌ Invalid input or cancelled")
+            return 1
+
+        class _Args:
+            pass
+
+        args = _Args()
+        args.workers = None
+        args.image_workers = None
+        args.quick = False
+        args.sample_size = sample_size
+        args.difficult_only = difficult_only
+        args.strategies = ",".join(selected)
+
+        return run_benchmark(args)
 
     # Select image
     print(f"\n📸 Available Images ({len(images)}):\n")
@@ -300,22 +405,29 @@ def interactive_mode() -> int:
 def main():
     """Main entry point for benchmark and test tool."""
     parser = argparse.ArgumentParser(
-        description="🔬 Strategy Benchmarking and Testing Tool",
+        description="🔬 Strategy benchmarking and testing tool (Cloud + LoRA)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Modes:
-  Benchmark (default)     - Compare all strategies on multiple images
-  Single test             - Test one strategy on one image
-  Interactive             - Menu-driven single test
-  List                    - Show images or strategies
+    Benchmark (default)     - Compare available strategies on multiple images
+    Single test             - Test one strategy on one image
+    Interactive             - Menu-driven tests and benchmarks
+    List                    - Show images or strategies
 
 Examples:
-  python -m tools.cli.cli                           # Full benchmark
-  python -m tools.cli.cli --quick                   # Quick benchmark (3 images)
-  python -m tools.cli.cli --interactive             # Interactive mode
-  python -m tools.cli.cli --image bar.jpg --strategy chatgpt
-  python -m tools.cli.cli --list-images
-  python -m tools.cli.cli --list-strategies
+    python -m tools.cli.cli                           # Full benchmark
+    python -m tools.cli.cli --quick                   # Quick benchmark (3 images)
+    python -m tools.cli.cli --sample-size 5            # Sample 5 random images
+    python -m tools.cli.cli --strategies lora          # Benchmark only LoRA
+    python -m tools.cli.cli --strategies chatgpt,gemini # Benchmark only cloud
+    python -m tools.cli.cli --quick --strategies lora  # Quick benchmark but LoRA only
+    python -m tools.cli.cli --sample-size 5 --strategies lora  # Sample 5 but LoRA only
+    python -m tools.cli.cli --interactive             # Interactive mode
+    python -m tools.cli.cli --image bar.jpg --strategy lora
+    python -m tools.cli.cli --image bar.jpg --strategy chatgpt
+    python -m tools.cli.cli --image bar.jpg --strategy gemini
+    python -m tools.cli.cli --list-images
+    python -m tools.cli.cli --list-strategies
         """,
     )
 
@@ -334,29 +446,28 @@ Examples:
         help="Number of images to process in parallel (benchmark mode)",
     )
 
+    # Note: Local strategy is LoRA only. Cloud strategies depend on API keys.
+
     parser.add_argument(
-        "--map-reduce",
+        "--quick",
         action="store_true",
-        help="Map-reduce: strategies parallel, images sequential. Best for Cloud APIs.",
+        help="Quick benchmark: random sample of 3 images (use --sample-size for custom N)",
     )
 
     parser.add_argument(
-        "--ollama-optimized",
-        action="store_true",
-        help="Ollama-optimized: models sequential, images parallel. Avoids model switching.",
+        "--sample-size",
+        type=int,
+        default=None,
+        help="Benchmark sample size: randomly choose N images (overrides --quick)",
     )
 
     parser.add_argument(
         "--strategies",
-        type=str,
         default=None,
-        help="Comma-separated list of strategies to test. "
-        "Single: qwen3,qwen3-abl,deepseek,minicpm,llama | "
-        "Hybrid: hybrid-minicpm-qwen,hybrid-minicpm-llama,hybrid-llama-qwen",
-    )
-
-    parser.add_argument(
-        "--quick", action="store_true", help="Quick benchmark: random sample of 3 images"
+        help=(
+            "Comma-separated list of strategies to benchmark (benchmark mode only). "
+            "Allowed: lora,chatgpt,gemini. Default: all available"
+        ),
     )
 
     parser.add_argument(
@@ -370,7 +481,8 @@ Examples:
 
     parser.add_argument(
         "--strategy",
-        choices=["chatgpt", "gemini", "hybrid"],
+        choices=["lora", "chatgpt", "gemini"],
+        default="lora",
         help="Strategy to use (single test mode)",
     )
 
@@ -403,12 +515,8 @@ Examples:
         return interactive_mode()
 
     # Single test mode
-    if args.image and args.strategy:
+    if args.image:
         return run_single_test(args.image, args.strategy, args.verbose)
-
-    if args.image and not args.strategy:
-        print("❌ --image requires --strategy")
-        return 1
 
     # Default: benchmark mode
     return run_benchmark(args)

@@ -2,6 +2,10 @@
 
 import { describe, expect, test } from 'vitest'
 
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import type { ILogger } from '@/lib/utils/logging'
 import { HttpXScannerClient } from '@/services/infrastructure/xscanner/HttpXScannerClient'
 
@@ -19,10 +23,17 @@ function createNoopLogger(): ILogger {
 }
 
 function createTestImageFile(): File {
-  // Integration tests must not rely on repo-bundled binary fixtures.
-  // Use an in-memory payload to keep CI deterministic.
-  const bytes = new Uint8Array([0xff, 0xd8, 0xff, 0xdb, 0x00, 0x43, 0x00, 0xff, 0xd9])
-  return new File([bytes], 'Gold_00250g_9999_E16473_Degussa.jpg', { type: 'image/jpeg' })
+  // This test verifies Supabase persistence. The uploaded image is stored in DB/Storage,
+  // so we use a small real bar image committed under `tests/fixtures/images/bars/`.
+  const __filename = fileURLToPath(import.meta.url)
+  const __dirname = path.dirname(__filename)
+  const repoRoot = path.resolve(__dirname, '../../../')
+
+  const filename = 'Gold_00500g_9999_D08744_Degussa.jpg'
+  const imagePath = path.join(repoRoot, 'tests', 'fixtures', 'images', 'bars', filename)
+  const bytes = readFileSync(imagePath)
+
+  return new File([bytes], filename, { type: 'image/jpeg' })
 }
 
 async function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {

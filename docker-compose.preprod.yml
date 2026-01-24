@@ -21,6 +21,13 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
 
+      # Local strategy (LoRA server running externally)
+      # IMPORTANT: "localhost" here would point to the container itself.
+      # Provide a reachable URL, e.g.:
+      # - http://host.docker.internal:<port> (Docker Desktop)
+      # - https://<runpod-proxy> (hosted)
+      LORA_BASE_URL: ${LORA_BASE_URL:-}
+
       # Optional integration
       AXEDRAS_BASE_URL: ${AXEDRAS_BASE_URL:-}
       AXEDRAS_KEYCLOAK_URL: ${AXEDRAS_KEYCLOAK_URL:-}
@@ -62,6 +69,13 @@ services:
       # Providers
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+
+      # Local strategy (LoRA server running externally)
+      # IMPORTANT: "localhost" here would point to the container itself.
+      # Provide a reachable URL, e.g.:
+      # - http://host.docker.internal:<port> (Docker Desktop)
+      # - https://<runpod-proxy> (hosted)
+      LORA_BASE_URL: ${LORA_BASE_URL:-}
 
       # Optional integration
       AXEDRAS_BASE_URL: ${AXEDRAS_BASE_URL:-}

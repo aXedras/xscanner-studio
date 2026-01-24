@@ -6,27 +6,18 @@ against ground truth from structured filenames.
 Required configuration:
 - ChatGPT: OPENAI_API_KEY
 - Gemini: GOOGLE_API_KEY
-- Hybrid: Ollama service running locally
+- Local: LoRA fine-tuned service reachable via LORA_BASE_URL
 """
+
+from pathlib import Path
 
 import pytest
 
-from tests.integration.test_helpers import get_random_test_image
 from tools.cli.validator import parse_filename_ground_truth, validate_extraction
 from xscanner.server.config import get_config
 from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy
 from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy
-
-# Check if PaddleOCR is available for hybrid strategy
-try:
-    from xscanner.strategy.paddle_ollama_hybrid_strategy import (
-        IS_APPLE_SILICON,
-        PaddleLlamaHybridStrategy,
-    )
-
-    PADDLE_AVAILABLE = True
-except ImportError:
-    PADDLE_AVAILABLE = False
+from xscanner.strategy.lora_finetuned_strategy import LoRAFinetunedStrategy
 
 pytestmark = pytest.mark.e2e
 
@@ -39,14 +30,30 @@ def config():
 
 @pytest.fixture(scope="module")
 def test_image_with_ground_truth():
-    """Get a random test image with ground truth data from filename."""
-    image_path = get_random_test_image()
-    if not image_path:
-        pytest.skip("No test images with ground truth found")
+    """Get a committed test image with filename-based ground truth.
 
+    This is intentionally deterministic so CI runs are reproducible.
+    """
+
+    tests_dir = Path(__file__).resolve().parents[1]
+    images_dir = tests_dir / "fixtures" / "images" / "bars"
+    paths = sorted(images_dir.glob("*.jpg"))
+    if len(paths) != 3:
+        raise RuntimeError(
+            f"Expected exactly 3 committed test images in {images_dir}, found {len(paths)}"
+        )
+
+    preferred_order = [
+        "Gold_00500g_9999_A55251_Heraeus.jpg",
+        "Gold_00500g_9999_D08744_Degussa.jpg",
+        "Gold_00100g_9999_614938_Credit Suisse.jpg",
+    ]
+
+    by_name = {p.name: p for p in paths}
+    image_path = next((by_name[name] for name in preferred_order if name in by_name), paths[0])
     ground_truth = parse_filename_ground_truth(image_path)
     if not ground_truth:
-        pytest.skip(f"Could not parse ground truth from {image_path.name}")
+        raise RuntimeError(f"Could not parse ground truth from {image_path.name}")
 
     return image_path, ground_truth
 
@@ -76,31 +83,15 @@ def gemini_strategy(config):
 
 
 @pytest.fixture(scope="module")
-def hybrid_strategy(config):
-    """Create Hybrid strategy if Ollama is running."""
-    if not PADDLE_AVAILABLE:
-        pytest.skip("PaddleOCR not installed")
+def lora_strategy(config):
+    """Create LoRA strategy if local LoRA service is running."""
+    if not config.lora.base_url:
+        pytest.skip("LORA_BASE_URL not configured")
 
-    if IS_APPLE_SILICON:
-        pytest.skip("Hybrid strategy disables PaddleOCR on Apple Silicon")
+    if not LoRAFinetunedStrategy.is_available(config.lora.base_url):
+        pytest.skip("LoRA service not reachable")
 
-    if not config.ollama.base_url:
-        pytest.skip("Ollama base URL not configured")
-
-    try:
-        # Test if Ollama is reachable
-        import requests
-
-        response = requests.get(f"{config.ollama.base_url}/api/tags", timeout=2)
-        if response.status_code != 200:
-            pytest.skip("Ollama service not responding")
-    except Exception:
-        pytest.skip("Ollama service not reachable")
-
-    strategy = PaddleLlamaHybridStrategy(base_url=config.ollama.base_url)
-    if getattr(strategy, "paddle_strategy", None) is None:
-        pytest.skip("Hybrid strategy running in Ollama-only fallback mode")
-    return strategy
+    return LoRAFinetunedStrategy(base_url=config.lora.base_url)
 
 
 def _validate_strategy_result(strategy_name: str, result, test_image, ground_truth):
@@ -160,16 +151,16 @@ def test_chatgpt_e2e(chatgpt_strategy, test_image_with_ground_truth):
     _validate_strategy_result("ChatGPT Vision", result, test_image, ground_truth)
 
 
+def test_lora_e2e(lora_strategy, test_image_with_ground_truth):
+    """End-to-end test: Real LoRA server call validated against ground truth."""
+    test_image, ground_truth = test_image_with_ground_truth
+    result = lora_strategy.extract(test_image)
+    _validate_strategy_result("LoRA Fine-tuned", result, test_image, ground_truth)
+
+
 @pytest.mark.skip(reason="No budget for Gemini API calls")
 def test_gemini_e2e(gemini_strategy, test_image_with_ground_truth):
     """End-to-end test: Real Gemini API call validated against ground truth."""
     test_image, ground_truth = test_image_with_ground_truth
     result = gemini_strategy.extract(test_image)
     _validate_strategy_result("Gemini Flash", result, test_image, ground_truth)
-
-
-def test_hybrid_e2e(hybrid_strategy, test_image_with_ground_truth):
-    """End-to-end test: Real Hybrid strategy call validated against ground truth."""
-    test_image, ground_truth = test_image_with_ground_truth
-    result = hybrid_strategy.extract(test_image)
-    _validate_strategy_result("Paddle+Llama Hybrid", result, test_image, ground_truth)

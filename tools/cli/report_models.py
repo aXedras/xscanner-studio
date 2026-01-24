@@ -115,6 +115,7 @@ class MetalAccuracy:
 
     metal: str
     total_images: int = 0
+    total_comparisons: int = 0  # number of (image × strategy) comparisons with ground truth
     total_matches: int = 0  # Sum of matched fields
     total_fields: int = 0  # Sum of expected fields
     full_passes: int = 0  # Images with all fields correct
@@ -126,8 +127,8 @@ class MetalAccuracy:
 
     @property
     def full_pass_rate(self) -> float:
-        """Percentage of images with 100% field accuracy."""
-        return self.full_passes / self.total_images if self.total_images else 0.0
+        """Percentage of perfect comparisons (image × strategy) with 100% field accuracy."""
+        return self.full_passes / self.total_comparisons if self.total_comparisons else 0.0
 
 
 @dataclass
@@ -272,6 +273,7 @@ def aggregate_by_metal(
         for _strat_name, result in strategies_to_check.items():
             comparison = result.get("comparison")
             if comparison:
+                agg.total_comparisons += 1
                 matched = comparison.get("matched_fields", 0)
                 total = comparison.get("total_expected_fields", 0)
                 is_pass = comparison.get("pass", False)
