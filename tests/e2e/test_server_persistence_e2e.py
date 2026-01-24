@@ -474,7 +474,9 @@ def test_extract_upload_mock_lora_persists_row(server, supabase_creds):
 
     # Ensure the LoRA service is reachable; this test is intended to fail loudly
     # when LoRA isn't running because we want a real (non-mock) end-to-end check.
-    lora_base_url = os.getenv("LORA_BASE_URL", "http://localhost:8001").strip()
+    lora_base_url = os.getenv("LORA_BASE_URL")
+    assert lora_base_url and lora_base_url.strip(), "LORA_BASE_URL must be set for LoRA E2E tests"
+    lora_base_url = lora_base_url.strip()
     assert LoRAFinetunedStrategy.is_available(lora_base_url), (
         f"LoRA service not reachable at LORA_BASE_URL={lora_base_url}. Start the service and retry."
     )

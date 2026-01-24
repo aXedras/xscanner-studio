@@ -183,7 +183,7 @@ class TestLoRAFinetunedStrategy:
         # LoRA strategy validates base URL at init; mock that in tests.
         with patch("requests.get") as mock_get:
             mock_get.return_value = Mock(status_code=200)
-            return LoRAFinetunedStrategy(base_url="http://localhost:8001", timeout=5)
+            return LoRAFinetunedStrategy(base_url="http://lora.test", timeout=5)
 
     @pytest.fixture
     def mock_image_path(self, tmp_path):

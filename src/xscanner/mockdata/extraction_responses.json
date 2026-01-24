@@ -23,7 +23,7 @@
           "Fineness": "999.9",
           "Producer": "Degussa"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 12.228144884109497,
         "error": null,
         "comparison": {
@@ -123,7 +123,7 @@
           "Fineness": "999.9",
           "Producer": "Degussa"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 4.531518936157227,
         "error": null,
         "comparison": {
@@ -223,7 +223,7 @@
           "Fineness": "999.9",
           "Producer": "Credit Suisse"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 40.23356604576111,
         "error": null,
         "comparison": {
@@ -328,7 +328,7 @@
           "Fineness": "999.9",
           "Producer": "Valcambi"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 49.297767877578735,
         "error": null,
         "comparison": {
@@ -430,7 +430,7 @@
           "Fineness": "999.9",
           "Producer": "Argor Heraeus"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 5.292353868484497,
         "error": null,
         "comparison": {
@@ -530,7 +530,7 @@
           "Fineness": "999.9",
           "Producer": "Argor Heraeus"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 5.160902976989746,
         "error": null,
         "comparison": {
@@ -630,7 +630,7 @@
           "Fineness": "999.9",
           "Producer": "Argor Heraeus"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 5.685713052749634,
         "error": null,
         "comparison": {
@@ -730,7 +730,7 @@
           "Fineness": "999.9",
           "Producer": "Heraeus"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 13.80918025970459,
         "error": null,
         "comparison": {
@@ -834,7 +834,7 @@
           "Fineness": "999.9",
           "Producer": "Heraeus"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 12.841370105743408,
         "error": null,
         "comparison": {
@@ -936,7 +936,7 @@
           "Fineness": "999.9",
           "Producer": "Credit Suisse"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 5.063112020492554,
         "error": null,
         "comparison": {
@@ -1036,7 +1036,7 @@
           "Fineness": "999.9",
           "Producer": "Credit Suisse"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 12.330211877822876,
         "error": null,
         "comparison": {
@@ -1140,7 +1140,7 @@
           "Fineness": "999.9",
           "Producer": "Credit Suisse"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 5.129621982574463,
         "error": null,
         "comparison": {
@@ -1240,7 +1240,7 @@
           "Fineness": "999.9",
           "Producer": "Heraeus"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 5.358839988708496,
         "error": null,
         "comparison": {
@@ -1345,7 +1345,7 @@
           "Fineness": "999.9",
           "Producer": "Heraeus"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 5.621806859970093,
         "error": null,
         "comparison": {
@@ -1445,7 +1445,7 @@
           "Fineness": "999.9",
           "Producer": "Argor Heraeus"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 4.556750059127808,
         "error": null,
         "comparison": {
@@ -1549,7 +1549,7 @@
           "Fineness": "999.9",
           "Producer": "Argor Heraeus"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 4.495548248291016,
         "error": null,
         "comparison": {
@@ -1651,7 +1651,7 @@
           "Fineness": "999.9",
           "Producer": "Clariden Leu"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 34.91275906562805,
         "error": null,
         "comparison": {
@@ -1753,7 +1753,7 @@
           "Fineness": "999.9",
           "Producer": "Clariden Leu"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 13.874567985534668,
         "error": null,
         "comparison": {
@@ -1855,7 +1855,7 @@
           "Fineness": "999.9",
           "Producer": "Argor Heraeus"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 43.35469698905945,
         "error": null,
         "comparison": {
@@ -1957,7 +1957,7 @@
           "Fineness": "999.9",
           "Producer": "Argor Heraeus"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 44.17668414115906,
         "error": null,
         "comparison": {
@@ -2059,7 +2059,7 @@
           "Fineness": "999.9",
           "Producer": "Heraeus"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 44.67716908454895,
         "error": null,
         "comparison": {
@@ -2159,7 +2159,7 @@
           "Fineness": "999.9",
           "Producer": "Heraeus"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 45.12219524383545,
         "error": null,
         "comparison": {
@@ -2259,7 +2259,7 @@
           "Fineness": "999.9",
           "Producer": "Commerzbank"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 46.87344408035278,
         "error": null,
         "comparison": {
@@ -2359,7 +2359,7 @@
           "Fineness": "999.9",
           "Producer": "Commerzbank"
         },
-        "confidence": 0.95,
+        "confidence": 1.0,
         "processing_time": 46.8188271522522,
         "error": null,
         "comparison": {
