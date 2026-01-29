@@ -93,7 +93,76 @@ Studio UI: http://localhost:8084
 
 ---
 
-## 🔧 Development
+## �️ CLI Tools
+
+Quick command-line tools for direct API testing without running the full server.
+
+### LoRA Analysis Tool
+
+Analyze images using the fine-tuned LoRA model on RunPod:
+
+```bash
+# Basic usage with default prompts
+./tools/lora_analyze.sh barPictures/Renamed-and-Sorted/Gold_01000g_9999_AR95742_Valcambi.jpg
+
+# Verbose output
+./tools/lora_analyze.sh barPictures/my_bar.jpg -v
+
+# Custom prompts
+./tools/lora_analyze.sh barPictures/my_bar.jpg \
+  -s config/lora_system_prompt.txt \
+  -p config/lora_user_prompt.txt
+
+# Without prompts (use server defaults)
+./tools/lora_analyze.sh barPictures/my_bar.jpg --no-prompts
+
+# Custom server URL
+LORA_BASE_URL=http://localhost:8000 ./tools/lora_analyze.sh barPictures/my_bar.jpg
+```
+
+**Options:**
+- `-u, --url URL` - LoRA server URL (default: RunPod endpoint)
+- `-s, --system-prompt FILE` - System prompt file
+- `-p, --user-prompt FILE` - User prompt file
+- `--no-prompts` - Don't send prompts
+- `-r, --raw` - Raw JSON output
+- `-v, --verbose` - Verbose mode
+
+### ChatGPT Vision Tool
+
+Analyze images using OpenAI GPT-4o Vision API:
+
+```bash
+# Requires OPENAI_API_KEY environment variable
+export OPENAI_API_KEY=sk-...
+
+# Basic usage with gpt-4o-mini
+./tools/chatgpt_analyze.sh barPictures/Renamed-and-Sorted/Gold_01000g_9999_AR95742_Valcambi.jpg
+
+# Use GPT-4o for better accuracy
+./tools/chatgpt_analyze.sh barPictures/my_bar.jpg --model gpt-4o
+
+# Verbose with token statistics
+./tools/chatgpt_analyze.sh barPictures/my_bar.jpg -v
+
+# Custom prompts
+./tools/chatgpt_analyze.sh barPictures/my_bar.jpg \
+  -s config/system_prompt_image.txt \
+  -p config/prompt_template_image.txt
+```
+
+**Options:**
+- `-m, --model MODEL` - Model: `gpt-4o-mini`, `gpt-4o`, `gpt-4-turbo`
+- `-s, --system-prompt FILE` - System prompt file
+- `-p, --user-prompt FILE` - User prompt file
+- `-t, --temperature TEMP` - Temperature (default: 0.1)
+- `--max-tokens TOKENS` - Max output tokens (default: 1200)
+- `-r, --raw` - Raw JSON output
+- `-v, --verbose` - Verbose mode with token stats
+
+---
+
+## �🔧 Development
 
 ### Testing
 
