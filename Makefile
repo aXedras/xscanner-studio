@@ -1,8 +1,33 @@
-.PHONY: help install dev venv hooks hooks-install hooks-update hooks-run format lint check check-help check-fast check-all studio studio-install studio-format-check studio-lint studio-type-check studio-i18n-check studio-db-types-check studio-build studio-test-unit studio-test-integration studio-check-fast studio-check-all test test-help test-all test-unit test-integration test-e2e test-coverage test-quick pre-commit-all db-types db-types-generate db-types-check database database-start database-stop start start-server start-studio start-supabase start-all preprod preprod-check preprod-update-main preprod-up preprod-down preprod-health preprod-status preprod-logs preprod-deploy release release-help release-create release-status release-list version ci-main-status docker-build docker-run clean cli cli-help cli cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report cli-report-history
+.PHONY: help install dev venv hooks hooks-install hooks-update hooks-run format lint check check-help check-fast check-all studio studio-install studio-format-check studio-lint studio-type-check studio-i18n-check studio-db-types-check studio-build studio-test-unit studio-test-integration studio-check-fast studio-check-all test test-help test-all test-unit test-integration test-e2e test-coverage test-quick record record-help record-order-extract-mock record-order-vision-mock pre-commit-all db-types db-types-generate db-types-check database database-start database database-stop start start-server start-studio start-supabase start-all preprod preprod-check preprod-update-main preprod-up preprod-down preprod-health preprod-status preprod-logs preprod-deploy release release-help release-create release-status release-list version ci-main-status docker-build docker-run clean cli cli-help cli cli-interactive cli-test cli-list-images cli-list-strategies cli-benchmark cli-benchmark-quick cli-report cli-report-history cli-order
+.PHONY: record-order-mocks record-order-mocks-manual
+
+# Capture selected environment overrides *before* loading .env.local.
+# Rationale: `.env.local` is included as a Makefile fragment and would otherwise
+# override shell-provided environment vars like `OPENAI_MODEL=gpt-4o-mini make ...`.
+OPENAI_MODEL_ENV := $(OPENAI_MODEL)
+OPENAI_TEMPERATURE_ENV := $(OPENAI_TEMPERATURE)
+OPENAI_MAX_OUTPUT_TOKENS_ENV := $(OPENAI_MAX_OUTPUT_TOKENS)
 
 # Load environment variables from .env.local
 -include .env.local
+
+# Restore selected environment overrides (if set) after including .env.local.
+ifneq ($(strip $(OPENAI_MODEL_ENV)),)
+OPENAI_MODEL := $(OPENAI_MODEL_ENV)
+endif
+ifneq ($(strip $(OPENAI_TEMPERATURE_ENV)),)
+OPENAI_TEMPERATURE := $(OPENAI_TEMPERATURE_ENV)
+endif
+ifneq ($(strip $(OPENAI_MAX_OUTPUT_TOKENS_ENV)),)
+OPENAI_MAX_OUTPUT_TOKENS := $(OPENAI_MAX_OUTPUT_TOKENS_ENV)
+endif
+
 export
+
+# Allow per-invocation environment overrides, e.g.:
+#   OPENAI_MODEL=gpt-4o-mini make record-order-extract-mock FILE=...
+# Without this, values from the included .env.local would win.
+MAKEFLAGS += -e
 
 # Virtualenv (cross-platform)
 VENV_DIR := venv
@@ -45,6 +70,7 @@ help:
 	@echo "  make check-fast # fast local checks (lint + unit tests)"
 	@echo "  make check-all  # full local CI script (mirrors GitHub Actions)"
 	@echo "  make test      # test targets help"
+	@echo "  make record    # record targets help"
 	@echo "  make cli       # CLI help"
 	@echo "  make db-types  # DB types help"
 	@echo "  make hooks     # pre-commit hooks help"
@@ -269,6 +295,80 @@ test-coverage:
 test-quick:
 	@echo "⚡ Running quick tests..."
 	@$(VENV_PYTHON) -m pytest tests/unit/ -q
+
+# Record (help)
+record: record-help
+
+record-help:
+	@echo "🧾 Record Targets"
+	@echo ""
+	@echo "Targets:"
+	@echo "  make record-order-extract-mock FILE=<PDF>          Record order cloud extract mock fixture (requires OPENAI_API_KEY)"
+	@echo "  make record-order-vision-mock FILE=<IMAGE|PDF>     Record order vision->marker-text mock fixture (requires OPENAI_API_KEY)"
+	@echo "  make record-order-mocks FILE=<IMAGE|PDF>           Record vision + extract fixtures (single PDF or image)"
+	@echo "  make record-order-mocks FILES=\"a.jpg b.jpg\"         Record vision + extract fixtures (multi-image upload)"
+	@echo "  make record-order-mock STRATEGY=<manual|cloud> FILE=<PDF|IMAGE>  Record a full strategy-level mock fixture"
+	@echo ""
+	@echo "Supported file types:"
+	@echo "  - record-order-extract-mock: PDF (.pdf)"
+	@echo "  - record-order-vision-mock: images (.png .jpg .jpeg .webp) OR PDF (.pdf)"
+	@echo "  - record-order-mocks: images (.png .jpg .jpeg .webp) OR PDF (.pdf)"
+	@echo ""
+	@echo "Examples (repo fixtures):"
+	@echo "  make record-order-extract-mock FILE=invoices/72056547.pdf"
+	@echo "  make record-order-vision-mock FILE=invoices/72056547.jpg"
+	@echo "  make record-order-vision-mock FILE=invoices/72056547-image.pdf"
+	@echo "  make record-order-mocks FILE=invoices/72056547.jpg"
+	@echo "  make record-order-mocks FILE=invoices/72056547-image.pdf"
+	@echo "  make record-order-mock STRATEGY=manual FILE=invoices/72056547.pdf"
+	@echo "  make record-order-mock STRATEGY=cloud FILE=invoices/72056547-image.pdf"
+	@echo ""
+	@echo "Notes:"
+	@echo "  - Extract fixtures: src/xscanner/mockdata/order_extract/"
+	@echo "  - Vision marker-text fixtures: src/xscanner/mockdata/order_vision/"
+	@echo "  - Fixture names are derived from the upload filename (must match what Studio sends)"
+	@echo "  - Recording overwrites existing fixtures"
+
+# Record a real cloud extract response as a deterministic mock fixture for /order/extract/upload
+record-order-extract-mock: venv
+	$(if $(strip $(FILE)),,$(error FILE is required. Usage: make record-order-extract-mock FILE=invoices/72056547.pdf))
+	@echo "🧾 Recording Order cloud extract mock fixture (requires OPENAI_API_KEY)..."
+	@$(VENV_PYTHON) scripts/test/record_order_extract_mock.py --file "$(FILE)" $(if $(strip $(NAME)),--name $(NAME),)
+
+# Record a real vision->marker-text response as a deterministic mock fixture
+record-order-vision-mock: venv
+	$(if $(strip $(FILE)),,$(error FILE is required. Usage: make record-order-vision-mock FILE=invoices/72056547.jpg))
+	@echo "🧾 Recording Order vision->marker-text mock fixture (requires OPENAI_API_KEY)..."
+	@$(VENV_PYTHON) scripts/test/record_order_vision_mock.py --file "$(FILE)" $(if $(strip $(NAME)),--name $(NAME),) --overwrite
+
+# Record per-step fixtures for /order/extract/upload (vision marker-text + AI extract)
+record-order-mocks: venv
+	$(if $(strip $(FILE)$(FILES)),,$(error FILE or FILES is required. Usage: make record-order-mocks FILE=invoices/72056547.jpg OR FILES="a.jpg b.jpg"))
+	@if [ -n "$(strip $(FILES))" ]; then \
+		echo "🧾 Recording Order upload mocks (multi-image) (requires OPENAI_API_KEY)..."; \
+		$(VENV_PYTHON) scripts/test/record_order_mocks.py --files $(FILES) --overwrite; \
+	else \
+		echo "🧾 Recording Order upload mocks (single file) (requires OPENAI_API_KEY)..."; \
+		$(VENV_PYTHON) scripts/test/record_order_mocks.py --file "$(FILE)" --overwrite; \
+	fi
+
+# Record a full strategy-level mock fixture for /order/extract/upload (cloud/manual)
+record-order-mock: venv
+	$(if $(strip $(STRATEGY)),,$(error STRATEGY is required. Usage: make record-order-mock STRATEGY=manual FILE=invoices/72056547.pdf))
+	$(if $(strip $(FILE)$(FILES)),,$(error FILE or FILES is required. Usage: make record-order-mock STRATEGY=cloud FILE=invoices/72056547.jpg OR FILES="a.jpg b.jpg"))
+	@if [ -n "$(strip $(FILES))" ]; then \
+		echo "🧾 Recording Order strategy mock (multi-image) (strategy=$(STRATEGY))..."; \
+		$(VENV_PYTHON) scripts/test/record_order_strategy_mock.py --strategy "$(STRATEGY)" --files $(FILES) --overwrite $(if $(filter 0 false FALSE no NO,$(ORDER_MOCK_DEBUG)),,--debug); \
+	else \
+		echo "🧾 Recording Order strategy mock (single file) (strategy=$(STRATEGY))..."; \
+		$(VENV_PYTHON) scripts/test/record_order_strategy_mock.py --strategy "$(STRATEGY)" --file "$(FILE)" --overwrite $(if $(filter 0 false FALSE no NO,$(ORDER_MOCK_DEBUG)),,--debug); \
+	fi
+
+# Record a real cloud extract response as a deterministic mock fixture for /order/extract/upload
+test-record-order-extract-mock: venv
+	$(if $(strip $(PDF)),,$(error PDF is required. Usage: make test-record-order-extract-mock PDF=invoices/72056547.pdf OVERWRITE=1))
+	@echo "🧾 Recording Order cloud extract mock fixture (requires OPENAI_API_KEY)..."
+	@$(VENV_PYTHON) scripts/test/record_order_extract_mock.py --file "$(PDF)" $(if $(strip $(NAME)),--name $(NAME),) $(if $(filter 1 true TRUE yes YES,$(OVERWRITE)),--overwrite,)
 
 # Start services (show help)
 start:
@@ -625,6 +725,11 @@ cli:
 	@echo ""
 	@echo "📋 Available modes:"
 	@echo ""
+	@echo "  Orders (PDF compare):"
+	@echo "    make cli-order               Interactive base picker (fixtures-first)"
+	@echo "    make cli-order BASE=72056547 Compare one base"
+	@echo "    make cli-order BASE=72056547 FIXTURES_ONLY=1  Never run live extraction"
+	@echo ""
 	@echo "  Interactive Testing:"
 	@echo "    make cli-interactive         Interactive menu-driven mode (tests + benchmark)"
 	@echo ""
@@ -658,6 +763,15 @@ cli-help: cli
 
 cli-interactive:
 	@$(VENV_PYTHON) -m tools.cli.cli --interactive
+
+cli-order:
+	@$(VENV_PYTHON) -m tools.cli order compare \
+		$(if $(strip $(DIR)),--dir "$(DIR)",) \
+		$(if $(strip $(BASE)),--base "$(BASE)",) \
+		$(if $(strip $(FIXTURES_ONLY)),--fixtures-only,) \
+		$(if $(strip $(REFRESH)),--refresh-fixtures,) \
+		$(if $(strip $(YES)),--yes,) \
+		--max-diffs $(if $(strip $(MAX_DIFFS)),$(MAX_DIFFS),50)
 
 cli-test:
 	$(if $(strip $(IMAGE)),,$(error IMAGE is required. Usage: make cli-test IMAGE=path.jpg STRATEGY=chatgpt))

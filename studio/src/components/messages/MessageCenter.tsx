@@ -8,11 +8,12 @@ type Props = {
 export default function MessageCenter({ closeLabel }: Props) {
   const { messages, dismiss } = useUiMessages()
 
-  if (messages.length === 0) return null
+  const visible = messages.filter(m => m.variant !== 'success')
+  if (visible.length === 0) return null
 
   return (
     <div className="w-full flex flex-col gap-2" data-ui-message-center="true">
-      {messages.map(message => (
+      {visible.map(message => (
         <InfoPanel
           key={message.id}
           variant={message.variant}

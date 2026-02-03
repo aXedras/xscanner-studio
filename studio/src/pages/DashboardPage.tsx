@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAppTranslation, I18N_SCOPES } from '../lib/i18n'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useOutletContext } from 'react-router-dom'
+import type { User } from '@supabase/supabase-js'
 import { UploadAndExtractPanel } from '../components/extractions/UploadAndExtractPanel'
+import { UploadAndExtractOrderPanel } from '../components/orders/UploadAndExtractOrderPanel'
 import { services } from '../services'
 import { useUiMessages } from '../ui/messages/UiMessagesContext'
 import { createErrorMessage } from '../ui/messages/fromError'
@@ -16,8 +18,10 @@ import {
 
 export default function DashboardPage() {
   const { t } = useAppTranslation(I18N_SCOPES.extraction)
+  const { t: tOrder } = useAppTranslation(I18N_SCOPES.order)
   const navigate = useNavigate()
   const { push } = useUiMessages()
+  const outlet = useOutletContext<{ user: User }>()
 
   const [countsLoading, setCountsLoading] = useState(true)
   const [counts, setCounts] = useState({ pending: 0, corrected: 0, validated: 0, rejected: 0, error: 0 })
@@ -109,6 +113,16 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
         <UploadAndExtractPanel />
 
+        <UploadAndExtractOrderPanel
+          actorId={outlet.user.id}
+          onResult={async ({ result }) => {
+            if (!result.order_id) return
+            const originalId = await services.orderService.resolveOriginalIdByOrderId(result.order_id)
+            if (!originalId) return
+            navigate(`/orders/${originalId}`)
+          }}
+        />
+
         <div className="panel">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
@@ -128,6 +142,28 @@ export default function DashboardPage() {
           </div>
           <Link to="/extractions" className="btn w-full">
             {t('extraction.history.action')}
+          </Link>
+        </div>
+
+        <div className="panel">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-body font-bold mb-1">{tOrder('order.history.title')}</h3>
+              <p className="text-label">{tOrder('order.history.description')}</p>
+            </div>
+          </div>
+          <Link to="/orders" className="btn w-full">
+            {tOrder('order.history.action')}
           </Link>
         </div>
       </div>

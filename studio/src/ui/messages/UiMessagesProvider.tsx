@@ -22,8 +22,8 @@ export function UiMessagesProvider({ children }: { children: ReactNode }) {
       description: input.description,
       details: input.details,
       createdAt: Date.now(),
-      autoDismissMs: input.autoDismissMs ?? (isSuccess ? 3000 : undefined),
-      dismissOnNextAction: input.dismissOnNextAction ?? (isSuccess || isError ? true : undefined),
+      autoDismissMs: input.autoDismissMs ?? (isSuccess ? 5000 : undefined),
+      dismissOnNextAction: input.dismissOnNextAction ?? (isError ? true : undefined),
     }
 
     setMessages(prev => [...prev, next])
@@ -80,9 +80,13 @@ export function UiMessagesProvider({ children }: { children: ReactNode }) {
     const options: AddEventListenerOptions = { capture: true }
 
     const isMessageCenterInteraction = (event: Event): boolean => {
-      const container = document.querySelector('[data-ui-message-center="true"]')
-      if (!container) return false
-      return event.target instanceof Node && container.contains(event.target)
+      const containers = Array.from(document.querySelectorAll('[data-ui-message-center="true"]'))
+      if (containers.length === 0) return false
+
+      const target = event.target
+      if (!(target instanceof Node)) return false
+
+      return containers.some(container => container.contains(target))
     }
 
     const dismissOnAction = (event: Event) => {

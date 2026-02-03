@@ -5,6 +5,7 @@
 **Pre-commit (every commit):**
 - ✅ Code formatting (Ruff)
 - ✅ Type checking (Mypy)
+- ✅ Max file size warning (300 LOC guideline; warn-only)
 - ✅ DB types up-to-date (generated from migrations; see [PERSISTENCE.md](PERSISTENCE.md))
 - ✅ Security checks (no private keys)
 - ✅ Unit tests (fast, ~0.04s)
@@ -104,9 +105,31 @@ git push --no-verify    # Skip pre-push
 # Run all hooks manually
 pre-commit run --all-files
 
+# Run only the max-LOC warning hook
+pre-commit run max-loc-warn --all-files
+
 # Update hook versions
 pre-commit autoupdate
 
 # Run specific hook
 pre-commit run ruff --all-files
+```
+
+## 📏 Max LOC Warning (300 LOC guideline)
+
+The repository uses a *warn-only* pre-commit hook to flag files exceeding the
+project's max file size guideline (300 physical lines).
+
+By default, the hook checks *only staged files* (the ones included in the commit).
+
+Notes:
+- The hook does not block commits (exit code 0 by default).
+- It prints directly to the controlling terminal so warnings remain visible
+  even when invoked via `pre-commit`.
+
+If you want to enforce locally, run:
+
+```bash
+source venv/bin/activate
+python -m scripts.quality.check_max_loc --all-tracked --max-lines 300 --fail
 ```

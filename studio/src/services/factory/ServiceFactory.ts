@@ -9,6 +9,10 @@ import { BilService } from '../core/extraction/impl/BilService'
 import { SupabaseBilRegistrationRepository } from '../core/extraction/repository/SupabaseBilRegistrationRepository'
 import type { IStorageService } from '../core/storage/IStorageService'
 import { StorageService } from '../core/storage/impl/StorageService'
+import type { IOrderService } from '../core/order/IOrderService'
+import { OrderService } from '../core/order/impl/OrderService'
+import { SupabaseOrderRepository } from '../core/order/repository/SupabaseOrderRepository'
+import { SupabaseOrderItemRepository } from '../core/order/repository/SupabaseOrderItemRepository'
 import type { IXScannerClient } from '../core/xscanner/IXScannerClient'
 import { HttpXScannerClient } from '../infrastructure/xscanner/HttpXScannerClient'
 import type { ILogger } from '../../lib/utils/logging'
@@ -21,6 +25,7 @@ export class ServiceFactory {
   private readonly _extractionService: IExtractionService
   private readonly _bilService: IBilService
   private readonly _storageService: IStorageService
+  private readonly _orderService: IOrderService
   private readonly _xscannerClient: IXScannerClient
   private readonly _logger: ILogger
 
@@ -32,6 +37,16 @@ export class ServiceFactory {
     this._storageService = new StorageService(container.supabase, container.logger)
 
     this._xscannerClient = new HttpXScannerClient(container.logger)
+
+    const orderRepository = new SupabaseOrderRepository(container.supabase, container.logger)
+    const orderItemRepository = new SupabaseOrderItemRepository(container.supabase, container.logger)
+    this._orderService = new OrderService(
+      orderRepository,
+      orderItemRepository,
+      this._xscannerClient,
+      this._storageService,
+      container.logger
+    )
 
     const extractionRepository = new SupabaseExtractionRepository(container.supabase, container.logger)
     const bilRegistrationRepository = new SupabaseBilRegistrationRepository(container.supabase, container.logger)
@@ -66,6 +81,10 @@ export class ServiceFactory {
 
   get storageService(): IStorageService {
     return this._storageService
+  }
+
+  get orderService(): IOrderService {
+    return this._orderService
   }
 
   get xscannerClient(): IXScannerClient {

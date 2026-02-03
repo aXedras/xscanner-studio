@@ -52,6 +52,8 @@ server = [
     "redis>=5.0.0",
     "aiofiles>=23.2.0",
     "httpx>=0.25.0",
+    "pypdf>=4.0.0",
+    "PyMuPDF>=1.24.0",
 ]
 
 dev = [
@@ -118,8 +120,14 @@ exclude = ["tests*", "build*", "dist*"]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = "-v --tb=short -m 'not e2e'"
 pythonpath = ["src"]
+filterwarnings = [
+    # PyMuPDF/PyMuPDFb (SWIG) currently emits these on Python 3.12+
+    "ignore:builtin type SwigPyPacked has no __module__ attribute:DeprecationWarning",
+    "ignore:builtin type SwigPyObject has no __module__ attribute:DeprecationWarning",
+    "ignore:builtin type swigvarlink has no __module__ attribute:DeprecationWarning",
+]
 markers = [
     "integration: integration tests (no external API keys required)",
     "e2e: end-to-end tests (may require external services and/or API keys)",

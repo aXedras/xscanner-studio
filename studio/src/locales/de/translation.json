@@ -2,7 +2,8 @@
   "common": {
     "nav": {
       "dashboard": "Dashboard",
-      "extractions": "Extraktionen"
+      "extractions": "Extraktionen",
+      "orders": "Orders"
     },
     "toast": {
       "save": {
@@ -13,11 +14,35 @@
         "title": "Extraktion gestartet",
         "description": "Der Upload wurde verarbeitet und das Ergebnis wurde gespeichert."
       },
+      "uploadNotPersisted": {
+        "title": "Extraktion abgeschlossen (nicht gespeichert)",
+        "description": "Die Extraktion war erfolgreich, aber es wurde keine Order gespeichert. Grund: {{reason}}.",
+        "reasons": {
+          "persistenceDisabled": "Persistence deaktiviert",
+          "unknownIssuer": "Dokument-Issuer unbekannt",
+          "unknown": "unbekannt"
+        }
+      },
+      "uploadNotReady": {
+        "title": "Extraktion abgeschlossen (Prüfung nötig)",
+        "description": "Die Extraktion war erfolgreich, aber das Ergebnis ist nicht reconciliation-ready. Grund: {{reason}}.",
+        "reasons": {
+          "unknown": "unbekannt"
+        }
+      },
+      "actorAttributionFailed": {
+        "title": "Hinweis",
+        "description": "Konnte den Auslöser nicht speichern; in der History steht ggf. „System“."
+      },
       "delete": {
         "title": "Gelöscht",
         "description": "Der Eintrag wurde erfolgreich gelöscht."
       },
       "update": {
+        "warningsPanel": {
+          "title": "Review erforderlich",
+          "description": "Dieses Dokument wurde gespeichert, aber die Extraktion hat Parsing-/Processing-Warnungen."
+        },
         "title": "Aktualisiert",
         "description": "Die Daten wurden erfolgreich aktualisiert."
       },
@@ -40,6 +65,7 @@
       "delete": "Löschen",
       "edit": "Bearbeiten",
       "showDetails": "Details anzeigen",
+      "hideDetails": "Details ausblenden",
       "register": "Registrieren",
       "reject": "Verwerfen",
       "rejectSelected": "{{count}} Einträge verwerfen",
@@ -54,7 +80,11 @@
       "next": "Weiter",
       "upload": "Hochladen",
       "download": "Herunterladen",
-      "close": "Schließen"
+      "close": "Schließen",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "viewJson": "JSON anzeigen",
+      "viewUi": "UI anzeigen"
     },
     "status": {
       "loading": "Lädt...",
@@ -74,6 +104,8 @@
       "forbidden": "Du hast keine Berechtigung für diese Aktion.",
       "notFound": "Die angeforderte Ressource wurde nicht gefunden.",
       "server": "Serverfehler. Bitte versuche es später erneut.",
+      "insufficientQuota": "Das KI-Kontingent ist aufgebraucht (OpenAI). Bitte prüfe Billing/Credits und versuche es erneut.",
+      "rateLimited": "OpenAI Rate-Limit erreicht. Bitte kurz warten und erneut versuchen.",
       "unknown": "Ein unerwarteter Fehler ist aufgetreten.",
       "goBack": "Zurück",
       "goHome": "Zum Dashboard"
@@ -82,13 +114,16 @@
       "search": "Suche",
       "from": "Von",
       "to": "Bis",
+      "id": "ID",
       "serialNumber": "Seriennummer",
+      "start": "Start",
       "metal": "Metall",
       "weight": "Gewicht",
       "purity": "Feinheit",
       "manufacturer": "Hersteller",
       "createdAt": "Erstellt am",
-      "updatedAt": "Aktualisiert am"
+      "updatedAt": "Aktualisiert am",
+      "error": "Fehler"
     },
     "table": {
       "rowsPerPage": "Zeilen pro Seite",
@@ -211,6 +246,169 @@
         "changes": "Änderungen",
         "you": "Du",
         "system": "System"
+      }
+    }
+  },
+  "order": {
+    "history": {
+      "title": "Orders durchsuchen",
+      "description": "Durchsuche und verwalte alle deine bisherigen Orders.",
+      "action": "Zur Übersicht"
+    },
+    "documentType": {
+      "invoice": "Rechnung",
+      "orderConfirmation": "Auftragsbestätigung",
+      "deliveryNote": "Lieferschein",
+      "unknown": "Unbekannt"
+    },
+    "upload": {
+      "title": "Order hochladen",
+      "description": "Lade ein PDF oder Bilder hoch und extrahiere strukturierte Order-Daten.",
+      "action": "PDF hochladen & extrahieren",
+      "actionImages": "Bilder hochladen & extrahieren",
+      "processing": "Order wird extrahiert… das kann kurz dauern.",
+      "mode": "Hochladen",
+      "modes": {
+        "pdf": "PDF",
+        "images": "Bilder"
+      },
+      "strategy": "Strategie",
+      "strategies": {
+        "auto": "Auto",
+        "manual": "Manual",
+        "cloud": "Cloud",
+        "local": "Local"
+      },
+      "includeDebug": "Debug-Signale einschließen (debug=true)",
+      "useMock": "Mock-Daten verwenden"
+    },
+    "list": {
+      "title": "Orders",
+      "subtitle": "Qualitätskontrolle und Korrekturen mit vollständigem Audit-Trail.",
+      "empty": "Keine Orders gefunden.",
+      "stats": {
+        "pending": "Offen",
+        "validated": "Validiert",
+        "corrected": "Korrigiert",
+        "rejected": "Abgelehnt",
+        "errors": "Fehler",
+        "closed": "Geschlossen"
+      }
+    },
+    "fields": {
+      "status": "Status",
+      "documentIssuer": "Issuer",
+      "documentType": "Typ",
+      "documentNumber": "Dokument-Nr.",
+      "documentNumberErrorHash": "Fehler ({{hash}})",
+      "documentDate": "Dokumentdatum",
+      "orderNumber": "Order-Nr.",
+      "strategyUsed": "Strategie",
+      "confidence": "Konfidenz"
+    },
+    "detail": {
+      "title": "Order",
+      "subtitle": "Original ID: {{originalId}}",
+      "missingId": "Original ID fehlt.",
+      "notFound": "Order nicht gefunden.",
+      "warningsPanel": {
+        "title": "Review erforderlich",
+        "description": "Dieses Dokument wurde gespeichert, aber die Extraktion hat Parsing-/Processing-Warnungen.",
+        "descriptionFallbackOk": "Cloud-Extraktion ist fehlgeschlagen, aber der manuelle Fallback war erfolgreich. Warnungen ggf. prüfen."
+      },
+      "pdfTitle": "PDF",
+      "pdfUnavailable": "PDF-Vorschau nicht verfügbar.",
+      "deleteConfirm": "Order wirklich löschen? Sie wird aus der Liste entfernt (Soft-Delete).",
+      "sections": {
+        "parties": "Parteien",
+        "orderTerms": "Order-Details",
+        "orderItems": "Order-Positionen"
+      },
+      "fields": {
+        "sellerName": "Verkäufer",
+        "buyerName": "Käufer",
+        "transactionType": "Transaktionstyp",
+        "orderDate": "Order-Datum",
+        "valueDate": "Valuta",
+        "shippingDate": "Versanddatum",
+        "currency": "Währung",
+        "subtotalAmount": "Zwischensumme",
+        "shippingChargesAmount": "Versandkosten",
+        "otherChargesAmount": "Sonstige Kosten",
+        "totalAmount": "Gesamt"
+      },
+      "items": {
+        "empty": "Keine Order-Positionen gespeichert.",
+        "fields": {
+          "item": "Artikel",
+          "serialNumber": "Serien-Nr.",
+          "producer": "Hersteller",
+          "metal": "Metall",
+          "weight": "Gewicht",
+          "weightUnit": "Einheit",
+          "fineness": "Feingehalt",
+          "form": "Form",
+          "description": "Beschreibung",
+          "quantity": "Menge",
+          "itemPrice": "Preis",
+          "totalPrice": "Summe"
+        }
+      },
+      "debugFinalTitle": "Final JSON",
+      "debugOpen": "Debug",
+      "debugDialogTitle": "Debug",
+      "debugDialogHint": "Zeigt persistierte Debug-Daten (Marker-Text + Raw-Text + Trace). Voller PDF-Text wird nur von der API im Debug-Modus zurückgegeben.",
+      "debugEmpty": "Keine Daten.",
+      "metaTitle": "Meta",
+      "metaEmpty": "Keine Meta-Daten gespeichert.",
+      "mappingTitle": "Mapping",
+      "mappingEmpty": "Kein Field-Mapping gespeichert.",
+      "rawSignalsTitle": "Raw-Signale",
+      "rawSignalsEmpty": "Keine Raw-Signale gespeichert.",
+      "markerTextTitle": "Marker-Text",
+      "rawTextTitle": "Raw-Text",
+      "markerTextEmpty": "Kein Marker-Text gespeichert.",
+      "rawTextEmpty": "Kein Raw-Text gespeichert.",
+      "pdfTextTitle": "PDF-Text",
+      "kpi": {
+        "title": "KPI",
+        "performanceTitle": "Performance",
+        "costTitle": "Kosten",
+        "llmTitle": "LLM",
+        "endToEnd": "Ende-zu-Ende",
+        "pdfExtract": "PDF extract",
+        "vision": "Vision → Text",
+        "finalize": "Finalisierung",
+        "validate": "Validierung",
+        "provider": "Provider",
+        "model": "Modell",
+        "tokens": "Tokens",
+        "calls": "Calls",
+        "requests": "Requests",
+        "attempts": "Versuche",
+        "promptMessages": "Prompt Messages",
+        "promptChars": "Prompt Zeichen",
+        "promptTrunc": "Gekürzte Messages",
+        "costEstimate": "Geschätzte Kosten",
+        "costUnavailable": "n/a",
+        "costNote": "Hinweis",
+        "costNoLlmCalls": "Keine LLM-Calls ausgeführt; Kostenschätzung ist n/a.",
+        "costNoteValue": "Preise sind nicht konfiguriert; setze OPENAI_PRICE_INPUT_PER_1M_USD und OPENAI_PRICE_OUTPUT_PER_1M_USD, um Kosten zu berechnen.",
+        "costFromMeta": "Aus meta.llm_usage.cost_usd abgeleitet."
+      },
+      "historyTitle": "Historie",
+      "historyEmpty": "Keine Historie vorhanden.",
+      "traceTitle": "Trace",
+      "traceEmpty": "Kein Trace gespeichert.",
+      "audit": {
+        "when": "Version",
+        "by": "Von",
+        "changes": "Änderungen",
+        "you": "Du",
+        "system": "System",
+        "initialUpload": "Initialer Upload",
+        "pdfReupload": "PDF neu hochgeladen",
+        "extractionRerun": "Neu extrahiert"
       }
     }
   }

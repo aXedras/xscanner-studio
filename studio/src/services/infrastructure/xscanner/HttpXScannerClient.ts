@@ -6,6 +6,7 @@ import type {
   RegisterOnBilInput,
   RegisterOnBilResponse,
 } from '../../core/extraction/types'
+import type { ExtractOrderFromUploadInput, OrderExtractResponse } from '../../core/order/types'
 import { createHttpJsonClient } from '../http/httpClient'
 
 import { getRuntimeEnv } from '../../../lib/runtimeEnv'
@@ -14,6 +15,21 @@ const DEFAULT_API_BASE_URL =
   (getRuntimeEnv('VITE_API_URL') as string) || (import.meta.env.VITE_API_URL as string) || 'http://localhost:8000'
 
 const EXTRACT_UPLOAD_TIMEOUT_MS = 300_000
+
+function buildOrderExtractPath(
+  path: string,
+  params: {
+    strategy: string
+    useMock?: boolean
+    debug?: boolean
+  }
+): string {
+  // The order upload endpoint uses query params for strategy + debug.
+  const search = new URLSearchParams({ strategy: params.strategy })
+  if (params.useMock) search.set('use_mock', 'true')
+  if (params.debug) search.set('debug', 'true')
+  return `${path}?${search.toString()}`
+}
 
 export class HttpXScannerClient implements IXScannerClient {
   declare private readonly logger: ILogger
@@ -45,6 +61,60 @@ export class HttpXScannerClient implements IXScannerClient {
     form.append('register_on_bil', String(input.registerOnBil))
 
     return await this.client.postFormData<ExtractResponse>('/extract/upload', form, {
+      timeoutMs: EXTRACT_UPLOAD_TIMEOUT_MS,
+    })
+  }
+
+  async extractOrderFromUpload(input: ExtractOrderFromUploadInput): Promise<OrderExtractResponse> {
+    const form = new FormData()
+
+    const files = input.files ?? []
+    if (files.length === 0) {
+      throw new Error('Missing upload: provide a PDF or one-or-more images')
+    }
+
+    const first = files[0]
+    const isPdfUpload =
+      files.length === 1 &&
+      (String(first.type || '').toLowerCase() === 'application/pdf' || first.name.toLowerCase().endsWith('.pdf'))
+
+    if (isPdfUpload) {
+      form.append('file', first)
+    } else {
+      for (const f of files) form.append('files', f)
+    }
+
+    const path = buildOrderExtractPath('/order/extract/upload', { strategy: input.strategy, useMock: input.useMock })
+    return await this.client.postFormData<OrderExtractResponse>(path, form, {
+      timeoutMs: EXTRACT_UPLOAD_TIMEOUT_MS,
+    })
+  }
+
+  async extractOrderFromUploadDebug(input: ExtractOrderFromUploadInput): Promise<OrderExtractResponse> {
+    const form = new FormData()
+
+    const files = input.files ?? []
+    if (files.length === 0) {
+      throw new Error('Missing upload: provide a PDF or one-or-more images')
+    }
+
+    const first = files[0]
+    const isPdfUpload =
+      files.length === 1 &&
+      (String(first.type || '').toLowerCase() === 'application/pdf' || first.name.toLowerCase().endsWith('.pdf'))
+
+    if (isPdfUpload) {
+      form.append('file', first)
+    } else {
+      for (const f of files) form.append('files', f)
+    }
+
+    const path = buildOrderExtractPath('/order/extract/upload', {
+      strategy: input.strategy,
+      useMock: input.useMock,
+      debug: true,
+    })
+    return await this.client.postFormData<OrderExtractResponse>(path, form, {
       timeoutMs: EXTRACT_UPLOAD_TIMEOUT_MS,
     })
   }

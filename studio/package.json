@@ -8,7 +8,6 @@
     "check": "node scripts/help-check.mjs",
     "check:fast": "npm run lint && npm run type-check && npm run test:unit",
     "check:all": "npm run format:check && npm run lint && npm run type-check && npm run i18n:all && npm run db:check && npm run build && npm run test:unit",
-
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
@@ -32,7 +31,6 @@
     "i18n:all": "npm run check:i18n:all",
     "i18n:missing": "npm run check:i18n:missing",
     "i18n:unused": "npm run check:i18n:unused",
-
     "check:i18n:missing": "node scripts/i18n/check-missing.mjs",
     "check:i18n:unused": "node scripts/i18n/check-unused.mjs",
     "check:i18n:all": "node scripts/i18n/check-i18n.mjs && npm run check:i18n:missing && npm run check:i18n:unused"
@@ -60,11 +58,11 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "jsdom": "^26.1.0",
     "prettier": "^3.8.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.4",
-    "vitest": "^3.2.4",
-    "jsdom": "^26.1.0"
+    "vitest": "^3.2.4"
   }
 }

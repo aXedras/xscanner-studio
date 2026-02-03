@@ -4,7 +4,7 @@
  * Prevents feature scopes from inventing new subtrees that should be common.
  */
 
-export const OVERRIDABLE_SCOPES = ['extraction', 'auth']
+export const OVERRIDABLE_SCOPES = ['extraction', 'auth', 'order']
 
 // Strict prefixes: if a feature defines e.g. extraction.toast.save.*,
 // a matching common.toast.save.* MUST exist.

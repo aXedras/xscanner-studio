@@ -1,0 +1,24 @@
+{
+  "version": "1.0",
+  "values": [
+    "bar",
+    "coin",
+    "round"
+  ],
+  "aliases": {
+    "barren": "bar",
+    "bar": "bar",
+    "cast bar": "bar",
+    "minted bar": "bar",
+    "coin": "coin",
+    "münze": "coin",
+    "munze": "coin",
+    "round": "round",
+    "cast": "bar",
+    "cast bars": "bar",
+    "minted": "bar",
+    "minted bars": "bar",
+    "ingot": "bar",
+    "ingots": "bar"
+  }
+}

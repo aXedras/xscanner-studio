@@ -9,8 +9,11 @@ import Layout from './components/Layout'
 import DashboardPage from './pages/DashboardPage'
 import ExtractionsPage from './pages/ExtractionsPage'
 import ExtractionDetailPage from './pages/ExtractionDetailPage'
+import OrdersPage from './pages/OrdersPage'
+import OrderDetailPage from './pages/OrderDetailPage'
 import ErrorPage from './components/ErrorPage'
 import { UiMessagesProvider } from './ui/messages/UiMessagesProvider'
+import SuccessToastOverlay from './components/messages/SuccessToastOverlay'
 import './lib/i18n' // Initialize i18n
 
 function App() {
@@ -47,6 +50,7 @@ function App() {
     return (
       <ThemeProvider defaultTheme="light">
         <UiMessagesProvider>
+          <SuccessToastOverlay closeLabel={t('common.action.close')} />
           <LoginDialog />
         </UiMessagesProvider>
       </ThemeProvider>
@@ -72,6 +76,14 @@ function App() {
           path: 'extractions/:originalId',
           element: <ExtractionDetailPage />,
         },
+        {
+          path: 'orders',
+          element: <OrdersPage />,
+        },
+        {
+          path: 'orders/:originalId',
+          element: <OrderDetailPage />,
+        },
       ],
     },
     {
@@ -83,6 +95,7 @@ function App() {
   return (
     <ThemeProvider defaultTheme="light">
       <UiMessagesProvider>
+        <SuccessToastOverlay closeLabel={t('common.action.close')} />
         <RouterProvider router={router} />
       </UiMessagesProvider>
     </ThemeProvider>

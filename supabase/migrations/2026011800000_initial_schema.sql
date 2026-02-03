@@ -40,6 +40,9 @@ CREATE TABLE extraction (
     -- Extracted fields (normalized)
     serial_number TEXT,
     metal TEXT,
+    -- TODO: Consider switching to a numeric grams column (e.g. weight_grams NUMERIC)
+    -- and aligning the storage type with order items (see supabase/migrations/20260126090000_inbound_orders.sql).
+    -- Keep as TEXT for now to stay consistent with current extraction normalization.
     weight TEXT,
     weight_unit TEXT,
     fineness TEXT,

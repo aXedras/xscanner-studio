@@ -15,4 +15,16 @@ export interface IStorageService {
       expiresInSeconds?: number
     }
   ): Promise<StoragePreview | null>
+
+  /**
+   * Returns a preview source URL for any stored file (e.g. PDFs).
+   * Prefers signed URLs and falls back to authenticated downloads (blob URL).
+   */
+  getFilePreviewSrc(
+    storagePath: string,
+    options?: {
+      bucket?: string
+      expiresInSeconds?: number
+    }
+  ): Promise<StoragePreview | null>
 }

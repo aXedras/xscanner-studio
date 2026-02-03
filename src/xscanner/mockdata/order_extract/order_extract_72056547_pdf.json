@@ -1,0 +1,100 @@
+{
+  "meta": {
+    "confidence": {
+      "document_identity": 1,
+      "order_items": 0.9
+    },
+    "readiness": {
+      "reconciliation_ready": true
+    },
+    "warnings": [],
+    "field_sources": {
+      "document_issuer": "marker_text",
+      "document_type": "marker_text",
+      "document_number": "marker_text",
+      "document_date": "marker_text",
+      "order_items": "raw_table"
+    },
+    "order_items_quality": "high",
+    "llm_usage": {
+      "provider": "openai",
+      "model": "gpt-4o-mini-2024-07-18",
+      "input_tokens": 2883,
+      "output_tokens": 620,
+      "total_tokens": 3503
+    }
+  },
+  "raw": {
+    "raw_kv": {
+      "document_issuer": "a-mark",
+      "document_type": "order_confirmation",
+      "document_number": "720565",
+      "document_date": "2025-09-03",
+      "receiver": "BFI BULLION AG, CHAMERSTASSE 174, ZUG, 6300, SWITZERLAND"
+    },
+    "raw_tables": [
+      {
+        "Headers": [
+          "item",
+          "quantity",
+          "description",
+          "unit_price",
+          "total_price"
+        ],
+        "Rows": [
+          [
+            "SBVALKGCAST",
+            "100",
+            "1 kg Valcambi cast silver bar",
+            "$1,350.00",
+            "$135,000.00"
+          ]
+        ]
+      }
+    ]
+  },
+  "structured_data": {
+    "document": {
+      "document_issuer": "a-mark",
+      "document_type": "order_confirmation",
+      "document_number": "720565",
+      "document_date": "2025-09-03"
+    },
+    "parties": {
+      "seller_name": "A-Mark",
+      "buyer_name": "BFI BULLION AG",
+      "shipping_from": "Loomis International, Zurich",
+      "shipping_to": null
+    },
+    "order_terms": {
+      "currency": null,
+      "order_date": "2025-09-03",
+      "order_number": "720565",
+      "shipping_date": "2025-09-12",
+      "value_date": "2025-09-12",
+      "transaction_type": "PHYSICAL",
+      "amounts": {
+        "subtotal": "135000.00",
+        "shipping_charges": null,
+        "other_charges": null,
+        "total": "135000.00"
+      }
+    },
+    "order_items": [
+      {
+        "item": "SBVALKGCAST",
+        "description": "1 kg Valcambi cast silver bar",
+        "quantity": "100",
+        "serial_number": null,
+        "metal": "silver",
+        "weight": "1000",
+        "weight_unit": "g",
+        "fineness": "",
+        "producer": "Valcambi",
+        "form": "bar",
+        "item_price": 1350.0,
+        "total_price": 135000.0
+      }
+    ]
+  }
+}

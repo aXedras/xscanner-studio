@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "values": [
+    "g",
+    "kg",
+    "oz",
+    "lb"
+  ],
+  "aliases": {
+    "gram": "g",
+    "grams": "g",
+    "g": "g",
+    "kilogram": "kg",
+    "kilograms": "kg",
+    "kg": "kg",
+    "ounce": "oz",
+    "ounces": "oz",
+    "ozt": "oz",
+    "troy ounce": "oz",
+    "oz": "oz",
+    "t oz": "oz",
+    "troy oz": "oz",
+    "toz": "oz"
+    ,
+    "lb": "lb",
+    "lbs": "lb",
+    "pound": "lb",
+    "pounds": "lb"
+  }
+}

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import re
 import subprocess
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,9 +36,16 @@ class Column:
 
 
 _CREATE_TABLE_RE = re.compile(
-    r"CREATE\s+TABLE\s+(?P<table>\w+)\s*\((?P<body>.*?)\)\s*;",
+    r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?P<table>(?:\w+|\"[^\"]+\"))\s*\((?P<body>.*?)\)\s*;",
     re.IGNORECASE | re.DOTALL,
 )
+
+
+def _normalize_identifier(identifier: str) -> str:
+    identifier = identifier.strip()
+    if identifier.startswith('"') and identifier.endswith('"'):
+        identifier = identifier[1:-1]
+    return identifier
 
 
 def _strip_sql_comments(sql: str) -> str:
@@ -111,10 +119,16 @@ def _pg_to_py_type(pg_type: str) -> str:
         return "str"
     if base.startswith("TEXT"):
         return "str"
+    if base.startswith("DATE"):
+        return "str"
     if base.startswith("TIMESTAMPTZ") or base.startswith("TIMESTAMP"):
         return "str"
     if base.startswith("FLOAT") or base.startswith("DOUBLE") or base.startswith("REAL"):
         return "float"
+    if base.startswith("NUMERIC") or base.startswith("DECIMAL"):
+        return "float"
+    if base.startswith("INTEGER") or base.startswith("INT"):
+        return "int"
     if base.startswith("BOOLEAN"):
         return "bool"
     if base.startswith("JSONB") or base.startswith("JSON"):
@@ -154,7 +168,8 @@ def _extract_table_columns(*, migrations_dir: Path, table: str) -> list[Column]:
     sql = _strip_sql_comments(sql)
 
     for match in _CREATE_TABLE_RE.finditer(sql):
-        if match.group("table").lower() != table.lower():
+        found_table = _normalize_identifier(match.group("table"))
+        if found_table.lower() != table.lower():
             continue
 
         body = match.group("body")
@@ -175,12 +190,18 @@ def generate(*, repo_root: Path) -> str:
     migrations_dir = repo_root / "supabase" / "migrations"
     schema_hash, files = compute_migrations_hash(migrations_dir=migrations_dir)
 
-    columns = _extract_table_columns(migrations_dir=migrations_dir, table="extraction")
+    def render_pair(table: str, class_prefix: str) -> str:
+        columns = _extract_table_columns(migrations_dir=migrations_dir, table=table)
+        row = _render_typed_dict(name=f"{class_prefix}Row", columns=columns, use_not_required=False)
+        insert = _render_typed_dict(
+            name=f"{class_prefix}Insert", columns=columns, use_not_required=True
+        )
+        return row + "\n\n\n" + insert
 
-    # Row is always complete and typed; Insert is intentionally permissive (total=False)
-    # because Postgres defaults and service-layer behavior may omit keys.
-    row = _render_typed_dict(name="ExtractionRow", columns=columns, use_not_required=False)
-    insert = _render_typed_dict(name="ExtractionInsert", columns=columns, use_not_required=True)
+    extraction_types = render_pair("extraction", "Extraction")
+    bil_types = render_pair("bil_registration", "BilRegistration")
+    order_types = render_pair("order", "Order")
+    order_item_types = render_pair("order_item", "OrderItem")
 
     header = (
         '"""AUTO-GENERATED FILE. DO NOT EDIT MANUALLY.\n\n'
@@ -197,7 +218,18 @@ def generate(*, repo_root: Path) -> str:
     )
 
     # PEP8: keep two blank lines between top-level classes.
-    return header + imports + row + "\n\n\n" + insert + "\n"
+    return (
+        header
+        + imports
+        + extraction_types
+        + "\n\n\n"
+        + bil_types
+        + "\n\n\n"
+        + order_types
+        + "\n\n\n"
+        + order_item_types
+        + "\n"
+    )
 
 
 def main() -> None:
@@ -209,7 +241,7 @@ def main() -> None:
 
     try:
         subprocess.run(
-            ["ruff", "format", str(out_file)],
+            [sys.executable, "-m", "ruff", "format", str(out_file)],
             cwd=str(repo_root),
             check=True,
             capture_output=True,

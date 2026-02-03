@@ -11,13 +11,14 @@ repos:
       - id: check-json
       - id: check-added-large-files
         args: ['--maxkb=1000']
+        exclude: ^invoices/
       - id: check-merge-conflict
       - id: detect-private-key
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.14.13
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: [--fix, --exit-non-zero-on-fix]
         # Check all Python files, not just src/
         exclude: ^tmp/
@@ -38,6 +39,12 @@ repos:
   # Unit tests (fast, always run on commit)
   - repo: local
     hooks:
+      - id: max-loc-warn
+        name: max 300 LOC warning
+        entry: bash -c 'source venv/bin/activate && python -m scripts.quality.check_max_loc --max-lines 300'
+        language: system
+        pass_filenames: true
+        always_run: true
       - id: pytest-unit
         name: pytest unit tests
         entry: bash -c 'source venv/bin/activate && python -m pytest tests/unit -v --tb=short'

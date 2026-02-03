@@ -6,6 +6,8 @@ export type AppErrorCode =
   | 'AUTH_USER_ALREADY_EXISTS'
   | 'AUTH_WEAK_PASSWORD'
   | 'AUTH_TOO_MANY_REQUESTS'
+  | 'XSCANNER_INSUFFICIENT_QUOTA'
+  | 'XSCANNER_RATE_LIMITED'
   | 'NETWORK_ERROR'
   | 'UNKNOWN'
 
@@ -20,6 +22,7 @@ type ErrorLike = {
   message?: unknown
   status?: unknown
   statusCode?: unknown
+  responseSnippet?: unknown
 }
 
 const toErrorLike = (error: unknown): ErrorLike | null => {
@@ -69,9 +72,41 @@ const isAuthErrorMessage = (message: string, needle: RegExp): boolean => {
   return needle.test(message)
 }
 
+const getXScannerErrorCodeFromResponseSnippet = (error: unknown): string | undefined => {
+  const errorLike = toErrorLike(error)
+  if (!errorLike) return undefined
+
+  const snippet = errorLike.responseSnippet
+  if (typeof snippet !== 'string' || !snippet.trim()) return undefined
+
+  // The HTTP client stores the response body as a JSON string snippet.
+  // Keep this robust (it may be truncated) by using substring matching.
+  const lower = snippet.toLowerCase()
+  if (lower.includes('"code"') && lower.includes('insufficient_quota')) return 'insufficient_quota'
+  if (lower.includes('"code"') && lower.includes('rate_limited')) return 'rate_limited'
+  return undefined
+}
+
 export function normalizeError(error: unknown): AppError {
   const rawMessage = getStringMessage(error)
   const status = getNumberStatus(error)
+
+  const xscannerCode = getXScannerErrorCodeFromResponseSnippet(error)
+  if (status === 429 && xscannerCode === 'insufficient_quota') {
+    return {
+      code: 'XSCANNER_INSUFFICIENT_QUOTA',
+      status,
+      rawMessage,
+    }
+  }
+
+  if (status === 429 && xscannerCode === 'rate_limited') {
+    return {
+      code: 'XSCANNER_RATE_LIMITED',
+      status,
+      rawMessage,
+    }
+  }
 
   if (isNetworkError(error, rawMessage)) {
     return {
@@ -144,6 +179,10 @@ export function getUserFacingErrorMessage(t: TFunction, error: unknown): string 
       return t('auth.errors.weakPassword')
     case 'AUTH_TOO_MANY_REQUESTS':
       return t('auth.errors.tooManyRequests')
+    case 'XSCANNER_INSUFFICIENT_QUOTA':
+      return t('common.error.insufficientQuota')
+    case 'XSCANNER_RATE_LIMITED':
+      return t('common.error.rateLimited')
     case 'NETWORK_ERROR':
       return t('common.error.network')
     case 'UNKNOWN':

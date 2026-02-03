@@ -94,8 +94,10 @@ async function listFiles(relDir) {
 function extractTranslationKeys(code) {
   const keys = new Set()
 
-  // Match t('key') or t("key")
-  const singleQuotePattern = /\bt\s*\(\s*['"]([^'"]+)['"]/g
+  // Match t('key') as well as common aliases like tOrder('key') / tExtraction('key').
+  // We intentionally only match `t` followed by an optional UpperCamelCase suffix to
+  // avoid false positives like `toIsoStartOfDay("...")`.
+  const singleQuotePattern = /\bt(?:[A-Z][A-Za-z0-9_]*)?\s*\(\s*['"]([^'"]+)['"]/g
   let match
 
   while ((match = singleQuotePattern.exec(code)) !== null) {

@@ -1,0 +1,29 @@
+{
+  "version": "1.0",
+  "patterns": [
+    "assay",
+    "bar no",
+    "bar number",
+    "cert no",
+    "certificate",
+    "lot",
+    "lot no",
+    "no",
+    "no.",
+    "nr",
+    "number",
+    "ref",
+    "reference",
+    "s/n",
+    "serial",
+    "serial no",
+    "serial number",
+    "sec no",
+    "sec-no",
+    "sec.-no",
+    "serie",
+    "serien nr",
+    "seriennummer",
+    "sn"
+  ]
+}

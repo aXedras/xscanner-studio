@@ -10,6 +10,7 @@ export const I18N_SCOPES = {
   common: 'common',
   extraction: 'extraction',
   auth: 'auth',
+  order: 'order',
 } as const
 
 export type I18nScope = (typeof I18N_SCOPES)[keyof typeof I18N_SCOPES]

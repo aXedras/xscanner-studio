@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
 export type ModalProps = {
@@ -7,19 +7,27 @@ export type ModalProps = {
   title?: ReactNode
   onClose: () => void
   closeLabel: string
+  headerActions?: ReactNode
+  hideCloseButton?: boolean
   children: ReactNode
   footer?: ReactNode
   widthClassName?: string
 }
 
 export function Modal(props: ModalProps) {
-  const { open, title, onClose, closeLabel, children, footer, widthClassName } = props
+  const { open, title, onClose, closeLabel, headerActions, hideCloseButton, children, footer, widthClassName } = props
+
+  const onCloseRef = useRef(onClose)
+
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
 
   useEffect(() => {
     if (!open) return
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') onCloseRef.current()
     }
 
     window.addEventListener('keydown', onKeyDown)
@@ -31,7 +39,7 @@ export function Modal(props: ModalProps) {
       window.removeEventListener('keydown', onKeyDown)
       document.body.style.overflow = previousOverflow
     }
-  }, [open, onClose])
+  }, [open])
 
   if (!open) return null
 
@@ -51,9 +59,14 @@ export function Modal(props: ModalProps) {
         >
           <div className="px-5 py-4 border-b border-[color:var(--bg-card-border)] flex items-start justify-between gap-4">
             <div className="min-w-0">{title ? <div className="text-body font-bold truncate">{title}</div> : null}</div>
-            <button type="button" className="btn btn-outline" onClick={onClose}>
-              {closeLabel}
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              {headerActions}
+              {!hideCloseButton ? (
+                <button type="button" className="btn btn-outline" onClick={onClose}>
+                  {closeLabel}
+                </button>
+              ) : null}
+            </div>
           </div>
 
           <div className="px-5 py-4 max-h-[80vh] overflow-auto">{children}</div>

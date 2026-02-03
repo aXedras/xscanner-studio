@@ -64,3 +64,44 @@ async def test_supabase_storage_upload_and_insert_are_called_with_expected_heade
     assert insert[1].endswith("/rest/v1/extraction")
     assert insert[2]["prefer"] == "return=representation"
     assert insert[2]["content-type"].startswith("application/json")
+
+
+@pytest.mark.asyncio
+async def test_supabase_select_rows_builds_expected_query_and_headers():
+    seen: list[tuple[str, str, dict[str, str]]] = []
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        seen.append((request.method, str(request.url), dict(request.headers)))
+
+        if request.url.path == "/rest/v1/order":
+            return httpx.Response(200, json=[])
+
+        return httpx.Response(404, json={"error": "not found"})
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as http:
+        client = SupabaseRestClient(
+            SupabaseRestConfig(
+                url="https://example.supabase.co",
+                service_role_key="svc",
+                storage_bucket="extractions",
+            ),
+            http_client=http,
+        )
+
+        rows = await client.select_rows(
+            table="order",
+            match={"is_active": True, "document_issuer": "a-mark"},
+            columns="id,original_id",
+            limit=1,
+        )
+        assert rows == []
+
+    assert len(seen) == 1
+    method, url, headers = seen[0]
+    assert method == "GET"
+    assert url.endswith(
+        "/rest/v1/order?select=id%2Coriginal_id&is_active=eq.True&document_issuer=eq.a-mark&limit=1"
+    )
+    assert headers["apikey"] == "svc"
+    assert headers["authorization"].startswith("Bearer ")

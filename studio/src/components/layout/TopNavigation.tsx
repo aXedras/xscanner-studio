@@ -15,6 +15,7 @@ export function TopNavigation({ t }: Props) {
   const items: NavItem[] = [
     { to: '/', label: t('common.nav.dashboard'), end: true },
     { to: '/extractions', label: t('common.nav.extractions') },
+    { to: '/orders', label: t('common.nav.orders') },
   ]
 
   return (

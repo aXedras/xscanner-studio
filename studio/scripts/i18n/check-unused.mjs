@@ -109,6 +109,21 @@ function extractTranslationKeys(code) {
   return keys
 }
 
+function extractDeclaredKeyLiterals(code, declaredKeys) {
+  const keys = new Set()
+
+  // Capture string literals and treat them as used keys iff they match a declared i18n key.
+  // This supports dynamic patterns like: t(getLabelKey(x)) where getLabelKey returns a literal key.
+  const pattern = /['"]([^'"]+)['"]/g
+  let match
+  while ((match = pattern.exec(code)) !== null) {
+    const value = match[1]
+    if (declaredKeys.has(value)) keys.add(value)
+  }
+
+  return keys
+}
+
 async function main() {
   console.log(`${colors.blue}🔎 Checking for unused i18n keys...${colors.reset}\n`)
 
@@ -128,6 +143,9 @@ async function main() {
     const code = await fs.readFile(file, 'utf8')
     const fileKeys = extractTranslationKeys(code)
     fileKeys.forEach(k => usedKeys.add(k))
+
+    const literalKeys = extractDeclaredKeyLiterals(code, declaredKeys)
+    literalKeys.forEach(k => usedKeys.add(k))
   }
 
   // Expand used keys to include plural variants

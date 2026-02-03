@@ -2,7 +2,8 @@
   "common": {
     "nav": {
       "dashboard": "Dashboard",
-      "extractions": "Extractions"
+      "extractions": "Extractions",
+      "orders": "Orders"
     },
     "toast": {
       "save": {
@@ -13,11 +14,35 @@
         "title": "Extraction started",
         "description": "The upload was processed and the result was saved."
       },
+      "uploadNotPersisted": {
+        "title": "Extraction completed (not saved)",
+        "description": "Extraction succeeded, but no order was persisted. Reason: {{reason}}.",
+        "reasons": {
+          "persistenceDisabled": "persistence disabled",
+          "unknownIssuer": "unknown document issuer",
+          "unknown": "unknown"
+        }
+      },
+      "uploadNotReady": {
+        "title": "Extraction completed (review required)",
+        "description": "Extraction succeeded, but the result is not reconciliation-ready. Reason: {{reason}}.",
+        "reasons": {
+          "unknown": "unknown"
+        }
+      },
+      "actorAttributionFailed": {
+        "title": "Heads up",
+        "description": "Could not store the triggering user; history may show 'System'."
+      },
       "delete": {
         "title": "Deleted",
         "description": "Entry deleted successfully."
       },
       "update": {
+        "warningsPanel": {
+          "title": "Review required",
+          "description": "This document was saved, but the extraction has parsing/processing warnings."
+        },
         "title": "Updated",
         "description": "Data updated successfully."
       },
@@ -40,6 +65,7 @@
       "delete": "Delete",
       "edit": "Edit",
       "showDetails": "Show details",
+      "hideDetails": "Hide details",
       "register": "Register",
       "reject": "Reject",
       "rejectSelected": "Reject {{count}} records",
@@ -54,7 +80,11 @@
       "next": "Next",
       "upload": "Upload",
       "download": "Download",
-      "close": "Close"
+      "close": "Close",
+      "copy": "Copy",
+      "copied": "Copied",
+      "viewJson": "View JSON",
+      "viewUi": "View UI"
     },
     "status": {
       "loading": "Loading...",
@@ -74,21 +104,26 @@
       "forbidden": "You don't have permission to perform this action.",
       "notFound": "The requested resource was not found.",
       "server": "Server error. Please try again later.",
+      "insufficientQuota": "AI quota exhausted (OpenAI). Please check billing/credits and try again.",
+      "rateLimited": "OpenAI rate limit reached. Please wait a bit and try again.",
       "unknown": "An unexpected error occurred.",
       "goBack": "Go Back",
       "goHome": "Go to Dashboard"
     },
     "fields": {
       "search": "Search",
+      "start": "Start",
       "from": "From",
       "to": "To",
-      "serialNumber": "Serial Number",
+      "id": "ID",
+      "serialNumber": "Serial-Nr.",
       "metal": "Metal",
       "weight": "Weight",
       "purity": "Purity",
       "manufacturer": "Manufacturer",
       "createdAt": "Created at",
-      "updatedAt": "Updated at"
+      "updatedAt": "Updated at",
+      "error": "Error"
     },
     "table": {
       "rowsPerPage": "Rows per page",
@@ -211,6 +246,169 @@
         "changes": "Changes",
         "you": "You",
         "system": "System"
+      }
+    }
+  },
+  "order": {
+    "history": {
+      "title": "Browse Orders",
+      "description": "Search and manage all your previous orders.",
+      "action": "View All"
+    },
+    "documentType": {
+      "invoice": "Invoice",
+      "orderConfirmation": "Order confirmation",
+      "deliveryNote": "Delivery note",
+      "unknown": "Unknown"
+    },
+    "upload": {
+      "title": "Upload Order",
+      "description": "Upload a PDF or images and extract structured order data.",
+      "action": "Upload PDF & Extract",
+      "actionImages": "Upload Images & Extract",
+      "processing": "Extracting order… this may take a moment.",
+      "mode": "Upload",
+      "modes": {
+        "pdf": "PDF",
+        "images": "Images"
+      },
+      "strategy": "Strategy",
+      "strategies": {
+        "auto": "Auto",
+        "manual": "Manual",
+        "cloud": "Cloud",
+        "local": "Local"
+      },
+      "includeDebug": "Include debug signals (debug=true)",
+      "useMock": "Use mock data"
+    },
+    "list": {
+      "title": "Orders",
+      "subtitle": "Quality control and corrections with full audit trail.",
+      "empty": "No orders found.",
+      "stats": {
+        "pending": "Pending",
+        "validated": "Validated",
+        "corrected": "Corrected",
+        "rejected": "Rejected",
+        "errors": "Errors",
+        "closed": "Closed"
+      }
+    },
+    "fields": {
+      "status": "Status",
+      "documentIssuer": "Issuer",
+      "documentType": "Type",
+      "documentNumber": "Document No.",
+      "documentNumberErrorHash": "Error ({{hash}})",
+      "documentDate": "Document Date",
+      "orderNumber": "Order No.",
+      "strategyUsed": "Strategy",
+      "confidence": "Confidence"
+    },
+    "detail": {
+      "title": "Order",
+      "subtitle": "Original ID: {{originalId}}",
+      "missingId": "Missing original id.",
+      "notFound": "Order not found.",
+      "warningsPanel": {
+        "title": "Review required",
+        "description": "This document was saved, but the extraction has parsing/processing warnings.",
+        "descriptionFallbackOk": "Cloud extraction failed, but a manual fallback succeeded. Review warnings if needed."
+      },
+      "pdfTitle": "PDF",
+      "pdfUnavailable": "PDF preview not available.",
+      "deleteConfirm": "Delete this order? It will be hidden from the list (soft delete).",
+      "sections": {
+        "parties": "Parties",
+        "orderTerms": "Order terms",
+        "orderItems": "Order items"
+      },
+      "fields": {
+        "sellerName": "Seller name",
+        "buyerName": "Buyer name",
+        "transactionType": "Transaction type",
+        "orderDate": "Order date",
+        "valueDate": "Value date",
+        "shippingDate": "Shipping date",
+        "currency": "Currency",
+        "subtotalAmount": "Subtotal",
+        "shippingChargesAmount": "Shipping charges",
+        "otherChargesAmount": "Other charges",
+        "totalAmount": "Total"
+      },
+      "items": {
+        "empty": "No order items stored.",
+        "fields": {
+          "item": "Item",
+          "serialNumber": "Serial-Nr.",
+          "producer": "Producer",
+          "metal": "Metal",
+          "weight": "Weight",
+          "weightUnit": "Unit",
+          "fineness": "Fineness",
+          "form": "Form",
+          "description": "Description",
+          "quantity": "Qty",
+          "itemPrice": "Price",
+          "totalPrice": "Total"
+        }
+      },
+      "debugFinalTitle": "Final JSON",
+      "debugOpen": "Debug",
+      "debugDialogTitle": "Debug",
+      "debugDialogHint": "Shows persisted debug data (marker text + raw text + trace). Full PDF text is only returned by the API in debug mode.",
+      "debugEmpty": "No data.",
+      "metaTitle": "Meta",
+      "metaEmpty": "No meta stored.",
+      "mappingTitle": "Mapping",
+      "mappingEmpty": "No field mapping stored.",
+      "rawSignalsTitle": "Raw signals",
+      "rawSignalsEmpty": "No raw signals stored.",
+      "markerTextTitle": "Marker text",
+      "rawTextTitle": "Raw text",
+      "markerTextEmpty": "No marker text stored.",
+      "rawTextEmpty": "No raw text stored.",
+      "kpi": {
+        "title": "KPI",
+        "performanceTitle": "Performance",
+        "costTitle": "Cost",
+        "llmTitle": "LLM",
+        "endToEnd": "End-to-end",
+        "pdfExtract": "PDF extract",
+        "vision": "Vision → text",
+        "finalize": "Finalize",
+        "validate": "Validate",
+        "provider": "Provider",
+        "model": "Model",
+        "tokens": "Tokens",
+        "calls": "Calls",
+        "requests": "Requests",
+        "attempts": "Attempts",
+        "promptMessages": "Prompt messages",
+        "promptChars": "Prompt chars",
+        "promptTrunc": "Truncated messages",
+        "costEstimate": "Estimated cost",
+        "costUnavailable": "n/a",
+        "costNote": "Note",
+        "costNoLlmCalls": "No LLM calls were made; cost estimation is n/a.",
+        "costNoteValue": "Pricing is not configured; set OPENAI_PRICE_INPUT_PER_1M_USD and OPENAI_PRICE_OUTPUT_PER_1M_USD to enable cost estimation.",
+        "costFromMeta": "Derived from meta.llm_usage.cost_usd."
+      },
+      "pdfTextTitle": "PDF text",
+      "traceTitle": "Trace",
+      "traceEmpty": "No trace stored.",
+      "historyTitle": "History",
+      "historyEmpty": "No history entries.",
+      "audit": {
+        "when": "Version",
+        "by": "By",
+        "changes": "Changes",
+        "you": "You",
+        "system": "System",
+        "initialUpload": "Initial upload",
+        "pdfReupload": "PDF re-uploaded",
+        "extractionRerun": "Re-extracted"
       }
     }
   }

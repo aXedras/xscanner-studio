@@ -140,6 +140,47 @@ Note: Studio has its own environment.
 - Studio tests (Vitest/Node) read from `process.env.*` and we load the Studio `.env*` files for tests too.
 - The xScanner API server loads its own `.env`/`.env.local` independently (separate process).
 
+---
+
+## Orders: upload and extract (PDF + images)
+
+The Orders upload UI supports two upload modes:
+
+- **PDF**: uploads a single PDF file.
+- **Images**: uploads one or more image files (multiple pages).
+
+### Request shape
+
+The Studio client sends `multipart/form-data` with different field names depending on the upload mode:
+
+- **PDF mode**: `file` (single part)
+- **Images mode**: `files` (repeated parts, one per image)
+
+Query parameters used by the UI:
+
+- `strategy`: extraction strategy (e.g. `cloud`)
+- `use_mock`: `true|false`
+- `debug`: `true|false` (only on the debug endpoint)
+
+### Mock mode
+
+When `use_mock=true`, the server loads recorded fixtures from:
+
+- `src/xscanner/mockdata/order_extract/` (extract fixtures)
+- `src/xscanner/mockdata/order_vision/` (vision marker-text fixtures)
+
+For image uploads (and scanned PDFs that require vision), you need **both** a vision fixture and an extract fixture for the same upload filename.
+
+To record fixtures from a local file:
+
+- `make record-order-mocks FILE=invoices/<your-file>.pdf`
+- `make record-order-mocks FILE=invoices/<your-file>.jpg`
+
+To record a full strategy-level mock fixture (no sub-step mocks required):
+
+- `make record-order-mock STRATEGY=manual FILE=invoices/<your-file>.pdf`
+- `make record-order-mock STRATEGY=cloud FILE=invoices/<your-file>.pdf`
+
 Example:
 - Set `VITE_API_URL` in `studio/.env.local`
 - Run: `npm run test:integration`

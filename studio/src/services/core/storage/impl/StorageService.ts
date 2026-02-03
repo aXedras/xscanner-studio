@@ -80,6 +80,16 @@ export class StorageService implements IStorageService {
       expiresInSeconds?: number
     }
   ): Promise<StoragePreview | null> {
+    return await this.getFilePreviewSrc(storagePath, options)
+  }
+
+  async getFilePreviewSrc(
+    storagePath: string,
+    options?: {
+      bucket?: string
+      expiresInSeconds?: number
+    }
+  ): Promise<StoragePreview | null> {
     const bucket = options?.bucket ?? DEFAULT_BUCKET
     const expiresInSeconds = options?.expiresInSeconds ?? DEFAULT_EXPIRES_IN_SECONDS
 
@@ -121,7 +131,7 @@ export class StorageService implements IStorageService {
         2
       )
 
-      throw new StoragePreviewError('Image preview unavailable', {
+      throw new StoragePreviewError('File preview unavailable', {
         status,
         details,
       })

@@ -1,0 +1,19 @@
+{
+  "marker_text": "__HEADER__\n- INVOICE / ORDER CONFIRMATION\n- A-Mark is Selling\n- BFI BULLION AG\n- CHAMERSTASSE 174\n- ZUG, 6300\n- SWITZERLAND\n\n__TERMS_HEADERS__ TICKET #|ORDER DATE|VALUE DATE|EST. SHIP DATE|A-MARK TRADER|TRANSACTION TYPE|SHIPPING FROM\n__TERMS_ROW__ 720565|09/03/2025|09/12/2025|09/12/2025|Michael|PHYSICAL|LOOMIS INTERNATIONAL Zurich\n\n__ITEM_HEADERS__ ITEM|QUANTITY|DESCRIPTION|UNIT PRICE|TOTAL PRICE\n__ORDER_ITEM__ item=SBVALKGCAST | quantity=100 | description=1 kg Valcambi cast silver bar | item_price=$1,350.00 | total_price=$135,000.00\n\n__TOTALS__\n- Sub Total: $135,000.00\n- Shipping Charges: $0.00\n- Other Charges: $0.00\n- Total: $135,000.00\n\n__CONTACT__\n- EMAIL: operations@amark.com\n- PHONE: (310) 587-1477\n- WEBSITE: www.amark.com\n\n__BANK__\n- HSBC Bank\n- 310 Larkfield Road, Corner of 5th Ave\n- East Northport, New York 11731\n- ABA: 021001088\n- Account of A-Mark Precious Metals, Inc.\n- Account Number: 000183253\n- BIC (SWIFT) code: MRMDUS33",
+  "provider": "openai",
+  "model": "gpt-4o-mini-2024-07-18",
+  "usage": {
+    "input_tokens": 26104,
+    "output_tokens": 334,
+    "total_tokens": 26438
+  },
+  "recorded_at": "2026-01-31T14:07:53.990604+00:00",
+  "meta": {
+    "source": "image",
+    "pages": 1,
+    "upload_filename": "72056547.jpg",
+    "files": [
+      "72056547.jpg"
+    ]
+  }
+}

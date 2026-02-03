@@ -19,7 +19,14 @@ services:
 
       # Providers
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      OPENAI_TEMPERATURE: ${OPENAI_TEMPERATURE:-}
+      OPENAI_MAX_OUTPUT_TOKENS: ${OPENAI_MAX_OUTPUT_TOKENS:-}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+
+      # Optional (cost estimation)
+      OPENAI_PRICE_INPUT_PER_1M_USD: ${OPENAI_PRICE_INPUT_PER_1M_USD:-}
+      OPENAI_PRICE_OUTPUT_PER_1M_USD: ${OPENAI_PRICE_OUTPUT_PER_1M_USD:-}
 
       # Mock mode (optional)
       # When requests are sent with `use_mock: true` and `strategy=cloud`, this forces which mock dataset is used.
@@ -72,7 +79,14 @@ services:
 
       # Providers
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
+      OPENAI_TEMPERATURE: ${OPENAI_TEMPERATURE:-}
+      OPENAI_MAX_OUTPUT_TOKENS: ${OPENAI_MAX_OUTPUT_TOKENS:-}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+
+      # Optional (cost estimation)
+      OPENAI_PRICE_INPUT_PER_1M_USD: ${OPENAI_PRICE_INPUT_PER_1M_USD:-}
+      OPENAI_PRICE_OUTPUT_PER_1M_USD: ${OPENAI_PRICE_OUTPUT_PER_1M_USD:-}
 
       # Mock mode (optional)
       # When requests are sent with `use_mock: true` and `strategy=cloud`, this forces which mock dataset is used.

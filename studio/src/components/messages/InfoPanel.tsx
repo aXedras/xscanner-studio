@@ -24,9 +24,11 @@ const getVariantAccentClasses = (variant: UiMessageVariant): string => {
 }
 
 export default function InfoPanel({ variant, title, description, details, closeLabel, onClose }: Props) {
+  const background = variant === 'success' ? 'bg-[color:var(--bg-secondary)]' : 'bg-[color:var(--bg-card)]'
+
   return (
     <div
-      className={`w-full rounded-md border border-[color:var(--bg-card-border)] border-l-4 bg-[color:var(--bg-card)] p-3 flex items-start gap-3 ${getVariantAccentClasses(
+      className={`w-full rounded-md border border-[color:var(--bg-card-border)] border-l-4 ${background} p-3 flex items-start gap-3 shadow-lg ${getVariantAccentClasses(
         variant
       )}`}
     >

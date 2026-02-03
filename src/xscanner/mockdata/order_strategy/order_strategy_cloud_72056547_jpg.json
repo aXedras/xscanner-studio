@@ -1,0 +1,852 @@
+{
+  "structured_data": {
+    "document": {
+      "document_issuer": "a-mark",
+      "document_type": "order_confirmation",
+      "document_number": "720565",
+      "document_date": "2025-09-03"
+    },
+    "parties": {
+      "seller_name": "A-Mark Precious Metals, Inc.",
+      "buyer_name": "BFI BULLION AG",
+      "shipping_from": "LOOMIS INTERNATIONAL Zurich",
+      "shipping_to": "BFI BULLION AG"
+    },
+    "order_terms": {
+      "currency": "USD",
+      "order_date": "2025-09-03",
+      "order_number": "720565",
+      "shipping_date": "2025-09-12",
+      "value_date": "2025-09-12",
+      "transaction_type": "PHYSICAL",
+      "amounts": {
+        "subtotal": "135000.00",
+        "shipping_charges": "0.00",
+        "other_charges": "0.00",
+        "total": "135000.00"
+      }
+    },
+    "order_items": [
+      {
+        "item": "SBVALKGCAS",
+        "description": "1 kg Valcambi cast silver bar",
+        "quantity": "100",
+        "serial_number": "",
+        "metal": "silver",
+        "weight": "1",
+        "weight_unit": "kg",
+        "fineness": "",
+        "producer": "Valcambi",
+        "form": "bar",
+        "item_price": 1350.0,
+        "total_price": 135000.0
+      }
+    ]
+  },
+  "meta": {
+    "strategy": "cloud",
+    "input_mode": "marker_text",
+    "doc_type_candidates": [
+      "order_confirmation"
+    ],
+    "readiness": {
+      "reconciliation_ready": true,
+      "reason": null
+    },
+    "confidence": {
+      "document_identity": 1.0,
+      "order_items": 0.97,
+      "overall": 0.95
+    },
+    "warnings": [
+      "order_items[0] missing optional bullion fields: fineness"
+    ],
+    "llm_calls": [
+      {
+        "provider": "openai",
+        "model": "gpt-4o-mini-2024-07-18",
+        "operation": "input.textify",
+        "attempt": null,
+        "input_tokens": 26552,
+        "output_tokens": 354,
+        "total_tokens": 26906,
+        "cost_usd": 0.007346
+      },
+      {
+        "provider": "openai",
+        "model": "gpt-4o-mini-2024-07-18",
+        "operation": "cloud.ai_extract",
+        "attempt": 1,
+        "input_tokens": 3505,
+        "output_tokens": 679,
+        "total_tokens": 4184,
+        "cost_usd": 0.00223425
+      }
+    ],
+    "llm_usage": {
+      "provider": "openai",
+      "model": "gpt-4o-mini-2024-07-18",
+      "operation": "total",
+      "attempt": null,
+      "input_tokens": 30057,
+      "output_tokens": 1033,
+      "total_tokens": 31090,
+      "cost_usd": 0.00958025
+    },
+    "field_mapping": {
+      "document": {
+        "document_issuer": {
+          "source": "detect.initial"
+        },
+        "document_type": {
+          "source": "markers.doc_id"
+        },
+        "document_number": {
+          "source": "cloud.ai",
+          "field": "structured_data.document.document_number"
+        },
+        "document_date": {
+          "source": "cloud.ai",
+          "field": "structured_data.document.document_date"
+        }
+      },
+      "parties": {
+        "seller_name": {
+          "source": "cloud.ai"
+        },
+        "buyer_name": {
+          "source": "cloud.ai"
+        },
+        "shipping_from": {
+          "source": "cloud.ai"
+        },
+        "shipping_to": {
+          "source": "postprocessing.fill_shipping_to_from_buyer_name"
+        }
+      },
+      "order_terms": {
+        "currency": {
+          "source": "cloud.ai"
+        },
+        "order_date": {
+          "source": "cloud.ai"
+        },
+        "order_number": {
+          "source": "cloud.ai"
+        },
+        "shipping_date": {
+          "source": "cloud.ai"
+        },
+        "value_date": {
+          "source": "cloud.ai"
+        },
+        "transaction_type": {
+          "source": "cloud.ai"
+        },
+        "amounts": {
+          "source": "cloud.ai",
+          "coercion": "parse_money"
+        }
+      },
+      "order_items": {
+        "source": "cloud.ai",
+        "count": 1
+      }
+    }
+  },
+  "raw": {
+    "raw_tables": [
+      {
+        "name": "terms",
+        "headers": [
+          "TICKET #",
+          "ORDER DATE",
+          "VALUE DATE",
+          "EST. SHIP DATE",
+          "A-MARK TRADER",
+          "TRANSACTION TYPE",
+          "SHIPPING FROM"
+        ],
+        "rows": [
+          [
+            "720565",
+            "09/03/2025",
+            "09/12/2025",
+            "09/12/2025",
+            "Michael",
+            "PHYSICAL",
+            "LOOMIS INTERNATIONAL Zurich"
+          ]
+        ],
+        "source": "marker_text"
+      },
+      {
+        "name": "order_items",
+        "headers": [
+          "item",
+          "quantity",
+          "description",
+          "item_price",
+          "total_price"
+        ],
+        "rows": [
+          [
+            "SBVALKGCAS",
+            "100",
+            "1 kg Valcambi cast silver bar",
+            "$1,350.00",
+            "$135,000.00"
+          ]
+        ],
+        "source": "marker_text"
+      }
+    ],
+    "raw_kv": [
+      {
+        "key": "documentIssuer",
+        "key_normalized": "document_issuer",
+        "value": "a-mark",
+        "source": "derived"
+      },
+      {
+        "key": "documentType",
+        "key_normalized": "document_type",
+        "value": "order_confirmation",
+        "source": "derived"
+      },
+      {
+        "key": "documentTypeCandidates",
+        "key_normalized": "document_type_candidates",
+        "value": "order_confirmation",
+        "source": "derived"
+      },
+      {
+        "key": "documentNumber",
+        "key_normalized": "document_number",
+        "value": "720565",
+        "source": "derived"
+      },
+      {
+        "key": "documentDate",
+        "key_normalized": "document_date",
+        "value": "2025-09-03",
+        "source": "derived"
+      },
+      {
+        "key": "receiver",
+        "key_normalized": "receiver",
+        "value": "BFI BULLION AG",
+        "source": "derived"
+      },
+      {
+        "key": "Sub Total",
+        "key_normalized": "sub_total",
+        "value": "$135,000.00",
+        "source": "inline"
+      },
+      {
+        "key": "Shipping Charges",
+        "key_normalized": "shipping_charges",
+        "value": "$0.00",
+        "source": "inline"
+      },
+      {
+        "key": "Other Charges",
+        "key_normalized": "other_charges",
+        "value": "$0.00",
+        "source": "inline"
+      },
+      {
+        "key": "Total",
+        "key_normalized": "total",
+        "value": "$135,000.00",
+        "source": "inline"
+      },
+      {
+        "key": "EMAIL",
+        "key_normalized": "email",
+        "value": "operations@amark.com",
+        "source": "inline"
+      },
+      {
+        "key": "PHONE",
+        "key_normalized": "phone",
+        "value": "(310) 587-1477",
+        "source": "inline"
+      },
+      {
+        "key": "WEBSITE",
+        "key_normalized": "website",
+        "value": "www.amark.com",
+        "source": "inline"
+      },
+      {
+        "key": "ABA",
+        "key_normalized": "aba",
+        "value": "021000188",
+        "source": "inline"
+      },
+      {
+        "key": "Account of A",
+        "key_normalized": "account_of_a",
+        "value": "Mark Precious Metals, Inc.",
+        "source": "inline"
+      },
+      {
+        "key": "Account Number",
+        "key_normalized": "account_number",
+        "value": "000183253",
+        "source": "inline"
+      },
+      {
+        "key": "BIC (SWIFT) code",
+        "key_normalized": "bic_swift_code",
+        "value": "MRMUS33",
+        "source": "inline"
+      }
+    ],
+    "raw_text": "__DOC_ID__ issuer=a-mark | doc_type=order_confirmation | document_number=720565 | document_date=2025-09-03\n__HEADER__\nINVOICE / ORDER CONFIRMATION\nA-Mark is Selling\nBFI BULLION AG\nCHAMERSTASSE 174\nZUG, 6300\nSWITZERLAND\n__TERMS_HEADERS__ TICKET # | ORDER DATE | VALUE DATE | EST. SHIP DATE | A-MARK TRADER | TRANSACTION TYPE | SHIPPING FROM\n__TERMS_ROW__ 720565 | 09/03/2025 | 09/12/2025 | 09/12/2025 | Michael | PHYSICAL | LOOMIS INTERNATIONAL Zurich\n__ITEM_HEADERS__ ITEM | QUANTITY | DESCRIPTION | UNIT PRICE | TOTAL PRICE\n__ORDER_ITEM__ ticket #=SBVALKGCAS | qty=100 | description=1 kg Valcambi cast silver bar | unit price=$1,350.00 | total=$135,000.00\n__TOTALS__\nSub Total: $135,000.00\nShipping Charges: $0.00\nOther Charges: $0.00\nTotal: $135,000.00\n__CONTACT__\nEMAIL: operations@amark.com\nPHONE: (310) 587-1477\nWEBSITE: www.amark.com\n__BANK__\nHSBC Bank\n310 Larkfield Road, Corner of 5th Ave\nEast Northport, New York 11731\nABA # 021000188\nAccount of A-Mark Precious Metals, Inc.\nAccount Number: 000183253\nBIC (SWIFT) code: MRMUS33\n",
+    "pdf_text": "__DOC_ID__ issuer=a-mark | doc_type=INVOICE | document_number=720565 | document_date=2025-09-03  \n__HEADER__  \nINVOICE / ORDER CONFIRMATION  \nA-Mark is Selling  \nBFI BULLION AG  \nCHAMERSTASSE 174  \nZUG, 6300  \nSWITZERLAND  \n__TERMS_HEADERS__ TICKET # | ORDER DATE | VALUE DATE | EST. SHIP DATE | A-MARK TRADER | TRANSACTION TYPE | SHIPPING FROM  \n__TERMS_ROW__ 720565 | 09/03/2025 | 09/12/2025 | 09/12/2025 | Michael | PHYSICAL | LOOMIS INTERNATIONAL Zurich  \n__ITEM_HEADERS__ ITEM | QUANTITY | DESCRIPTION | UNIT PRICE | TOTAL PRICE  \n__ORDER_ITEM__ ticket #=SBVALKGCAS | qty=100 | description=1 kg Valcambi cast silver bar | unit price=$1,350.00 | total=$135,000.00  \n__TOTALS__  \nSub Total: $135,000.00  \nShipping Charges: $0.00  \nOther Charges: $0.00  \nTotal: $135,000.00  \n__CONTACT__  \nEMAIL: operations@amark.com  \nPHONE: (310) 587-1477  \nWEBSITE: www.amark.com  \n__BANK__  \nHSBC Bank  \n310 Larkfield Road, Corner of 5th Ave  \nEast Northport, New York 11731  \nABA # 021000188  \nAccount of A-Mark Precious Metals, Inc.  \nAccount Number: 000183253  \nBIC (SWIFT) code: MRMUS33",
+    "trace": {
+      "type": "span",
+      "name": "order.process",
+      "start_ms": 0.0,
+      "status": "ok",
+      "attrs": {
+        "requested_strategy": "cloud",
+        "serial_number_expected": true
+      },
+      "children": [
+        {
+          "type": "span",
+          "name": "input.textify",
+          "start_ms": 0.021,
+          "status": "ok",
+          "attrs": {
+            "mode": "vision_marker_text",
+            "pages": 1,
+            "raw_text_len": 1080,
+            "provider": "openai",
+            "model": "gpt-4o-mini-2024-07-18",
+            "usage": {
+              "input_tokens": 26552,
+              "output_tokens": 354,
+              "total_tokens": 26906
+            }
+          },
+          "children": [
+            {
+              "type": "span",
+              "name": "vision.marker_text.attempt",
+              "start_ms": 10953.865,
+              "status": "ok",
+              "attrs": {
+                "attempt": 1
+              },
+              "children": [],
+              "artifacts": [
+                {
+                  "key": "llm.request",
+                  "content_type": "application/json",
+                  "value": {
+                    "model": "gpt-4o-mini",
+                    "temperature": 0.2,
+                    "max_tokens": 900,
+                    "messages": [
+                      {
+                        "role": "system",
+                        "content": "# order_extraction_cloud_vision_to_marker_text.md\n\nPurpose: Vision pre-pass (PDF images → marker-text) for scanned/low-quality PDFs.\nOutput: **marker-text only** (NOT JSON). This output is fed into `order_extraction_cloud.md`.\n\nImplements: ORDER_EXTRACTION_AI_CONTRACT v0.1 (input preparation)\n\n---\n\n## ROLE\n\nYou read rendered PDF page images of a bullion order document (invoice / order confirmation / delivery note)\nand produce a **structured marker-text** representation that is easy to parse by a downstream text-only extractor.\n\n---\n\n## HARD RULES\n\n1. Do NOT invent data. Only output what you can read in the images.\n2. Keep original wording and numbers as close as possible.\n     - Dates: copy exactly as printed in the document (do NOT convert, do NOT swap month/day).\n         Examples: keep `09/03/2025` as-is; keep `3.9.2025` as-is.\n3. Prefer **structured markers** over prose.\n4. If something is unreadable/uncertain, omit it (do not guess).\n5. Output MUST be plain text (no JSON, no Markdown fences).\n\n---\n\n## OUTPUT FORMAT (MARKER TEXT)\n\nOutput sections in this order (omit sections you cannot populate):\n\n### __DOC_ID__ (REQUIRED if possible)\n\n- Output a single-line `__DOC_ID__` as the very first marker line.\n- Use this exact key set and formatting:\n    - `__DOC_ID__ issuer=<issuer-slug> | doc_type=<doc_type> | document_number=<document_number> | document_date=<YYYY-MM-DD>`\n- `issuer` MUST be a stable slug (example: `a-mark`) if you can determine it.\n- `document_date` MUST be ISO (`YYYY-MM-DD`). Do NOT swap month/day.\n- If you cannot determine ALL four fields with high confidence, omit `__DOC_ID__`.\n\n__HEADER__\n- Document title / type lines (e.g. INVOICE / ORDER CONFIRMATION)\n- Seller / issuer lines (company name, “is Selling” text, etc.)\n- Buyer block (name + address lines if present)\n\n__TERMS_HEADERS__ <pipe-separated headers>\n__TERMS_ROW__ <pipe-separated row values>\n\nIMPORTANT: `__TERMS_HEADERS__` and `__TERMS_ROW__` MUST each be on a single line\n(marker + content on the same line). Do NOT put the headers/values on the next line.\n\n__ITEM_HEADERS__ <pipe-separated headers>\nRepeat for each item row:\n- `__ITEM_HEADERS__` should reflect the document's column labels as closely as possible.\n    Examples: `TICKET # | QTY | DESCRIPTION | UNIT PRICE | TOTAL PRICE`.\n- For each item row, output one `__ORDER_ITEM__` line with `k=v` pairs.\n    Use keys that match the column meaning; keep them close to the document wording.\n    Examples: `ticket #=<...>`, `qty=<...>`, `unit price=<...>`, `total=<...>`.\n    If the document already uses canonical labels like `item_price`, you may use those.\n\nIMPORTANT: `__ITEM_HEADERS__` MUST be on a single line (marker + headers on the same line).\nIMPORTANT: Each `__ORDER_ITEM__` MUST be on a single line in the form:\n`__ORDER_ITEM__ key=value | key=value | ...`\nDo NOT split the `__ORDER_ITEM__` marker and the key/value pairs across multiple lines.\n\n__TOTALS__\n- Sub Total: ...\n- Shipping Charges: ...\n- Other Charges: ...\n- Total: ...\n\n__CONTACT__\n- EMAIL: ...\n- PHONE: ...\n- WEBSITE: ...\n\n__BANK__\n- Bank name\n- Bank wire address / routing / ABA / account info (as-is)\n\n---\n\n## FIELD EXTRACTION GUIDANCE\n\n### Buyer block\n- Keep line breaks as in the document (name line first).\n- If postcode/city appear on one line, keep them as-is.\n\n### Terms table\n- If you see a table with headers like TICKET #, ORDER DATE, VALUE DATE, etc.,\n  reproduce headers and one row using `|` separators.\n\n### Item table\n- Prefer the actual item table.\n- If the PDF shows multiple item rows, output multiple __ORDER_ITEM__ lines.\n- If you cannot clearly see unit price or total price, omit those key/value pairs in that __ORDER_ITEM__ line.\n- Keep item row keys consistent *within the document*.\n- Keep currency symbols, thousands separators, and formatting as in the document (e.g. `$1,234.56`).\n- Do not normalize/rename headers to a canonical schema here; downstream code will handle canonicalization.\n\n### Serial numbers\n- Only include `serial_number=<...>` if explicitly visible.\n- Never invent serial numbers.\n\n---\n\n## INPUT\n\nYou will be given one or more page images of the same PDF.\nRead all pages. Combine results into one marker-text output.",
+                        "content_len": 4202,
+                        "content_truncated": false
+                      },
+                      {
+                        "role": "user",
+                        "content": [
+                          {
+                            "type": "text",
+                            "text": "Read all page images and output marker-text only (no JSON).",
+                            "text_len": 59,
+                            "text_truncated": false
+                          },
+                          {
+                            "type": "image_url"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "size": 0,
+                  "truncated": false
+                }
+              ],
+              "end_ms": 10953.891,
+              "duration_ms": 0.026
+            },
+            {
+              "type": "event",
+              "name": "decision.textify",
+              "at_ms": 10954.815,
+              "attrs": {
+                "decision": "vision selected",
+                "mode": "vision_marker_text",
+                "reason": "Images upload → vision marker-text",
+                "rule_id": "BR-INPUT-001",
+                "rule_ref": "docs/ORDER_EXTRACTION_WORKFLOW.md#5-cloud-vision-first-execution-recommended-approach"
+              }
+            }
+          ],
+          "artifacts": [
+            {
+              "key": "marker.text",
+              "content_type": "text/plain",
+              "value": "__DOC_ID__ issuer=a-mark | doc_type=INVOICE | document_number=720565 | document_date=2025-09-03  \n__HEADER__  \nINVOICE / ORDER CONFIRMATION  \nA-Mark is Selling  \nBFI BULLION AG  \nCHAMERSTASSE 174  \nZUG, 6300  \nSWITZERLAND  \n__TERMS_HEADERS__ TICKET # | ORDER DATE | VALUE DATE | EST. SHIP DATE | A-MARK TRADER | TRANSACTION TYPE | SHIPPING FROM  \n__TERMS_ROW__ 720565 | 09/03/2025 | 09/12/2025 | 09/12/2025 | Michael | PHYSICAL | LOOMIS INTERNATIONAL Zurich  \n__ITEM_HEADERS__ ITEM | QUANTITY | DESCRIPTION | UNIT PRICE | TOTAL PRICE  \n__ORDER_ITEM__ ticket #=SBVALKGCAS | qty=100 | description=1 kg Valcambi cast silver bar | unit price=$1,350.00 | total=$135,000.00  \n__TOTALS__  \nSub Total: $135,000.00  \nShipping Charges: $0.00  \nOther Charges: $0.00  \nTotal: $135,000.00  \n__CONTACT__  \nEMAIL: operations@amark.com  \nPHONE: (310) 587-1477  \nWEBSITE: www.amark.com  \n__BANK__  \nHSBC Bank  \n310 Larkfield Road, Corner of 5th Ave  \nEast Northport, New York 11731  \nABA # 021000188  \nAccount of A-Mark Precious Metals, Inc.  \nAccount Number: 000183253  \nBIC (SWIFT) code: MRMUS33",
+              "size": 1080,
+              "truncated": false
+            },
+            {
+              "key": "llm.response",
+              "content_type": "application/json",
+              "value": {
+                "id": "chatcmpl-D4SzkJ3TzPQj9J6Y8d9eQ3MrssVH9",
+                "object": "chat.completion",
+                "created": 1769957140,
+                "model": "gpt-4o-mini-2024-07-18",
+                "choices": [
+                  {
+                    "index": 0,
+                    "message": {
+                      "role": "assistant",
+                      "content": "__DOC_ID__ issuer=a-mark | doc_type=INVOICE | document_number=720565 | document_date=2025-09-03  \n__HEADER__  \nINVOICE / ORDER CONFIRMATION  \nA-Mark is Selling  \nBFI BULLION AG  \nCHAMERSTASSE 174  \nZUG, 6300  \nSWITZERLAND  \n__TERMS_HEADERS__ TICKET # | ORDER DATE | VALUE DATE | EST. SHIP DATE | A-MARK TRADER | TRANSACTION TYPE | SHIPPING FROM  \n__TERMS_ROW__ 720565 | 09/03/2025 | 09/12/2025 | 09/12/2025 | Michael | PHYSICAL | LOOMIS INTERNATIONAL Zurich  \n__ITEM_HEADERS__ ITEM | QUANTITY | DESCRIPTION | UNIT PRICE | TOTAL PRICE  \n__ORDER_ITEM__ ticket #=SBVALKGCAS | qty=100 | description=1 kg Valcambi cast silver bar | unit price=$1,350.00 | total=$135,000.00  \n__TOTALS__  \nSub Total: $135,000.00  \nShipping Charges: $0.00  \nOther Charges: $0.00  \nTotal: $135,000.00  \n__CONTACT__  \nEMAIL: operations@amark.com  \nPHONE: (310) 587-1477  \nWEBSITE: www.amark.com  \n__BANK__  \nHSBC Bank  \n310 Larkfield Road, Corner of 5th Ave  \nEast Northport, New York 11731  \nABA # 021000188  \nAccount of A-Mark Precious Metals, Inc.  \nAccount Number: 000183253  \nBIC (SWIFT) code: MRMUS33  ",
+                      "refusal": null,
+                      "annotations": []
+                    },
+                    "logprobs": null,
+                    "finish_reason": "stop"
+                  }
+                ],
+                "usage": {
+                  "prompt_tokens": 26552,
+                  "completion_tokens": 354,
+                  "total_tokens": 26906,
+                  "prompt_tokens_details": {
+                    "cached_tokens": 0,
+                    "audio_tokens": 0
+                  },
+                  "completion_tokens_details": {
+                    "reasoning_tokens": 0,
+                    "audio_tokens": 0,
+                    "accepted_prediction_tokens": 0,
+                    "rejected_prediction_tokens": 0
+                  }
+                },
+                "service_tier": "default",
+                "system_fingerprint": "fp_1590f93f9d"
+              },
+              "size": 0,
+              "truncated": false
+            }
+          ],
+          "end_ms": 10954.827,
+          "duration_ms": 10954.806
+        },
+        {
+          "type": "event",
+          "name": "decision.strategy",
+          "at_ms": 10954.881,
+          "attrs": {
+            "requested": "cloud",
+            "choice": "cloud",
+            "reason": "User-selected",
+            "rule_id": null,
+            "rule_ref": "docs/ORDER_EXTRACTION_WORKFLOW.md"
+          }
+        },
+        {
+          "type": "span",
+          "name": "strategy.extract_from_text",
+          "start_ms": 10954.911,
+          "status": "ok",
+          "attrs": {
+            "strategy": "cloud",
+            "strategy_impl": "order/cloud",
+            "attempt": 1,
+            "success": true
+          },
+          "children": [
+            {
+              "type": "span",
+              "name": "detect.initial",
+              "start_ms": 10954.968,
+              "status": "ok",
+              "attrs": {
+                "issuer": "a-mark"
+              },
+              "children": [],
+              "end_ms": 10955.149,
+              "duration_ms": 0.181
+            },
+            {
+              "type": "span",
+              "name": "raw_signals.extract",
+              "start_ms": 10955.164,
+              "status": "ok",
+              "attrs": {
+                "lines": 29,
+                "tables": 2,
+                "key_values": 11,
+                "kv_keys_top": [
+                  "sub_total",
+                  "shipping_charges",
+                  "other_charges",
+                  "total",
+                  "email",
+                  "phone",
+                  "website",
+                  "aba",
+                  "account_of_a",
+                  "account_number",
+                  "bic_swift_code"
+                ],
+                "table_names": [
+                  "terms",
+                  "order_items"
+                ],
+                "order_items_table_detected": true
+              },
+              "children": [],
+              "end_ms": 10956.807,
+              "duration_ms": 1.643
+            },
+            {
+              "type": "span",
+              "name": "preprocessing.inject_order_item_markers",
+              "start_ms": 10956.92,
+              "status": "ok",
+              "attrs": {
+                "ran": true,
+                "before": {
+                  "lines": 29,
+                  "normalized_text_len": 1080
+                },
+                "after": {
+                  "lines": 29,
+                  "normalized_text_len": 1080
+                }
+              },
+              "children": [],
+              "end_ms": 10956.961,
+              "duration_ms": 0.041
+            },
+            {
+              "type": "span",
+              "name": "preprocessing.normalize_text",
+              "start_ms": 10956.981,
+              "status": "ok",
+              "attrs": {
+                "ran": true,
+                "before": {
+                  "lines": 29,
+                  "normalized_text_len": 1080
+                },
+                "after": {
+                  "lines": 29,
+                  "normalized_text_len": 1032
+                }
+              },
+              "children": [],
+              "end_ms": 10958.088,
+              "duration_ms": 1.107
+            },
+            {
+              "type": "span",
+              "name": "detect.identity",
+              "start_ms": 10958.157,
+              "status": "ok",
+              "attrs": {
+                "issuer": "a-mark",
+                "doc_type": "INVOICE",
+                "doc_type_candidates_count": 1,
+                "has_document_number": true,
+                "has_document_date": true
+              },
+              "children": [],
+              "end_ms": 10958.321,
+              "duration_ms": 0.164
+            },
+            {
+              "type": "span",
+              "name": "markers.ensure_doc_id",
+              "start_ms": 10958.379,
+              "status": "ok",
+              "attrs": {
+                "text_len_after": 1036
+              },
+              "children": [],
+              "end_ms": 10959.275,
+              "duration_ms": 0.896
+            },
+            {
+              "type": "span",
+              "name": "markers.use_marker_text_input",
+              "start_ms": 10959.391,
+              "status": "ok",
+              "attrs": {
+                "text_len": 1036
+              },
+              "children": [],
+              "artifacts": [
+                {
+                  "key": "marker.text",
+                  "content_type": "text/plain",
+                  "value": "__DOC_ID__ issuer=a-mark | doc_type=order_confirmation | document_number=720565 | document_date=2025-09-03\n__HEADER__\nINVOICE / ORDER CONFIRMATION\nA-Mark is Selling\nBFI BULLION AG\nCHAMERSTASSE 174\nZUG, 6300\nSWITZERLAND\n__TERMS_HEADERS__ TICKET # | ORDER DATE | VALUE DATE | EST. SHIP DATE | A-MARK TRADER | TRANSACTION TYPE | SHIPPING FROM\n__TERMS_ROW__ 720565 | 09/03/2025 | 09/12/2025 | 09/12/2025 | Michael | PHYSICAL | LOOMIS INTERNATIONAL Zurich\n__ITEM_HEADERS__ ITEM | QUANTITY | DESCRIPTION | UNIT PRICE | TOTAL PRICE\n__ORDER_ITEM__ ticket #=SBVALKGCAS | qty=100 | description=1 kg Valcambi cast silver bar | unit price=$1,350.00 | total=$135,000.00\n__TOTALS__\nSub Total: $135,000.00\nShipping Charges: $0.00\nOther Charges: $0.00\nTotal: $135,000.00\n__CONTACT__\nEMAIL: operations@amark.com\nPHONE: (310) 587-1477\nWEBSITE: www.amark.com\n__BANK__\nHSBC Bank\n310 Larkfield Road, Corner of 5th Ave\nEast Northport, New York 11731\nABA # 021000188\nAccount of A-Mark Precious Metals, Inc.\nAccount Number: 000183253\nBIC (SWIFT) code: MRMUS33\n",
+                  "size": 1036,
+                  "truncated": false
+                }
+              ],
+              "end_ms": 10959.406,
+              "duration_ms": 0.015
+            },
+            {
+              "type": "span",
+              "name": "cloud.ai_extract",
+              "start_ms": 10959.643,
+              "status": "ok",
+              "attrs": {
+                "success": true,
+                "provider": "openai",
+                "model": "gpt-4o-mini-2024-07-18",
+                "usage": {
+                  "input_tokens": 3505,
+                  "output_tokens": 679,
+                  "total_tokens": 4184
+                },
+                "request_url": "https://api.openai.com/v1/chat/completions"
+              },
+              "children": [
+                {
+                  "type": "span",
+                  "name": "cloud.ai_extract.attempt",
+                  "start_ms": 25153.992,
+                  "status": "ok",
+                  "attrs": {
+                    "attempt": 1
+                  },
+                  "children": [],
+                  "artifacts": [
+                    {
+                      "key": "llm.request",
+                      "content_type": "application/json",
+                      "value": {
+                        "model": "gpt-4o-mini",
+                        "temperature": 0.2,
+                        "max_tokens": 900,
+                        "response_format": {
+                          "type": "json_object"
+                        },
+                        "messages": [
+                          {
+                            "role": "system",
+                            "content": "# order_extraction_cloud.md\n\nImplements: ORDER_EXTRACTION_AI_CONTRACT v0.1\nPurpose: Primary AI-based order document extraction (PDF/Text → Envelope)\n\n---\n\n## ROLE\n\nYou are an AI-based extraction engine for **order documents in the bullion domain**.\nYou MUST comply with the operational contract:\n\n`config/order/ORDER_EXTRACTION_AI_CONTRACT.md`\n\nThis contract is normative.\nThis prompt is an implementation.\n\n---\n\n## HARD RULES (NON-NEGOTIABLE)\n\n1. **No invention**\n   - You MUST only emit values that are explicitly supported by evidence in the document.\n   - If unsure: return an empty string or empty list.\n\n2. **Raw + Structured always together**\n   - You MUST return both `raw` and `structured_data`.\n\n3. **Missing beats wrong**\n   - Never guess or interpolate missing values.\n\n4. **Order items are critical**\n   - If no usable `order_items` can be extracted, the extraction MUST fail.\n\n5. **Dates**\n   - All dates MUST be returned as ISO 8601: `YYYY-MM-DD`.\n\n6. **Amounts**\n   - Amount fields in `structured_data.order_terms.amounts` MUST be returned as strings.\n   - Item prices MAY be numeric if unambiguous, otherwise `null`.\n\n---\n\n## OUTPUT FORMAT (STRICT)\n\nReturn **exactly one JSON object** with the following top-level keys:\n\n- `meta`\n- `raw`\n- `structured_data`\n\nNo additional keys.\nNo Markdown.\nNo explanations.\n\n---\n\n## META REQUIREMENTS\n\nYou MUST populate:\n\n- `meta.confidence`\n- `meta.readiness`\n- `meta.warnings`\n- `meta.field_sources`\n- `meta.order_items_quality`\n\n`meta.readiness.reconciliation_ready` MUST be set according to the contract rules.\n\n---\n\n## RAW EXTRACTION\n\n### raw.raw_kv\n- Extract best-effort key/value pairs.\n- Normalize keys to `snake_case`.\n- Include derived routing keys first:\n  - document_issuer\n  - document_type\n  - document_number\n  - document_date\n  - receiver (buyer)\n\n### raw.raw_tables\n- Detect and extract tables with headers and rows.\n- Preserve order.\n- Include the order items table verbatim if detected.\n\n---\n\n## STRUCTURED DATA MAPPING\n\nThe `structured_data` object MUST match this schema shape exactly (no extra keys):\n\n```json\n{\n   \"document\": {\n      \"document_issuer\": \"string\",\n      \"document_type\": \"invoice|order_confirmation|delivery_note\",\n      \"document_number\": \"string\",\n      \"document_date\": \"YYYY-MM-DD\"\n   },\n   \"parties\": {\n      \"seller_name\": \"string|null\",\n      \"buyer_name\": \"string|null\",\n      \"shipping_from\": \"string|null\",\n      \"shipping_to\": \"string|null\"\n   },\n   \"order_terms\": {\n      \"currency\": \"string|null\",\n      \"order_date\": \"YYYY-MM-DD|null\",\n      \"order_number\": \"string|null\",\n      \"shipping_date\": \"YYYY-MM-DD|null\",\n      \"value_date\": \"YYYY-MM-DD|null\",\n      \"transaction_type\": \"string|null\",\n      \"amounts\": {\n         \"subtotal\": \"string|null\",\n         \"shipping_charges\": \"string|null\",\n         \"other_charges\": \"string|null\",\n         \"total\": \"string|null\"\n      }\n   },\n   \"order_items\": [\n      {\n         \"item\": \"string|null\",\n         \"description\": \"string|null\",\n         \"quantity\": \"string|null\",\n         \"serial_number\": \"string|null\",\n         \"metal\": \"gold|silver|platinum|palladium|unknown|null\",\n         \"weight\": \"string|null\",\n         \"weight_unit\": \"g|kg|oz|lb|unknown|null\",\n         \"fineness\": \"string|null\",\n         \"producer\": \"string|null\",\n         \"form\": \"bar|coin|round|unknown|null\",\n         \"item_price\": \"number|null\",\n         \"total_price\": \"number|null\"\n      }\n   ]\n}\n```\n\nHard prohibitions:\n- Do NOT output `document_identity` anywhere in `structured_data`.\n- Do NOT output any additional keys anywhere in `structured_data`.\n\n### Document Identity (REQUIRED)\n\nPopulate all of `structured_data.document.*`:\n- document_issuer\n- document_type\n- document_number\n- document_date\n\nIf any is missing → extraction is invalid.\n\n---\n\n### Parties\n\nBest-effort extraction:\n- seller_name\n- buyer_name\n- shipping_from\n- shipping_to\n\nBuyer address (if present) MUST be captured in `raw`, not normalized.\n\n---\n\n### Order Terms\n\nExtract:\n- order_date\n- value_date\n- order_number\n- currency\n- amounts (subtotal, shipping_charges, other_charges, total)\n\nCurrency rules:\n- If `ALLOWED_CURRENCIES` is present in adapter hints, you MUST return `order_terms.currency` as one of those values.\n- Use `CURRENCY_ALIASES` (e.g. \"$\" -> \"USD\") when present.\n\n---\n\n### Order Items (CRITICAL)\n\nEach item MUST include:\n- item OR description\n- quantity (string)\n\nBest-effort bullion semantics from description/item:\n- metal (gold|silver|platinum|palladium)\n- producer (whitelist only; use `ALLOWED_PRODUCERS` / `PRODUCER_ALIASES` adapter hints when present)\n- weight (string)\n- weight_unit (g|kg|oz|lb|unknown; use `WEIGHT_UNIT_ALIASES` when present)\n- form (bar|coin|round|unknown; use `FORM_ALIASES` when present)\n- fineness (\"\" if not explicitly present)\n\nOptional (best-effort):\n- serial_number (\"\" unless explicitly present; if you return a value it MUST match `SERIAL_NUMBER_PATTERNS` when present)\n\nDo NOT invent values.\n\nWeight/unit rules (CRITICAL):\n- If the description explicitly contains a weight + unit, you MUST return EXACTLY that pair.\n   - Example: \"1 kg Valcambi cast silver bar\" -> weight=\"1\", weight_unit=\"kg\"\n   - Example: \"1000 g silver bar\" -> weight=\"1000\", weight_unit=\"g\"\n- Do NOT normalize or convert units (NO kg->g, NO g->kg, NO oz<->g).\n- Do NOT \"helpfully\" compute a converted value even if it looks equivalent.\n- If a unit is explicit in the description, returning a different unit is a hard error.\n- Weight is per single item (not multiplied by quantity).\n\n---\n\n## BULLION EXTRACTION RULES\n\n- metal: explicit EN/DE textual match only\n- producer: whitelist match only\n- weight: numeric + unit required\n- fineness: explicit only, else empty string\n- form: explicit only\n\nIf ambiguous → leave empty and add a warning.\n\n---\n\n## CONFIDENCE & READINESS\n\n- Compute document identifier confidence individually.\n- Compute order items confidence based on structure and plausibility.\n- `reconciliation_ready = true` ONLY if:\n  - document identity complete\n  - order_items non-empty\n  - order_items confidence meets threshold\n  - no critical warnings\n  - serial number expectations satisfied\n\n---\n\n\n---\n\n## ADAPTER HINTS (OPTIONAL, RECOMMENDED)\n\nThe input MAY include whitelist hints injected by the server prompt builder.\nIf present, you MUST use them as authoritative constraints:\n- `ALLOWED_PRODUCERS` and `PRODUCER_ALIASES`\n- `METAL_ALIASES`\n- `FORM_ALIASES`\n- `WEIGHT_UNIT_ALIASES`\n- `SERIAL_NUMBER_PATTERNS`\n- `ALLOWED_CURRENCIES` and `CURRENCY_ALIASES`\n- `DATE_FORMATS` (date parsing expectations / locale hints)\n\nDo NOT output values outside these constraints.\n\n## SELF-CHECK BEFORE RETURNING\n\nBefore emitting the final JSON:\n- Verify required identity fields exist.\n- Verify order_items is non-empty.\n- Verify totals are plausible if numeric.\n- Verify no invented values are present.\n\nIf any hard rule is violated → fail explicitly.\n\n---\n\n## INPUT\n\nYou will receive:\n- document text (PDF-derived)\n- optional adapter hints (issuer candidates, locale, expectations)\n\nProcess conservatively and return the JSON envelope.",
+                            "content_len": 7068,
+                            "content_truncated": false
+                          },
+                          {
+                            "role": "user",
+                            "content": "ISSUER_HINT:\na-mark\n\nDOCUMENT_TYPE_HINT:\norder_confirmation\n\nADAPTER_HINTS_JSON:\n{\n  \"ALLOWED_PRODUCERS\": [\n    \"Valcambi\",\n    \"Argor-Heraeus\",\n    \"PAMP\",\n    \"Metalor\",\n    \"Perth Mint\",\n    \"Royal Canadian Mint\",\n    \"Rand Refinery\",\n    \"A-Mark\",\n    \"Heraeus\",\n    \"Umicore\",\n    \"Asahi\",\n    \"Republic Metals Corporation\",\n    \"UBS\",\n    \"Clariden Leu\",\n    \"Commerzbank\",\n    \"Credit Suisse\",\n    \"Degussa\",\n    \"Swiss Bank Corporation\",\n    \"Kantonalbank\",\n    \"Metaux Precieux\",\n    \"Metaux Precieux Neuchatel SA\",\n    \"Muenze Oesterreich\",\n    \"AGR MATTHEY\"\n  ],\n  \"PRODUCER_ALIASES\": {\n    \"Argor\": \"Argor-Heraeus\",\n    \"Argor Heraeus\": \"Argor-Heraeus\",\n    \"Pamp\": \"PAMP\",\n    \"PAMP Suisse\": \"PAMP\",\n    \"Amark\": \"A-Mark\",\n    \"A-Mark Precious Metals\": \"A-Mark\",\n    \"Royal Canadian Mint (RCM)\": \"Royal Canadian Mint\",\n    \"RCM\": \"Royal Canadian Mint\",\n    \"RCM (Royal Canadian Mint)\": \"Royal Canadian Mint\",\n    \"Royal Canadian Mint\": \"Royal Canadian Mint\",\n    \"RAND REFINERY LIMITED\": \"Rand Refinery\",\n    \"Rand Refinery Limited\": \"Rand Refinery\",\n    \"RMC\": \"Republic Metals Corporation\",\n    \"Republic Metals Corporation (RMC)\": \"Republic Metals Corporation\",\n    \"Metaux Precieux Neuchatel S.A.\": \"Metaux Precieux Neuchatel SA\",\n    \"Metaux Precieux Neuchatel SA\": \"Metaux Precieux Neuchatel SA\",\n    \"Metaux Precieux\": \"Metaux Precieux\",\n    \"Métaux Précieux\": \"Metaux Precieux\",\n    \"Métaux Précieux Neuchâtel S.A.\": \"Metaux Precieux Neuchatel SA\",\n    \"Métaux Précieux Neuchâtel SA\": \"Metaux Precieux Neuchatel SA\",\n    \"Münze Österreich\": \"Muenze Oesterreich\",\n    \"Muenze Österreich\": \"Muenze Oesterreich\",\n    \"Münze Oesterreich\": \"Muenze Oesterreich\",\n    \"MKP Pamp\": \"PAMP\",\n    \"MKP PAMP\": \"PAMP\",\n    \"PAMP SUISSE\": \"PAMP\",\n    \"CREDIT SUISSE\": \"Credit Suisse\",\n    \"CS\": \"Credit Suisse\",\n    \"UBS SA\": \"UBS\",\n    \"UBS AG\": \"UBS\",\n    \"ARGOR HERAEUS\": \"Argor-Heraeus\",\n    \"ARGOR-HERAEUS\": \"Argor-Heraeus\",\n    \"HERAeus\": \"Heraeus\",\n    \"Heraeus SA\": \"Heraeus\",\n    \"Johnson Matthey\": \"AGR MATTHEY\",\n    \"J. Matthey\": \"AGR MATTHEY\"\n  },\n  \"ALLOWED_METALS\": [\n    \"gold\",\n    \"silver\",\n    \"platinum\",\n    \"palladium\"\n  ],\n  \"METAL_ALIASES\": {\n    \"silber\": \"silver\",\n    \"gold\": \"gold\",\n    \"platin\": \"platinum\",\n    \"palladium\": \"palladium\",\n    \"au\": \"gold\",\n    \"ag\": \"silver\",\n    \"pt\": \"platinum\",\n    \"pd\": \"palladium\",\n    \"platinum\": \"platinum\",\n    \"fine gold\": \"gold\",\n    \"fine silver\": \"silver\",\n    \"fine platinum\": \"platinum\",\n    \"fine palladium\": \"palladium\",\n    \"golden\": \"gold\",\n    \"silver\": \"silver\",\n    \"xau\": \"gold\",\n    \"xag\": \"silver\",\n    \"xpt\": \"platinum\",\n    \"xpd\": \"palladium\"\n  },\n  \"ALLOWED_FORMS\": [\n    \"bar\",\n    \"coin\",\n    \"round\"\n  ],\n  \"FORM_ALIASES\": {\n    \"barren\": \"bar\",\n    \"bar\": \"bar\",\n    \"cast bar\": \"bar\",\n    \"minted bar\": \"bar\",\n    \"coin\": \"coin\",\n    \"münze\": \"coin\",\n    \"munze\": \"coin\",\n    \"round\": \"round\",\n    \"cast\": \"bar\",\n    \"cast bars\": \"bar\",\n    \"minted\": \"bar\",\n    \"minted bars\": \"bar\",\n    \"ingot\": \"bar\"\n  },\n  \"ALLOWED_WEIGHT_UNITS\": [\n    \"g\",\n    \"kg\",\n    \"oz\",\n    \"lb\"\n  ],\n  \"WEIGHT_UNIT_ALIASES\": {\n    \"gram\": \"g\",\n    \"grams\": \"g\",\n    \"g\": \"g\",\n    \"kilogram\": \"kg\",\n    \"kilograms\": \"kg\",\n    \"kg\": \"kg\",\n    \"ounce\": \"oz\",\n    \"ounces\": \"oz\",\n    \"ozt\": \"oz\",\n    \"troy ounce\": \"oz\",\n    \"oz\": \"oz\",\n    \"t oz\": \"oz\",\n    \"troy oz\": \"oz\",\n    \"toz\": \"oz\",\n    \"lb\": \"lb\",\n    \"lbs\": \"lb\",\n    \"pound\": \"lb\",\n    \"pounds\": \"lb\"\n  },\n  \"SERIAL_NUMBER_PATTERNS\": [],\n  \"ALLOWED_CURRENCIES\": [\n    \"USD\",\n    \"EUR\",\n    \"CHF\",\n    \"GBP\"\n  ],\n  \"CURRENCY_ALIASES\": {\n    \"$\": \"USD\",\n    \"US$\": \"USD\",\n    \"USD\": \"USD\",\n    \"U.S. $\": \"USD\",\n    \"€\": \"EUR\",\n    \"EUR\": \"EUR\",\n    \"£\": \"GBP\",\n    \"GBP\": \"GBP\",\n    \"CHF\": \"CHF\",\n    \"SFR\": \"CHF\",\n    \"SWISS FRANC\": \"CHF\"\n  },\n  \"DATE_FORMATS\": {\n    \"version\": \"0.1\",\n    \"defaults\": {\n      \"slash_order\": [\n        \"MDY\",\n        \"DMY\"\n      ],\n      \"dot_order\": [\n        \"DMY\"\n      ],\n      \"allow_single_digit\": true\n    },\n    \"issuer_overrides\": {\n      \"a_mark\": {\n        \"slash_order\": [\n          \"MDY\",\n          \"DMY\"\n        ]\n      }\n    }\n  }\n}\n\nDOCUMENT_TEXT (marker_text):\n__DOC_ID__ issuer=a-mark | doc_type=order_confirmation | document_number=720565 | document_date=2025-09-03\n__HEADER__\nINVOICE / ORDER CONFIRMATION\nA-Mark is Selling\nBFI BULLION AG\nCHAMERSTASSE 174\nZUG, 6300\nSWITZERLAND\n__TERMS_HEADERS__ TICKET # | ORDER DATE | VALUE DATE | EST. SHIP DATE | A-MARK TRADER | TRANSACTION TYPE | SHIPPING FROM\n__TERMS_ROW__ 720565 | 09/03/2025 | 09/12/2025 | 09/12/2025 | Michael | PHYSICAL | LOOMIS INTERNATIONAL Zurich\n__ITEM_HEADERS__ item | quantity | description | weight | weight_unit | item_price | total_price | serial_number\n__ORDER_ITEM__ item=SBVALKGCAS | quantity=100 | description=1 kg Valcambi cast silver bar | item_price=$1,350.00 | total_price=$135,000.00\n__TOTALS__\nSub Total: $135,000.00\nShipping Charges: $0.00\nOther Charges: $0.00\nTotal: $135,000.00\n__CONTACT__\nEMAIL: operations@amark.com\nPHONE: (310) 587-1477\nWEBSITE: www.amark.com\n__BANK__\nHSBC Bank\n310 Larkfield Road, Corner of 5th Ave\nEast Northport, New York 11731\nABA # 021000188\nAccount of A-Mark Precious Metals, Inc.\nAccount Number: 000183253\nBIC (SWIFT) code: MRMUS33\n\n",
+                            "content_len": 5231,
+                            "content_truncated": false
+                          }
+                        ]
+                      },
+                      "size": 0,
+                      "truncated": false
+                    }
+                  ],
+                  "end_ms": 25154.085,
+                  "duration_ms": 0.093
+                }
+              ],
+              "artifacts": [
+                {
+                  "key": "llm.response",
+                  "content_type": "application/json",
+                  "value": {
+                    "id": "chatcmpl-D4SzslnrhhnJaWWLGJ3c2yW5ncgwQ",
+                    "object": "chat.completion",
+                    "created": 1769957148,
+                    "model": "gpt-4o-mini-2024-07-18",
+                    "choices": [
+                      {
+                        "index": 0,
+                        "message": {
+                          "role": "assistant",
+                          "content": "{\n  \"meta\": {\n    \"confidence\": 0.95,\n    \"readiness\": {\n      \"reconciliation_ready\": true\n    },\n    \"warnings\": [],\n    \"field_sources\": {\n      \"document_issuer\": \"issuer=a-mark\",\n      \"document_type\": \"doc_type=order_confirmation\",\n      \"document_number\": \"document_number=720565\",\n      \"document_date\": \"document_date=2025-09-03\",\n      \"buyer\": \"BFI BULLION AG\"\n    },\n    \"order_items_quality\": \"high\"\n  },\n  \"raw\": {\n    \"raw_kv\": {\n      \"document_issuer\": \"a-mark\",\n      \"document_type\": \"order_confirmation\",\n      \"document_number\": \"720565\",\n      \"document_date\": \"2025-09-03\",\n      \"receiver\": \"BFI BULLION AG\"\n    },\n    \"raw_tables\": [\n      {\n        \"headers\": [\n          \"item\",\n          \"quantity\",\n          \"description\",\n          \"weight\",\n          \"weight_unit\",\n          \"item_price\",\n          \"total_price\",\n          \"serial_number\"\n        ],\n        \"rows\": [\n          {\n            \"item\": \"SBVALKGCAS\",\n            \"quantity\": \"100\",\n            \"description\": \"1 kg Valcambi cast silver bar\",\n            \"weight\": \"1\",\n            \"weight_unit\": \"kg\",\n            \"item_price\": \"$1,350.00\",\n            \"total_price\": \"$135,000.00\",\n            \"serial_number\": \"\"\n          }\n        ]\n      }\n    ]\n  },\n  \"structured_data\": {\n    \"document\": {\n      \"document_issuer\": \"a-mark\",\n      \"document_type\": \"order_confirmation\",\n      \"document_number\": \"720565\",\n      \"document_date\": \"2025-09-03\"\n    },\n    \"parties\": {\n      \"seller_name\": \"A-Mark Precious Metals, Inc.\",\n      \"buyer_name\": \"BFI BULLION AG\",\n      \"shipping_from\": \"LOOMIS INTERNATIONAL Zurich\",\n      \"shipping_to\": null\n    },\n    \"order_terms\": {\n      \"currency\": \"USD\",\n      \"order_date\": \"2025-09-03\",\n      \"order_number\": \"720565\",\n      \"shipping_date\": \"2025-09-12\",\n      \"value_date\": \"2025-09-12\",\n      \"transaction_type\": \"PHYSICAL\",\n      \"amounts\": {\n        \"subtotal\": \"135000.00\",\n        \"shipping_charges\": \"0.00\",\n        \"other_charges\": \"0.00\",\n        \"total\": \"135000.00\"\n      }\n    },\n    \"order_items\": [\n      {\n        \"item\": \"SBVALKGCAS\",\n        \"description\": \"1 kg Valcambi cast silver bar\",\n        \"quantity\": \"100\",\n        \"serial_number\": \"\",\n        \"metal\": \"silver\",\n        \"weight\": \"1\",\n        \"weight_unit\": \"kg\",\n        \"fineness\": \"\",\n        \"producer\": \"Valcambi\",\n        \"form\": \"bar\",\n        \"item_price\": 1350.00,\n        \"total_price\": 135000.00\n      }\n    ]\n  }\n}",
+                          "refusal": null,
+                          "annotations": []
+                        },
+                        "logprobs": null,
+                        "finish_reason": "stop"
+                      }
+                    ],
+                    "usage": {
+                      "prompt_tokens": 3505,
+                      "completion_tokens": 679,
+                      "total_tokens": 4184,
+                      "prompt_tokens_details": {
+                        "cached_tokens": 0,
+                        "audio_tokens": 0
+                      },
+                      "completion_tokens_details": {
+                        "reasoning_tokens": 0,
+                        "audio_tokens": 0,
+                        "accepted_prediction_tokens": 0,
+                        "rejected_prediction_tokens": 0
+                      }
+                    },
+                    "service_tier": "default",
+                    "system_fingerprint": "fp_1590f93f9d"
+                  },
+                  "size": 0,
+                  "truncated": false
+                }
+              ],
+              "end_ms": 25154.279,
+              "duration_ms": 14194.636
+            },
+            {
+              "type": "span",
+              "name": "postprocessing.fill_shipping_to_from_buyer_name",
+              "start_ms": 25155.211,
+              "status": "ok",
+              "attrs": {
+                "ran": true,
+                "changed_fields_count": 1,
+                "changed_fields_top": [
+                  "parties.shipping_to"
+                ]
+              },
+              "children": [],
+              "summary": "set parties.shipping_to=BFI BULLION AG",
+              "artifacts": [
+                {
+                  "key": "mapping.patch",
+                  "content_type": "application/json",
+                  "value": {
+                    "parties.shipping_to": {
+                      "source": "postprocessing.fill_shipping_to_from_buyer_name"
+                    }
+                  },
+                  "size": 0,
+                  "truncated": false
+                }
+              ],
+              "end_ms": 25155.441,
+              "duration_ms": 0.23
+            },
+            {
+              "type": "span",
+              "name": "postprocessing.fill_subtotal_from_total_if_no_charges",
+              "start_ms": 25155.513,
+              "status": "ok",
+              "attrs": {
+                "ran": true
+              },
+              "children": [],
+              "end_ms": 25155.574,
+              "duration_ms": 0.061
+            },
+            {
+              "type": "span",
+              "name": "postprocessing.fill_seller_name_from_provider",
+              "start_ms": 25155.63,
+              "status": "ok",
+              "attrs": {
+                "ran": true
+              },
+              "children": [],
+              "end_ms": 25155.682,
+              "duration_ms": 0.052
+            }
+          ],
+          "end_ms": 25155.838,
+          "duration_ms": 14200.927
+        },
+        {
+          "type": "span",
+          "name": "finalize.finalize_order_extraction",
+          "start_ms": 25155.911,
+          "status": "ok",
+          "attrs": {
+            "raw_tables": 2,
+            "raw_kv": 17
+          },
+          "children": [],
+          "end_ms": 25155.986,
+          "duration_ms": 0.075
+        },
+        {
+          "type": "span",
+          "name": "validate.OrderExtractedData.model_validate",
+          "start_ms": 25155.992,
+          "status": "ok",
+          "attrs": {},
+          "children": [],
+          "end_ms": 25156.065,
+          "duration_ms": 0.073
+        },
+        {
+          "type": "event",
+          "name": "decision.serial_number_expected",
+          "at_ms": 25156.109,
+          "attrs": {
+            "decision": "provider override",
+            "requested": true,
+            "effective": false,
+            "reason": "Issuer/doc-type policy override",
+            "rule_id": "BR-SN-001",
+            "rule_ref": "docs/ORDER_EXTRACTION_WORKFLOW.md#11-confidence-and-readiness",
+            "issuer": "a-mark",
+            "doc_type": "order_confirmation"
+          }
+        },
+        {
+          "type": "span",
+          "name": "confidence.compute",
+          "start_ms": 25156.147,
+          "status": "ok",
+          "attrs": {
+            "rule_id": "BR-CONF-001",
+            "rule_ref": "docs/ORDER_EXTRACTION_WORKFLOW.md#11-confidence-and-readiness",
+            "document_identity": 1.0,
+            "order_items": 0.97,
+            "overall": 0.95,
+            "order_items_threshold": 0.85,
+            "order_items_has_table": true,
+            "order_items_bullion_score": 0.9,
+            "serial_number_expected": false,
+            "ai_ready": true,
+            "warnings": 1,
+            "critical_warnings": 0,
+            "reconciliation_ready": true,
+            "reason": null
+          },
+          "children": [
+            {
+              "type": "event",
+              "name": "decision.confidence",
+              "at_ms": 25156.425,
+              "attrs": {
+                "decision": "computed confidence and readiness",
+                "reason": "doc=1.000 items=0.970 overall=0.950 ready=True",
+                "rule_id": "BR-CONF-001",
+                "rule_ref": "docs/ORDER_EXTRACTION_WORKFLOW.md#11-confidence-and-readiness"
+              }
+            }
+          ],
+          "end_ms": 25156.43,
+          "duration_ms": 0.283
+        }
+      ]
+    }
+  }
+}
