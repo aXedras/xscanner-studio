@@ -716,7 +716,7 @@ else
 	@echo "xScanner Studio:"
 	@echo "   UI:               http://localhost:$(STUDIO_PORT)"
 	@echo ""
-	@make start-server & make start-studio
+	@trap 'kill 0' INT TERM; make start-server & make start-studio & wait
 endif
 
 # CLI Tools - Unified tool for testing and benchmarking

@@ -36,6 +36,16 @@ repos:
         args: [--ignore-missing-imports]
         files: ^src/
 
+  # Copy-paste detection (jscpd)
+  - repo: local
+    hooks:
+      - id: jscpd
+        name: jscpd copy-paste detection
+        entry: jscpd --config .jscpd.json
+        language: system
+        pass_filenames: false
+        always_run: true
+
   # Unit tests (fast, always run on commit)
   - repo: local
     hooks:
