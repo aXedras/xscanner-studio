@@ -62,12 +62,12 @@ class TestChatGPTVisionStrategy:
     """Test ChatGPT Vision strategy without real API calls."""
 
     @pytest.fixture
-    def strategy(self):
-        """Create strategy with mock API key."""
-        return ChatGPTVisionStrategy(
-            api_key="test-key",
-            model="gpt-4o-mini",
-        )
+    def strategy(self, monkeypatch):
+        """Create strategy with mock env vars."""
+        monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+        monkeypatch.setenv("OPENAI_MODEL", "gpt-5.2")
+        monkeypatch.setenv("OPENAI_TEMPERATURE", "0.0")
+        return ChatGPTVisionStrategy()
 
     @pytest.fixture
     def mock_image_path(self, tmp_path):
@@ -80,42 +80,62 @@ class TestChatGPTVisionStrategy:
         return image_path
 
     def test_strategy_initialization(self, strategy):
-        """Strategy initializes with correct configuration."""
+        """Strategy initializes with correct configuration from env vars."""
         assert strategy.name.startswith("ChatGPT Vision")
-        assert "gpt-4o-mini" in strategy.name
+        # Values come from fixture's monkeypatch.setenv
+        assert strategy.model == "gpt-5.2"
+        assert strategy.temperature == 0.0
 
-    @patch("requests.Session.request")
-    def test_extract_returns_result(self, mock_request, strategy, mock_image_path, chatgpt_fixture):
-        """Extract method returns ExtractionResult with realistic mocked API response."""
-        # Mock HTTP API response with realistic data from fixture
+    @patch("requests.Session.post")
+    def test_extract_returns_result(self, mock_post, strategy, mock_image_path):
+        """Extract method returns ExtractionResult with mocked Responses API response."""
+        # Mock Responses API format with function calling output
         mock_response = Mock()
         mock_response.status_code = 200
+        mock_response.raise_for_status = Mock()
         mock_response.json.return_value = {
-            "choices": [{"message": {"content": chatgpt_fixture["raw_text"]}}]
+            "output": [
+                {
+                    "content": [
+                        {
+                            "type": "function_call",
+                            "arguments": json.dumps(
+                                {
+                                    "category": "bar",
+                                    "metal": "Gold",
+                                    "weight": 1000,
+                                    "weight_unit": "g",
+                                    "fineness": 999.9,
+                                    "serial_number": "AR95742",
+                                    "producer": "Valcambi",
+                                    "visible_damage": False,
+                                }
+                            ),
+                        }
+                    ]
+                }
+            ]
         }
-        mock_request.return_value = mock_response
+        mock_post.return_value = mock_response
 
-        # Execute
         result = strategy.extract(mock_image_path)
 
-        # Verify structure
         assert isinstance(result, ExtractionResult)
         assert result.strategy_name.startswith("ChatGPT Vision")
         assert result.processing_time >= 0
         assert isinstance(result.structured_data, dict)
-
-        # Verify realistic data from fixture
-        expected = chatgpt_fixture["structured_data"]
-        assert result.structured_data.get("Metal") == expected.get("Metal")
-        assert result.structured_data.get("Producer") == expected.get("Producer")
+        assert result.error is None
+        # Verify data from mock (new snake_case field names)
+        assert result.structured_data.get("metal") == "Gold"
+        assert result.structured_data.get("producer") == "Valcambi"
+        assert result.structured_data.get("serial_number") == "AR95742"
 
     def test_extract_handles_invalid_path(self, strategy):
-        """Extract handles non-existent file path gracefully."""
+        """Extract raises FileNotFoundError for non-existent file."""
         invalid_path = Path("/nonexistent/image.jpg")
 
-        # Strategy wraps errors in ExtractionResult.error, doesn't raise
-        result = strategy.extract(invalid_path)
-        assert result.error is not None or result.structured_data == {}
+        with pytest.raises(FileNotFoundError):
+            strategy.extract(invalid_path)
 
 
 class TestGeminiFlashStrategy:

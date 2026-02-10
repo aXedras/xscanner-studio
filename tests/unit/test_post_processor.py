@@ -38,6 +38,17 @@ class TestExtractionPostProcessor:
             == "Credit Suisse"
         )
 
+    def test_normalizes_metal_symbol_to_full_name(self):
+        assert ExtractionPostProcessor.process({"Metal": "AU"})["Metal"] == "Gold"
+        assert ExtractionPostProcessor.process({"Metal": "AG"})["Metal"] == "Silver"
+        assert ExtractionPostProcessor.process({"Metal": "PT"})["Metal"] == "Platinum"
+        assert ExtractionPostProcessor.process({"Metal": "PD"})["Metal"] == "Palladium"
+        assert ExtractionPostProcessor.process({"Metal": "au"})["Metal"] == "Gold"
+
+    def test_keeps_full_metal_name_unchanged(self):
+        assert ExtractionPostProcessor.process({"Metal": "Gold"})["Metal"] == "Gold"
+        assert ExtractionPostProcessor.process({"Metal": "Silver"})["Metal"] == "Silver"
+
 
 class TestNormalizeWeight:
     """Test weight normalization functionality."""

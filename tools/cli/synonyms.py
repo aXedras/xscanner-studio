@@ -219,7 +219,7 @@ def normalize_unit(value: str | None) -> str | None:
     """Normalize weight unit to standard abbreviation.
 
     Args:
-        value: Unit string (e.g., 'grams', 'kg', 'ounce')
+        value: Unit string (e.g., 'grams', 'kg', 'ounce', 'toz')
 
     Returns:
         Normalized unit ('g', 'kg', 'oz') or None
@@ -238,6 +238,8 @@ def normalize_unit(value: str | None) -> str | None:
         "oz": "oz",
         "ounce": "oz",
         "ozt": "oz",
+        "toz": "oz",  # troy ounce
+        "troyounce": "oz",
     }
     return mapping.get(unit, unit)
 
@@ -273,7 +275,7 @@ def weight_to_grams(weight_value: str | float | None, unit_value: str | None) ->
         return value
     if unit_norm in {"kg", "kilo", "kilogram", "kilograms"}:
         return value * 1000
-    if unit_norm in {"oz", "ounce", "ozt"}:
+    if unit_norm in {"oz", "ounce", "ozt", "toz", "troyounce"}:
         return value * 31.1034768
     return value
 

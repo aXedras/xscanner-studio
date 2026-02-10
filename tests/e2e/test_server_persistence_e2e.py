@@ -472,12 +472,13 @@ def test_extract_upload_mock_lora_persists_row(server, supabase_creds):
     and persists to Supabase.
     """
 
+    # Skip if LoRA service is not configured or reachable
     lora_base_url = os.getenv("LORA_BASE_URL")
     if not lora_base_url or not lora_base_url.strip():
-        pytest.skip("LORA_BASE_URL not configured")
+        pytest.skip("LORA_BASE_URL not set - skipping LoRA E2E test")
     lora_base_url = lora_base_url.strip()
     if not LoRAFinetunedStrategy.is_available(lora_base_url):
-        pytest.skip(f"LoRA service not reachable at LORA_BASE_URL={lora_base_url}")
+        pytest.skip(f"LoRA service not reachable at {lora_base_url} - skipping LoRA E2E test")
 
     supabase_url, supabase_service_role_key = supabase_creds
     test_image_path = COMMITTED_TEST_IMAGE_PATHS[0]

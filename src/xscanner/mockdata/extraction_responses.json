@@ -13,7 +13,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"D12669\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Degussa\"\n}\n```",
         "structured_data": {
           "SerialNumber": "D12669",
@@ -113,7 +113,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"D08744\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"500\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Degussa\"\n}\n```",
         "structured_data": {
           "SerialNumber": "D08744",
@@ -213,7 +213,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"AB55221\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1\",\n  \"WeightUnit\": \"kg\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Credit Suisse\"\n}\n```",
         "structured_data": {
           "SerialNumber": "AB55221",
@@ -318,7 +318,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"AA85989\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1\",\n  \"WeightUnit\": \"kg\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Valcambi\"\n}\n```",
         "structured_data": {
           "SerialNumber": "AA85989",
@@ -420,7 +420,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"715563\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"100\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "715563",
@@ -520,7 +520,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"715562\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"100\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "715562",
@@ -620,7 +620,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"715564\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"100\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "715564",
@@ -720,7 +720,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"49265\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "49265",
@@ -824,7 +824,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"54283\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "54283",
@@ -926,7 +926,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"614938\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"100\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Credit Suisse\"\n}\n```",
         "structured_data": {
           "SerialNumber": "614938",
@@ -1026,7 +1026,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"012232\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Credit Suisse\"\n}\n```",
         "structured_data": {
           "SerialNumber": "012232",
@@ -1130,7 +1130,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"614936\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"100\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Credit Suisse\"\n}\n```",
         "structured_data": {
           "SerialNumber": "614936",
@@ -1230,7 +1230,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"A552252\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"500\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "A552252",
@@ -1335,7 +1335,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"A55251\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"500\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "A55251",
@@ -1435,7 +1435,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"48721\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "48721",
@@ -1539,7 +1539,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"50176\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "50176",
@@ -1641,7 +1641,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"AA04881\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1\",\n  \"WeightUnit\": \"kg\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Clariden Leu\"\n}\n```",
         "structured_data": {
           "SerialNumber": "AA04881",
@@ -1743,7 +1743,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"AA04035\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1\",\n  \"WeightUnit\": \"kg\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Clariden Leu\"\n}\n```",
         "structured_data": {
           "SerialNumber": "AA04035",
@@ -1845,7 +1845,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"N36676\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1000\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "N36676",
@@ -1947,7 +1947,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"AD95869\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1\",\n  \"WeightUnit\": \"kg\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "AD95869",
@@ -2049,7 +2049,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"A40590\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1000\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "A40590",
@@ -2149,7 +2149,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"A38978\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1000\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "A38978",
@@ -2249,7 +2249,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"A17723\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1000\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Commerzbank\"\n}\n```",
         "structured_data": {
           "SerialNumber": "A17723",
@@ -2349,7 +2349,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"A17724\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1000\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Commerzbank\"\n}\n```",
         "structured_data": {
           "SerialNumber": "A17724",
@@ -2449,7 +2449,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"E16473\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"250\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Degussa\"\n}\n```",
         "structured_data": {
           "SerialNumber": "E16473",
@@ -2553,7 +2553,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"CF 9972\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"100\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Argor Heraeus\"\n}\n```",
         "structured_data": {
           "SerialNumber": "CF9972",
@@ -2655,7 +2655,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "```json\n{\n  \"SerialNumber\": \"AR95742\",\n  \"Metal\": \"Gold\",\n  \"Weight\": \"1000\",\n  \"WeightUnit\": \"g\",\n  \"Fineness\": \"999.9\",\n  \"Producer\": \"Valcambi\"\n}\n```",
         "structured_data": {
           "SerialNumber": "AR95742",
@@ -2757,7 +2757,7 @@
       }
     },
     "results": {
-      "ChatGPT Vision (gpt-4o-mini)": {
+      "ChatGPT Vision (gpt-5.2)": {
         "raw_text": "{\"Metal\": \"Gold\", \"Weight\": \"1000\", \"WeightUnit\": \"g\", \"Fineness\": \"999.9\", \"SerialNumber\": \"AD95870\", \"Producer\": \"Argor Heraeus\"}",
         "structured_data": {
           "Metal": "Gold",

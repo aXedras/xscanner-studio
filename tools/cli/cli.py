@@ -26,71 +26,6 @@ for handler in logging.root.handlers:
         handler.setLevel(logging.WARNING)
 
 
-def _print_strategy_config(*, strategy_name: str, strategy) -> None:
-    """Print a safe summary of the effective strategy configuration.
-
-    This intentionally does not print secrets (API keys).
-    """
-
-    print("⚙️  Config:")
-
-    if strategy_name == "chatgpt":
-        model = getattr(strategy, "model", None)
-        api_url = getattr(strategy, "api_url", None)
-        max_out = getattr(strategy, "max_output_tokens", None)
-        temp = getattr(strategy, "temperature", None)
-        api_key_set = bool(getattr(strategy, "api_key", None))
-
-        print(f"  Provider      : openai (api_key_set={api_key_set})")
-        if model is not None:
-            print(f"  Model         : {model}")
-        if api_url is not None:
-            print(f"  Endpoint      : {api_url}")
-
-        if isinstance(model, str) and model.startswith("gpt-5"):
-            # GPT-5 family models require default temperature and use max_completion_tokens.
-            if isinstance(max_out, int):
-                print(
-                    f"  Tokens        : max_completion_tokens={max_out + 512} (configured_output={max_out})"
-                )
-            print("  Temperature   : omitted (gpt-5 default)")
-            print("  Reasoning     : low")
-        else:
-            if temp is not None:
-                print(f"  Temperature   : {temp}")
-            if max_out is not None:
-                print(f"  Tokens        : max_tokens={max_out}")
-        return
-
-    if strategy_name == "gemini":
-        model = getattr(strategy, "model", None)
-        timeout = getattr(strategy, "request_timeout", None)
-        api_key_set = bool(getattr(strategy, "api_key", None))
-        api_url = getattr(strategy, "API_URL", None)
-
-        print(f"  Provider      : google (api_key_set={api_key_set})")
-        if model is not None:
-            print(f"  Model         : {model}")
-        if api_url is not None:
-            print(f"  Endpoint      : {api_url}")
-        if timeout is not None:
-            print(f"  Timeout       : {timeout}s")
-        print("  Generation    : temperature=0.2, maxOutputTokens=1200")
-        return
-
-    if strategy_name == "lora":
-        base_url = getattr(strategy, "base_url", None)
-        timeout = getattr(strategy, "timeout", None)
-        print("  Provider      : lora")
-        if base_url is not None:
-            print(f"  Base URL      : {base_url}")
-        if timeout is not None:
-            print(f"  Timeout       : {timeout}s")
-        return
-
-    print("  (No config summary available for this strategy)")
-
-
 def run_single_test(image_path: Path, strategy_name: str, verbose: bool = False) -> int:
     """Run a single extraction test on one image with one strategy."""
     if not image_path.exists():
@@ -107,7 +42,6 @@ def run_single_test(image_path: Path, strategy_name: str, verbose: bool = False)
 
     print(f"\n🔍 Testing: {image_path.name}")
     print(f"📊 Strategy: {strategy_name}")
-    _print_strategy_config(strategy_name=strategy_name, strategy=strategy)
     print(f"{'=' * 60}\n")
 
     result = strategy.extract(image_path)
@@ -178,7 +112,6 @@ def run_multiple_tests(image_paths: list[Path], strategy_name: str) -> int:
     print(f"\n{'=' * 80}")
     print(f"🔬 Batch Testing: {len(image_paths)} images")
     print(f"📊 Strategy: {strategy_name}")
-    _print_strategy_config(strategy_name=strategy_name, strategy=strategy)
     print(f"{'=' * 80}\n")
 
     # Statistics tracking
@@ -533,7 +466,8 @@ Examples:
         default=None,
         help=(
             "Comma-separated list of strategies to benchmark (benchmark mode only). "
-            "Allowed: lora,chatgpt,gemini. Default: all available"
+            "Allowed: lora,lora-2stage,lora-2stage-v2,chatgpt-2stage,chatgpt-2stage-v2. "
+            "Default: all available"
         ),
     )
 

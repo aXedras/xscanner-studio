@@ -64,7 +64,7 @@ def test_order_service_sets_llm_usage_cost_usd_when_pricing_configured(monkeypat
                         "cloud.ai_extract",
                         attrs={
                             "provider": "openai",
-                            "model": "gpt-4o",
+                            "model": "gpt-5.2",
                             "usage": {
                                 "input_tokens": 1000,
                                 "output_tokens": 500,

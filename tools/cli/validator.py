@@ -3,6 +3,20 @@
 import re
 from pathlib import Path
 
+# Metal symbol ↔ name mapping for flexible validation
+METAL_ALIASES: dict[str, str] = {
+    "AU": "Gold",
+    "AG": "Silver",
+    "PT": "Platinum",
+    "PD": "Palladium",
+}
+
+
+def _normalize_metal(value: str) -> str:
+    """Normalize metal value to common name (e.g. 'AU' → 'Gold')."""
+    upper = value.strip().upper()
+    return METAL_ALIASES.get(upper, value.strip().title())
+
 
 def parse_filename_ground_truth(image_path: Path) -> dict[str, str] | None:
     """Parse ground truth data from structured filename.
@@ -56,10 +70,10 @@ def validate_extraction(extracted_data: dict, ground_truth: dict) -> tuple[list[
     successes = []
     errors = []
 
-    # 1. Metal - must match exactly
+    # 1. Metal - match allowing symbol aliases (AU=Gold, AG=Silver, etc.)
     if "Metal" not in extracted_data:
         errors.append("❌ Metal field missing")
-    elif extracted_data["Metal"] != ground_truth["Metal"]:
+    elif _normalize_metal(extracted_data["Metal"]) != _normalize_metal(ground_truth["Metal"]):
         errors.append(
             f"❌ Metal: expected '{ground_truth['Metal']}', got '{extracted_data['Metal']}'"
         )

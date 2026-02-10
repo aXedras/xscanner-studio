@@ -18,7 +18,7 @@
     "order_items_quality": "high",
     "llm_usage": {
       "provider": "openai",
-      "model": "gpt-4o-mini-2024-07-18",
+      "model": "gpt-5.2-2024-07-18",
       "input_tokens": 2883,
       "output_tokens": 620,
       "total_tokens": 3503

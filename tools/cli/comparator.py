@@ -65,18 +65,21 @@ class StrategyComparator:
 
         return run_strategies_sequential(self.strategies, image_path)
 
-    def test_multiple_images(self, image_cases: list[Any]) -> list[dict[str, Any]]:
+    def test_multiple_images(
+        self, image_cases: list[Any], incremental_save_path: Path | None = None
+    ) -> list[dict[str, Any]]:
         """Test all strategies on multiple images.
 
         Args:
             image_cases: List of image paths or dictionaries with metadata
+            incremental_save_path: If provided, save results after each image (sequential mode only)
 
         Returns:
             List of test results
         """
         if self.image_workers > 1 and len(image_cases) > 1:
             return self._test_multiple_images_parallel(image_cases)
-        return self._test_multiple_images_sequential(image_cases)
+        return self._test_multiple_images_sequential(image_cases, incremental_save_path)
 
     def test_multiple_images_map_reduce(self, image_cases: list[Any]) -> list[dict[str, Any]]:
         """Test images using map-reduce pattern: strategies run in PARALLEL.
@@ -477,16 +480,17 @@ class StrategyComparator:
         for test in self.results:
             row = [test.get("image", "")]
 
-            # Expected values
-            expected = test.get("expected", {}).get("fields", {})
+            # Expected values (handle None explicitly)
+            expected_data = test.get("expected")
+            expected = expected_data.get("fields", {}) if expected_data else {}
             for field in fields:
                 row.append(expected.get(field, ""))
 
             # Per-strategy values
             for strategy in strategy_names:
                 result = test.get("results", {}).get(strategy, {})
-                structured = result.get("structured_data", {})
-                comparison = result.get("comparison", {})
+                structured = result.get("structured_data", {}) or {}
+                comparison = result.get("comparison", {}) or {}
 
                 for field in fields:
                     value = structured.get(field, "")
@@ -525,16 +529,35 @@ class StrategyComparator:
         """Print formatted comparison of results."""
         print_comparison(self.results)
 
-    def _test_multiple_images_sequential(self, image_cases: list[Any]) -> list[dict[str, Any]]:
-        """Process images sequentially (original behavior)."""
+    def _test_multiple_images_sequential(
+        self, image_cases: list[Any], incremental_save_path: Path | None = None
+    ) -> list[dict[str, Any]]:
+        """Process images sequentially with optional incremental saving.
+
+        Args:
+            image_cases: List of image paths or dictionaries with metadata
+            incremental_save_path: If provided, save results after each image
+        """
         all_results = []
 
-        for case in image_cases:
+        for idx, case in enumerate(image_cases):
             result = self._process_single_image_case(case)
             all_results.append(result)
+            self.results = all_results
 
-        self.results = all_results
+            # Incremental save after each image
+            if incremental_save_path:
+                self._save_incremental(incremental_save_path)
+                print(f"  💾 Progress saved ({idx + 1}/{len(image_cases)} images)")
+
         return all_results
+
+    def _save_incremental(self, output_path: Path):
+        """Save current results incrementally (no status message)."""
+        import json
+
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(self.results, f, indent=2, ensure_ascii=False)
 
     def _test_multiple_images_parallel(self, image_cases: list[Any]) -> list[dict[str, Any]]:
         """Process multiple images in parallel using ThreadPoolExecutor."""
@@ -644,6 +667,36 @@ class StrategyComparator:
             return 0
         return min(self.max_workers, len(self.strategies))
 
+    # snake_case → PascalCase key mapping for comparison
+    _FIELD_KEY_ALIASES: dict[str, str] = {
+        "serial_number": "SerialNumber",
+        "serialnumber": "SerialNumber",
+        "metal": "Metal",
+        "weight": "Weight",
+        "weight_unit": "WeightUnit",
+        "weightunit": "WeightUnit",
+        "fineness": "Fineness",
+        "producer": "Producer",
+        "category": "Category",
+        "visible_damage": "VisibleDamage",
+        "serial_number_visibility": "SerialNumberVisibility",
+    }
+
+    @classmethod
+    def _normalize_extracted_keys(cls, data: dict[str, Any]) -> dict[str, Any]:
+        """Normalize extracted field keys to PascalCase for comparison.
+
+        Strategies may return snake_case keys (e.g. ``serial_number``) while
+        the benchmark ground truth uses PascalCase (``SerialNumber``).  This
+        method normalises the keys so comparison works regardless of casing
+        convention used by the strategy.
+        """
+        normalized: dict[str, Any] = {}
+        for key, value in data.items():
+            pascal_key = cls._FIELD_KEY_ALIASES.get(key.lower(), key)
+            normalized[pascal_key] = value
+        return normalized
+
     def _evaluate_result_with_validator(
         self, expected: dict[str, Any] | None, extracted: dict[str, Any]
     ) -> dict[str, Any] | None:
@@ -656,6 +709,9 @@ class StrategyComparator:
         """
         if not expected or "fields" not in expected:
             return None
+
+        # Normalize extracted keys (snake_case → PascalCase) before comparison
+        extracted = self._normalize_extracted_keys(extracted)
 
         ground_truth = expected["fields"]
         expected_fields = ground_truth if isinstance(ground_truth, dict) else {}

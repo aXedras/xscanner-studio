@@ -181,8 +181,11 @@ def generate_index_page(history_dir: Path) -> None:
         stem = json_file.stem
         timestamp = stem.split("_")[-2] + "_" + stem.split("_")[-1]
 
-        # Parse timestamp for display
-        dt = datetime.strptime(timestamp, "%Y%m%d_%H%M%S")
+        # Parse timestamp for display – skip files with non-standard names
+        try:
+            dt = datetime.strptime(timestamp, "%Y%m%d_%H%M%S")
+        except ValueError:
+            continue
         display_date = dt.strftime("%Y-%m-%d %H:%M:%S")
 
         # Load JSON to get summary stats

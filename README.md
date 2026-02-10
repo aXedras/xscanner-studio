@@ -130,17 +130,17 @@ LORA_BASE_URL=http://localhost:8000 ./tools/lora_analyze.sh barPictures/my_bar.j
 
 ### ChatGPT Vision Tool
 
-Analyze images using OpenAI GPT-4o Vision API:
+Analyze images using OpenAI GPT-5.2 Vision API:
 
 ```bash
 # Requires OPENAI_API_KEY environment variable
 export OPENAI_API_KEY=sk-...
 
-# Basic usage with gpt-4o-mini
+# Basic usage with gpt-5.2
 ./tools/chatgpt_analyze.sh barPictures/Renamed-and-Sorted/Gold_01000g_9999_AR95742_Valcambi.jpg
 
-# Use GPT-4o for better accuracy
-./tools/chatgpt_analyze.sh barPictures/my_bar.jpg --model gpt-4o
+# Use GPT-5.2 for better accuracy
+./tools/chatgpt_analyze.sh barPictures/my_bar.jpg --model gpt-5.2
 
 # Verbose with token statistics
 ./tools/chatgpt_analyze.sh barPictures/my_bar.jpg -v
@@ -152,7 +152,7 @@ export OPENAI_API_KEY=sk-...
 ```
 
 **Options:**
-- `-m, --model MODEL` - Model: `gpt-4o-mini`, `gpt-4o`, `gpt-4-turbo`
+- `-m, --model MODEL` - Model: `gpt-5.2`
 - `-s, --system-prompt FILE` - System prompt file
 - `-p, --user-prompt FILE` - User prompt file
 - `-t, --temperature TEMP` - Temperature (default: 0.1)
@@ -246,6 +246,84 @@ See [docs/](docs/) and [docs/studio/](docs/studio/) for detailed documentation.
 2. Install pre-commit hooks: `pre-commit install`
 3. Run tests: `make test-unit`
 4. Follow conventional commits
+
+---
+
+## Testing
+
+LoRA direkt auf RundPod:
+<code>
+curl -X POST https://ln5k5kxgyy3sqz-8000.proxy.runpod.net/analyze \
+  -F "image=@/Users/marcopersi/development/xScanner/tests/fixtures/images/bars/Gold_00500g_9999_A55251_Heraeus.jpg"
+</code>
+
+LoRA auf xScanner:
+<code>
+curl -X POST http://localhost:8000/extract/upload \
+  -F "file=@/Users/marcopersi/development/xScanner/tests/fixtures/images/bars/Gold_00500g_9999_A55251_Heraeus.jpg" \
+  -F "strategy=local" \
+  -F "register_on_bil=false"
+</code>
+
+
+## Benchmarking
+
+```bash
+# Activate venv first
+source venv/bin/activate
+
+# Full benchmark (all images, all strategies)
+python -m cli
+
+# Quick benchmark (3 random images)
+python -m cli --quick
+
+# Sample benchmark with specific strategies
+python -m cli --sample-size 25 --strategies lora,lora-2stage,lora-2stage-v2
+
+# Only LoRA strategies
+python -m cli --strategies lora,lora-2stage,lora-2stage-v2
+
+# Only ChatGPT strategies
+python -m cli --strategies chatgpt-2stage,chatgpt-2stage-v2
+
+# Test single image
+python -m cli --image barPictures/my_bar.jpg --strategy lora
+
+# Interactive mode
+python -m cli --interactive
+
+# List available images/strategies
+python -m cli --list-images
+python -m cli --list-strategies
+```
+
+**Benchmark Options:**
+- `--sample-size N` - Random sample of N images (troyounce images always included)
+- `--quick` - Quick test with 3 random images
+- `--strategies LIST` - Comma-separated: `lora,lora-2stage,lora-2stage-v2,chatgpt-2stage,chatgpt-2stage-v2`
+- `--difficult-only` - Only test on barPictures/difficult folder
+- `--workers N` - Parallel strategy workers per image
+- `--image-workers N` - Parallel image processing
+
+---
+
+## 🔐 Environment Files
+
+| File | Purpose | Used By |
+|------|---------|--------|
+| `.env.example` | Template with all config keys | Copy to `.env.local` for local dev |
+| `.env.local` | Local development (secrets) | Server auto-loads, **gitignored** |
+| `.env.ci` | CI/CD (no secrets) | GitHub Actions via `$GITHUB_ENV` |
+| `.env.preprod.example` | Pre-prod Docker template | Copy to `.env.preprod` |
+| `studio/.env.example` | Studio (Vite) template | Copy to `studio/.env.local` |
+
+**Key categories:**
+- **Providers**: `OPENAI_API_KEY`, `GOOGLE_API_KEY`, `LORA_BASE_URL`
+- **Prompts**: `LORA_*_PROMPT_FILE`, `CHATGPT_*_PROMPT_FILE`
+- **Server**: `SERVER_HOST`, `SERVER_PORT`
+- **Persistence**: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+- **Logging**: `LOG_LEVEL`, `LOG_FILE`
 
 ---
 

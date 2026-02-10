@@ -1,9 +1,9 @@
-"""Entry point for `python -m tools.cli`.
+"""Entry point for `python -m cli`.
 
 This provides a simple interactive entry menu so we can host multiple
 developer flows under one umbrella CLI.
 
-Non-interactive usage remains available via `python -m tools.cli.cli`.
+Non-interactive usage remains available via `python -m cli.cli`.
 """
 
 from __future__ import annotations
@@ -39,7 +39,7 @@ def main() -> int:
     if argv:
         return _dispatch_extract(argv)
 
-    # Interactive menu (default for `python -m tools.cli` with no args).
+    # Interactive menu (default for `python -m cli` with no args).
     print("\nWas möchtest du anschauen?\n")
     print("  1) Extract (Strategie-Benchmark)")
     print("  2) Orders (manual vs cloud)")

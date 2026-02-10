@@ -3,7 +3,7 @@
 
 # Capture selected environment overrides *before* loading .env.local.
 # Rationale: `.env.local` is included as a Makefile fragment and would otherwise
-# override shell-provided environment vars like `OPENAI_MODEL=gpt-4o-mini make ...`.
+# override shell-provided environment vars like `OPENAI_MODEL=gpt-5.2 make ...`.
 OPENAI_MODEL_ENV := $(OPENAI_MODEL)
 OPENAI_TEMPERATURE_ENV := $(OPENAI_TEMPERATURE)
 OPENAI_MAX_OUTPUT_TOKENS_ENV := $(OPENAI_MAX_OUTPUT_TOKENS)
@@ -25,7 +25,7 @@ endif
 export
 
 # Allow per-invocation environment overrides, e.g.:
-#   OPENAI_MODEL=gpt-4o-mini make record-order-extract-mock FILE=...
+#   OPENAI_MODEL=gpt-5.2 make record-order-extract-mock FILE=...
 # Without this, values from the included .env.local would win.
 MAKEFLAGS += -e
 

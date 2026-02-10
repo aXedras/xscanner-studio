@@ -1,8 +1,8 @@
 """Benchmark runner logic.
 
 This runner benchmarks the strategies supported by the CLI:
-- Cloud: ChatGPT Vision, Gemini Flash (when API keys are configured)
-- Local: LoRA fine-tuned (only local strategy)
+- Cloud: ChatGPT Vision, ChatGPT 2-Stage (V1 & V2), Gemini Flash
+- LoRA: LoRA fine-tuned, LoRA 2-Stage
 """
 
 import os
@@ -12,7 +12,13 @@ from pathlib import Path
 
 from .comparator import StrategyComparator  # noqa: E402
 
-_BENCH_STRATEGY_NAMES = ("lora", "chatgpt", "gemini")
+_BENCH_STRATEGY_NAMES = (
+    "chatgpt",
+    "chatgpt-2stage",
+    "gemini",
+    "lora",
+    "lora-2stage",
+)
 
 
 def get_benchmark_image_pool(*, difficult_only: bool) -> list[Path]:
@@ -81,18 +87,28 @@ def _get_requested_sample_size(args) -> int | None:
 def parse_filename_metadata(image_path: Path) -> dict[str, any] | None:
     """Extract expected metadata from filename.
 
-    Expected pattern: Metal_WeightFineness_SerialNumber_Producer.jpg
-    Example: Gold_01000g_9999_AB55223_CS.jpg
+    Supported patterns:
+    1. Standard: Gold_01000g_9999_AB55223_CS.jpg
+    2. TroyOunce: Silver_979.40troyounce_9990_4184903_Asahi_.jpeg
 
     Returns:
         Dictionary with expected fields or None if pattern doesn't match
     """
-    # Pattern: Metal_WeightUnit_Fineness_Serial_Producer.ext
+    # Pattern 1: Standard format (whole number weight)
     # Example: Gold_01000g_9999_AB55223_CS.jpg
     #          Silver_00100g_9990_12345_Heraeus.jpg
-    pattern = r"^([A-Za-z]+)_(\d+)([a-z]+)_(\d+)_([A-Za-z0-9]+)_(.+)\.(jpg|jpeg|png)$"
+    standard_pattern = r"^([A-Za-z]+)_(\d+)([a-z]+)_(\d+)_([A-Za-z0-9]+)_(.+)\.(jpg|jpeg|png)$"
 
-    match = re.match(pattern, image_path.name, re.IGNORECASE)
+    # Pattern 2: TroyOunce format (decimal weight)
+    # Example: Silver_979.40troyounce_9990_4184903_Asahi_.jpeg
+    troyounce_pattern = (
+        r"^([A-Za-z]+)_(\d+\.\d+)(troyounce)_(\d+)_([A-Za-z0-9]+)_(.+)\.(jpg|jpeg|png)$"
+    )
+
+    match = re.match(standard_pattern, image_path.name, re.IGNORECASE)
+    if not match:
+        match = re.match(troyounce_pattern, image_path.name, re.IGNORECASE)
+
     if not match:
         return None
 
@@ -115,6 +131,17 @@ def parse_filename_metadata(image_path: Path) -> dict[str, any] | None:
     }
     metal_normalized = metal_map.get(metal.lower(), metal.capitalize())
 
+    # Normalize weight unit
+    unit_lower = unit.lower()
+    unit_map = {
+        "g": "g",
+        "kg": "kg",
+        "toz": "toz",
+        "oz": "oz",
+        "troyounce": "toz",  # Convert troyounce → toz
+    }
+    unit_normalized = unit_map.get(unit_lower, unit_lower)
+
     # Format fineness (add decimal point: 9999 -> 999.9)
     if len(fineness) == 4:
         fineness_value = f"{fineness[0:3]}.{fineness[3]}"
@@ -126,7 +153,7 @@ def parse_filename_metadata(image_path: Path) -> dict[str, any] | None:
         "fields": {
             "Metal": metal_normalized,
             "Weight": weight.lstrip("0") or "0",
-            "WeightUnit": unit,
+            "WeightUnit": unit_normalized,
             "Fineness": fineness_value,
             "SerialNumber": serial,
             "Producer": producer,
@@ -137,8 +164,10 @@ def parse_filename_metadata(image_path: Path) -> dict[str, any] | None:
 def run_benchmark(args) -> int:
     """Run benchmark comparing all available strategies on multiple images."""
 
+    from xscanner.strategy.chatgpt_2stage_vision_strategy import ChatGPT2StageVisionStrategy
     from xscanner.strategy.chatgpt_vision_strategy import ChatGPTVisionStrategy
     from xscanner.strategy.gemini_flash_strategy import GeminiFlashStrategy
+    from xscanner.strategy.lora_2stage_strategy import LoRA2StageStrategy
     from xscanner.strategy.lora_finetuned_strategy import LoRAFinetunedStrategy
 
     try:
@@ -155,9 +184,14 @@ def run_benchmark(args) -> int:
         print(f"Requested: {', '.join(requested)}")
 
     # Initialize in requested order, or in stable default order.
-    to_init = requested if requested is not None else ["chatgpt", "gemini", "lora"]
+    to_init = (
+        requested
+        if requested is not None
+        else ["chatgpt", "chatgpt-2stage", "gemini", "lora", "lora-2stage"]
+    )
 
     for name in to_init:
+        # ChatGPT strategies
         if name == "chatgpt":
             if not os.environ.get("OPENAI_API_KEY"):
                 print("⚠ ChatGPT Vision skipped: OPENAI_API_KEY not set")
@@ -169,6 +203,18 @@ def run_benchmark(args) -> int:
                 print(f"⚠️  ChatGPT skipped: {exc}")
             continue
 
+        if name == "chatgpt-2stage":
+            if not os.environ.get("OPENAI_API_KEY"):
+                print("⚠ ChatGPT 2-Stage skipped: OPENAI_API_KEY not set")
+                continue
+            try:
+                strategies.append(ChatGPT2StageVisionStrategy())
+                print("✓ ChatGPT 2-Stage (V1)")
+            except Exception as exc:
+                print(f"⚠️  ChatGPT 2-Stage skipped: {exc}")
+            continue
+
+        # Gemini
         if name == "gemini":
             if not os.environ.get("GOOGLE_API_KEY"):
                 print("⚠ Gemini Flash skipped: GOOGLE_API_KEY not set")
@@ -180,6 +226,7 @@ def run_benchmark(args) -> int:
                 print(f"⚠️  Gemini skipped: {exc}")
             continue
 
+        # LoRA strategies
         if name == "lora":
             base_url = os.environ.get("LORA_BASE_URL")
             if not base_url:
@@ -203,6 +250,29 @@ def run_benchmark(args) -> int:
                     print("⚠ LoRA skipped: LORA_BASE_URL not configured")
             continue
 
+        if name == "lora-2stage":
+            base_url = os.environ.get("LORA_BASE_URL")
+            if not base_url:
+                try:
+                    from xscanner.server.config import get_config
+
+                    base_url = get_config().lora.base_url
+                except Exception:
+                    base_url = None
+
+            if base_url and LoRA2StageStrategy.is_available(base_url):
+                try:
+                    strategies.append(LoRA2StageStrategy(base_url=base_url))
+                    print("✓ LoRA 2-Stage")
+                except Exception as exc:
+                    print(f"⚠️  LoRA 2-Stage skipped: {exc}")
+            else:
+                if base_url:
+                    print("⚠ LoRA 2-Stage skipped: service not reachable")
+                else:
+                    print("⚠ LoRA 2-Stage skipped: LORA_BASE_URL not configured")
+            continue
+
     print("=" * 60)
 
     if not strategies:
@@ -222,8 +292,24 @@ def run_benchmark(args) -> int:
     # Select images based on mode
     requested_sample_size = _get_requested_sample_size(args)
     if requested_sample_size is not None:
-        test_images = random.sample(all_images, min(requested_sample_size, len(all_images)))
-        mode = f"SAMPLE ({len(test_images)} random images)"
+        # Always include troyounce images (priority images)
+        troyounce_images = [img for img in all_images if "troyounce" in img.name.lower()]
+        other_images = [img for img in all_images if "troyounce" not in img.name.lower()]
+
+        # Start with all troyounce images
+        test_images = list(troyounce_images)
+
+        # Fill remaining slots with random other images
+        remaining_slots = requested_sample_size - len(test_images)
+        if remaining_slots > 0 and other_images:
+            random_others = random.sample(other_images, min(remaining_slots, len(other_images)))
+            test_images.extend(random_others)
+
+        # Shuffle to avoid always testing troyounce first
+        random.shuffle(test_images)
+
+        troyounce_count = len(troyounce_images)
+        mode = f"SAMPLE ({len(test_images)} images: {troyounce_count} troyounce + {len(test_images) - troyounce_count} random)"
     elif args.quick:
         test_images = random.sample(all_images, min(3, len(all_images)))
         mode = "QUICK (3 random images)"
@@ -265,15 +351,18 @@ def run_benchmark(args) -> int:
 
     print("\n🚀 Starting benchmark...\n")
 
-    comparator.test_multiple_images(image_cases)
+    # Output file for incremental saves
+    output_file = Path("reports/strategy_benchmark_results.json")
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # Run with incremental saving (saves after each image)
+    comparator.test_multiple_images(image_cases, incremental_save_path=output_file)
 
     # Save results (JSON + CSV) and keep a timestamped history copy
     from datetime import datetime
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-    output_file = Path("reports/strategy_benchmark_results.json")
-    output_file.parent.mkdir(parents=True, exist_ok=True)
     comparator.save_results(output_file)
 
     # Also save CSV for easy human review

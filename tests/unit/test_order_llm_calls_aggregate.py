@@ -78,7 +78,7 @@ def test_order_service_aggregates_multiple_llm_calls_and_costs(monkeypatch) -> N
                         "cloud.ai_extract",
                         attrs={
                             "provider": "openai",
-                            "model": "gpt-4o-mini",
+                            "model": "gpt-5.2",
                             "usage": usage,
                         },
                     ):
@@ -140,7 +140,7 @@ def test_order_service_aggregates_multiple_llm_calls_and_costs(monkeypatch) -> N
     vision_mock = VisionMarkerTextMock(
         marker_text="__DOCUMENT__\nDOCUMENT ISSUER: ACME\n",
         provider="openai",
-        model="gpt-4o-mini",
+        model="gpt-5.2",
         usage={"input_tokens": 7, "output_tokens": 3, "total_tokens": 10},
     )
 

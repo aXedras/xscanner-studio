@@ -16,7 +16,7 @@ def test_config_loading():
     # Test default config creation
     config = AppConfig()
     assert config.server.port == 8000
-    assert config.openai.model == "gpt-4o-mini"
+    assert config.openai.model == "gpt-5.2"
 
 
 def test_extraction_strategy_enum():

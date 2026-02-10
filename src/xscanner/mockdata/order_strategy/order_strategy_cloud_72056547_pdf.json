@@ -65,7 +65,7 @@
     "llm_calls": [
       {
         "provider": "openai",
-        "model": "gpt-4o-mini-2024-07-18",
+        "model": "gpt-5.2-2024-07-18",
         "operation": "cloud.ai_extract",
         "attempt": 1,
         "input_tokens": 3411,
@@ -76,7 +76,7 @@
     ],
     "llm_usage": {
       "provider": "openai",
-      "model": "gpt-4o-mini-2024-07-18",
+      "model": "gpt-5.2-2024-07-18",
       "operation": "total",
       "attempt": null,
       "input_tokens": 3411,
@@ -532,7 +532,7 @@
               "attrs": {
                 "success": true,
                 "provider": "openai",
-                "model": "gpt-4o-mini-2024-07-18",
+                "model": "gpt-5.2-2024-07-18",
                 "usage": {
                   "input_tokens": 3411,
                   "output_tokens": 758,
@@ -555,7 +555,7 @@
                       "key": "llm.request",
                       "content_type": "application/json",
                       "value": {
-                        "model": "gpt-4o-mini",
+                        "model": "gpt-5.2",
                         "temperature": 0.2,
                         "max_tokens": 900,
                         "response_format": {
@@ -592,7 +592,7 @@
                     "id": "chatcmpl-D4Sz53supliNM8ppAFugmndTrSTsG",
                     "object": "chat.completion",
                     "created": 1769957099,
-                    "model": "gpt-4o-mini-2024-07-18",
+                    "model": "gpt-5.2-2024-07-18",
                     "choices": [
                       {
                         "index": 0,

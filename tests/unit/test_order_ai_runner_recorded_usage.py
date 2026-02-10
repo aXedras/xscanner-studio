@@ -10,7 +10,7 @@ def test_run_order_extraction_via_ai_uses_llm_usage_from_recorded_mock_envelope(
         "meta": {
             "llm_usage": {
                 "provider": "openai",
-                "model": "gpt-4o",
+                "model": "gpt-5.2",
                 "input_tokens": 10,
                 "output_tokens": 5,
                 "total_tokens": 15,
@@ -46,7 +46,7 @@ def test_run_order_extraction_via_ai_uses_llm_usage_from_recorded_mock_envelope(
     # But usage metadata should reflect the recorded provider/model + tokens.
     assert res.usage == {
         "provider": "openai",
-        "model": "gpt-4o",
+        "model": "gpt-5.2",
         "input_tokens": 10,
         "output_tokens": 5,
         "total_tokens": 15,

@@ -14,7 +14,7 @@ def sample_config() -> AppConfig:
     return AppConfig(
         openai=OpenAIConfig(
             api_key="test_openai_key",
-            model="gpt-4o-mini",
+            model="gpt-5.2",
             temperature=0.0,
             max_tokens=16000,
             max_output_tokens=16000,

@@ -61,7 +61,7 @@ def test_order_service_sets_llm_usage_from_cloud_trace(monkeypatch) -> None:
                         "cloud.ai_extract",
                         attrs={
                             "provider": "openai",
-                            "model": "gpt-4o-mini",
+                            "model": "gpt-5.2",
                             "usage": {"input_tokens": 10, "output_tokens": 5, "total_tokens": 15},
                         },
                     ):
@@ -103,14 +103,14 @@ def test_order_service_sets_llm_usage_from_cloud_trace(monkeypatch) -> None:
     assert res.result.meta.llm_calls[0].operation == "cloud.ai_extract"
     assert res.result.meta.llm_calls[0].attempt == 1
     assert res.result.meta.llm_calls[0].provider == "openai"
-    assert res.result.meta.llm_calls[0].model == "gpt-4o-mini"
+    assert res.result.meta.llm_calls[0].model == "gpt-5.2"
     assert res.result.meta.llm_calls[0].input_tokens == 10
     assert res.result.meta.llm_calls[0].output_tokens == 5
     assert res.result.meta.llm_calls[0].total_tokens == 15
 
     assert res.result.meta.llm_usage is not None
     assert res.result.meta.llm_usage.provider == "openai"
-    assert res.result.meta.llm_usage.model == "gpt-4o-mini"
+    assert res.result.meta.llm_usage.model == "gpt-5.2"
     assert res.result.meta.llm_usage.input_tokens == 10
     assert res.result.meta.llm_usage.output_tokens == 5
     assert res.result.meta.llm_usage.total_tokens == 15

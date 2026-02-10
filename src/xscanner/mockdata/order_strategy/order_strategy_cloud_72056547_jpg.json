@@ -64,7 +64,7 @@
     "llm_calls": [
       {
         "provider": "openai",
-        "model": "gpt-4o-mini-2024-07-18",
+        "model": "gpt-5.2-2024-07-18",
         "operation": "input.textify",
         "attempt": null,
         "input_tokens": 26552,
@@ -74,7 +74,7 @@
       },
       {
         "provider": "openai",
-        "model": "gpt-4o-mini-2024-07-18",
+        "model": "gpt-5.2-2024-07-18",
         "operation": "cloud.ai_extract",
         "attempt": 1,
         "input_tokens": 3505,
@@ -85,7 +85,7 @@
     ],
     "llm_usage": {
       "provider": "openai",
-      "model": "gpt-4o-mini-2024-07-18",
+      "model": "gpt-5.2-2024-07-18",
       "operation": "total",
       "attempt": null,
       "input_tokens": 30057,
@@ -327,7 +327,7 @@
             "pages": 1,
             "raw_text_len": 1080,
             "provider": "openai",
-            "model": "gpt-4o-mini-2024-07-18",
+            "model": "gpt-5.2-2024-07-18",
             "usage": {
               "input_tokens": 26552,
               "output_tokens": 354,
@@ -349,7 +349,7 @@
                   "key": "llm.request",
                   "content_type": "application/json",
                   "value": {
-                    "model": "gpt-4o-mini",
+                    "model": "gpt-5.2",
                     "temperature": 0.2,
                     "max_tokens": 900,
                     "messages": [
@@ -410,7 +410,7 @@
                 "id": "chatcmpl-D4SzkJ3TzPQj9J6Y8d9eQ3MrssVH9",
                 "object": "chat.completion",
                 "created": 1769957140,
-                "model": "gpt-4o-mini-2024-07-18",
+                "model": "gpt-5.2-2024-07-18",
                 "choices": [
                   {
                     "index": 0,
@@ -614,7 +614,7 @@
               "attrs": {
                 "success": true,
                 "provider": "openai",
-                "model": "gpt-4o-mini-2024-07-18",
+                "model": "gpt-5.2-2024-07-18",
                 "usage": {
                   "input_tokens": 3505,
                   "output_tokens": 679,
@@ -637,7 +637,7 @@
                       "key": "llm.request",
                       "content_type": "application/json",
                       "value": {
-                        "model": "gpt-4o-mini",
+                        "model": "gpt-5.2",
                         "temperature": 0.2,
                         "max_tokens": 900,
                         "response_format": {
@@ -674,7 +674,7 @@
                     "id": "chatcmpl-D4SzslnrhhnJaWWLGJ3c2yW5ncgwQ",
                     "object": "chat.completion",
                     "created": 1769957148,
-                    "model": "gpt-4o-mini-2024-07-18",
+                    "model": "gpt-5.2-2024-07-18",
                     "choices": [
                       {
                         "index": 0,

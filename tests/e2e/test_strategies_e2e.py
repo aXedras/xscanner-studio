@@ -4,11 +4,12 @@ These tests make real API/service calls and validate extracted data
 against ground truth from structured filenames.
 
 Required configuration:
-- ChatGPT: OPENAI_API_KEY
+- ChatGPT: OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE
 - Gemini: GOOGLE_API_KEY
 - Local: LoRA fine-tuned service reachable via LORA_BASE_URL
 """
 
+import os
 from pathlib import Path
 
 import pytest
@@ -59,16 +60,15 @@ def test_image_with_ground_truth():
 
 
 @pytest.fixture(scope="module")
-def chatgpt_strategy(config):
-    """Create ChatGPT strategy if API key is configured."""
-    if not config.openai.api_key:
+def chatgpt_strategy():
+    """Create ChatGPT strategy if env vars are configured."""
+    if not os.environ.get("OPENAI_API_KEY"):
         pytest.skip("OPENAI_API_KEY not configured")
-    return ChatGPTVisionStrategy(
-        api_key=config.openai.api_key,
-        model=config.openai.model,
-        temperature=config.openai.temperature,
-        max_output_tokens=config.openai.max_output_tokens,
-    )
+    if not os.environ.get("OPENAI_MODEL"):
+        pytest.skip("OPENAI_MODEL not configured")
+    if not os.environ.get("OPENAI_TEMPERATURE"):
+        pytest.skip("OPENAI_TEMPERATURE not configured")
+    return ChatGPTVisionStrategy()
 
 
 @pytest.fixture(scope="module")
@@ -118,6 +118,11 @@ def _validate_strategy_result(strategy_name: str, result, test_image, ground_tru
     assert result is not None, "Strategy should return a result"
     assert result.processing_time > 0, "Processing time should be positive"
     assert isinstance(result.structured_data, dict), "Structured data should be a dictionary"
+
+    # Log raw output for debugging CI failures
+    print(f"📝 Raw output: {result.raw_text[:500] if result.raw_text else 'None'}...")
+    if result.error:
+        print(f"⚠️  Error: {result.error}")
 
     data = result.structured_data
     print(f"🤖 Extracted: {data}")
