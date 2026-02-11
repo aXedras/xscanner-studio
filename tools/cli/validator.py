@@ -11,11 +11,54 @@ METAL_ALIASES: dict[str, str] = {
     "PD": "Palladium",
 }
 
+# Map snake_case keys (from JSON schema) to PascalCase (ground truth convention)
+_KEY_MAP: dict[str, str] = {
+    "metal": "Metal",
+    "weight": "Weight",
+    "weight_unit": "WeightUnit",
+    "fineness": "Fineness",
+    "serial_number": "SerialNumber",
+    "producer": "Producer",
+    "category": "Category",
+    "serial_number_visibility": "SerialNumberVisibility",
+    "visible_damage": "VisibleDamage",
+}
+
+
+def _normalize_keys(data: dict) -> dict:
+    """Normalize extraction keys to PascalCase for consistent validation.
+
+    Strategies return snake_case keys (per JSON schema), ground truth
+    uses PascalCase.  Accept both transparently.
+    """
+    return {_KEY_MAP.get(k, k): v for k, v in data.items()}
+
 
 def _normalize_metal(value: str) -> str:
     """Normalize metal value to common name (e.g. 'AU' → 'Gold')."""
     upper = value.strip().upper()
     return METAL_ALIASES.get(upper, value.strip().title())
+
+
+def _normalize_fineness(value) -> str:
+    """Normalize fineness to integer-thousandths string for comparison.
+
+    Handles both decimal format from API (0.9999) and
+    human-readable format from ground truth (999.9 or 9999).
+
+    Examples:
+        0.9999  → "9999"
+        0.999   → "9990"
+        999.9   → "9999"
+        9999    → "9999"
+        "999.9" → "9999"
+    """
+    num = float(value)
+    if num < 1:
+        # Decimal format (0.9999) → multiply by 10000 and round
+        return str(round(num * 10000))
+    # Already in absolute format (999.9, 9999)
+    return str(value).replace(".", "").strip()
 
 
 def parse_filename_ground_truth(image_path: Path) -> dict[str, str] | None:
@@ -60,6 +103,9 @@ def parse_filename_ground_truth(image_path: Path) -> dict[str, str] | None:
 def validate_extraction(extracted_data: dict, ground_truth: dict) -> tuple[list[str], list[str]]:
     """Validate extracted data against ground truth.
 
+    Handles both snake_case (from strategy JSON schema) and PascalCase keys
+    transparently.
+
     Args:
         extracted_data: Data extracted by strategy
         ground_truth: Expected data from filename
@@ -70,62 +116,61 @@ def validate_extraction(extracted_data: dict, ground_truth: dict) -> tuple[list[
     successes = []
     errors = []
 
+    # Normalize keys so both snake_case and PascalCase inputs work
+    data = _normalize_keys(extracted_data)
+
     # 1. Metal - match allowing symbol aliases (AU=Gold, AG=Silver, etc.)
-    if "Metal" not in extracted_data:
+    if "Metal" not in data:
         errors.append("❌ Metal field missing")
-    elif _normalize_metal(extracted_data["Metal"]) != _normalize_metal(ground_truth["Metal"]):
-        errors.append(
-            f"❌ Metal: expected '{ground_truth['Metal']}', got '{extracted_data['Metal']}'"
-        )
+    elif _normalize_metal(data["Metal"]) != _normalize_metal(ground_truth["Metal"]):
+        errors.append(f"❌ Metal: expected '{ground_truth['Metal']}', got '{data['Metal']}'")
     else:
-        successes.append(f"✓ Metal: {extracted_data['Metal']}")
+        successes.append(f"✓ Metal: {data['Metal']}")
 
     # 2. Weight - must match (strip units if present)
-    if "Weight" not in extracted_data:
+    if "Weight" not in data:
         errors.append("❌ Weight field missing")
     else:
         extracted_weight = (
-            str(extracted_data["Weight"]).replace("g", "").replace(".", "").replace(",", "").strip()
+            str(data["Weight"]).replace("g", "").replace(".", "").replace(",", "").strip()
         )
         expected_weight = str(ground_truth["Weight"])
         if extracted_weight != expected_weight:
-            errors.append(
-                f"❌ Weight: expected '{expected_weight}g', got '{extracted_data['Weight']}'"
-            )
+            errors.append(f"❌ Weight: expected '{expected_weight}g', got '{data['Weight']}'")
         else:
-            successes.append(f"✓ Weight: {extracted_data['Weight']}")
+            successes.append(f"✓ Weight: {data['Weight']}")
 
-    # 3. Fineness - must match (allow formatting: 9999 = 999.9)
-    if "Fineness" not in extracted_data:
+    # 3. Fineness - must match (allow formatting: 9999 = 999.9 = 0.9999)
+    if "Fineness" not in data:
         errors.append("❌ Fineness field missing")
     else:
-        extracted_fineness = str(extracted_data["Fineness"]).replace(".", "").strip()
-        expected_fineness = str(ground_truth["Fineness"]).replace(".", "").strip()
+        extracted_fineness = _normalize_fineness(data["Fineness"])
+        expected_fineness = _normalize_fineness(ground_truth["Fineness"])
         if extracted_fineness != expected_fineness:
             errors.append(
-                f"❌ Fineness: expected '{ground_truth['Fineness']}', got '{extracted_data['Fineness']}'"
+                f"❌ Fineness: expected '{ground_truth['Fineness']}', got '{data['Fineness']}'"
             )
         else:
-            successes.append(f"✓ Fineness: {extracted_data['Fineness']}")
+            successes.append(f"✓ Fineness: {data['Fineness']}")
 
     # 4. Producer - must match exactly
-    if "Producer" not in extracted_data:
+    if "Producer" not in data:
         errors.append("❌ Producer field missing")
-    elif extracted_data["Producer"] != ground_truth["Producer"]:
+    elif data["Producer"] != ground_truth["Producer"]:
         errors.append(
-            f"❌ Producer: expected '{ground_truth['Producer']}', got '{extracted_data['Producer']}'"
+            f"❌ Producer: expected '{ground_truth['Producer']}', got '{data['Producer']}'"
         )
     else:
-        successes.append(f"✓ Producer: {extracted_data['Producer']}")
+        successes.append(f"✓ Producer: {data['Producer']}")
 
     # 5. SerialNumber - must match exactly
-    if "SerialNumber" not in extracted_data:
+    if "SerialNumber" not in data:
         errors.append("❌ SerialNumber field missing")
-    elif extracted_data["SerialNumber"] != ground_truth["SerialNumber"]:
+    elif data["SerialNumber"] != ground_truth["SerialNumber"]:
         errors.append(
-            f"❌ SerialNumber: expected '{ground_truth['SerialNumber']}', got '{extracted_data['SerialNumber']}'"
+            f"❌ SerialNumber: expected '{ground_truth['SerialNumber']}', got '{data['SerialNumber']}'"
         )
     else:
-        successes.append(f"✓ SerialNumber: {extracted_data['SerialNumber']}")
+        successes.append(f"✓ SerialNumber: {data['SerialNumber']}")
 
     return successes, errors
