@@ -100,12 +100,14 @@ class TestChatGPTVisionStrategy:
             "weight_unit": "g",
             "fineness": 999.9,
             "serial_number": "AR95742",
+            "serial_number_visibility": "clearly_visible",
             "producer": "Valcambi",
             "visible_damage": False,
         }
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.raise_for_status = Mock()
+        mock_response.text = json.dumps({"output_text": json.dumps(mock_data)})
         mock_response.json.return_value = {
             "output_text": json.dumps(mock_data),
         }

@@ -47,6 +47,7 @@ _SERVER_ENV_DEFAULTS: dict[str, str] = {
     "OPENAI_API_KEY": "test-integration",
     "OPENAI_MODEL": "gpt-5.2",
     "OPENAI_TEMPERATURE": "0.0",
+    "OPENAI_MAX_TOKENS": "16000",
     "OPENAI_MAX_OUTPUT_TOKENS": "900",
     "GOOGLE_API_KEY": "test-integration",
     "GOOGLE_MODEL": "gemini-2.0-flash",
