@@ -1,15 +1,9 @@
-# Default xScanner Dockerfile - Cloud APIs Only (Lightweight)
-# For full version with local strategies (PaddleOCR + Llama Vision), see Dockerfile.full
-# For cloud-only lightweight version, see Dockerfile.cloud (this is it!)
+# xScanner Dockerfile
 #
-# This is the RECOMMENDED production image:
-# - Only ChatGPT Vision + Gemini Flash strategies
-# - Final image: ~300MB
-# - Fast startup, low memory footprint
-# - Perfect for cloud deployment
+# Strategies: ChatGPT Vision, Gemini Flash, LoRA (external server)
+# Final image: ~300MB (no heavy ML runtimes bundled)
 #
-# To build: docker build -t xscanner:cloud .
-# To build full version: docker build -f Dockerfile.full -t xscanner:full .
+# To build: docker build -t xscanner .
 
 FROM python:3.11-slim
 
@@ -20,12 +14,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy application code
+# Copy application code and runtime config
 COPY src/ ./src/
-COPY config/prompt_template_image.txt config/system_prompt_image.txt ./config/
+COPY config/ ./config/
 COPY pyproject.toml ./
 
-# Install only cloud dependencies (no ML libraries!)
+# Install server + cloud dependencies (LoRA strategy uses core deps only)
 RUN pip install --no-cache-dir -e ".[server,cloud]" && \
     pip cache purge
 

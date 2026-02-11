@@ -12,21 +12,18 @@ This document defines the release flow for xScanner, the container image tags pr
 
 xScanner publishes two API image flavors:
 
-- **Cloud**: `ghcr.io/axedras/xscanner:cloud` (moving)
-- **Cloud (alias)**: `ghcr.io/axedras/xscanner:latest` (moving, same as `:cloud`)
-- **Full**: `ghcr.io/axedras/xscanner:full` (moving)
+- **Latest**: `ghcr.io/axedras/xscanner:latest` (moving, updated on every push to main/develop)
+- **Branch**: `ghcr.io/axedras/xscanner:<branch>` (moving, e.g. `:main`, `:develop`)
 
 On every non-PR CI run, the moving tags are updated (overwritten) and do not accumulate long-term storage.
 
 On GitHub Release, CI also publishes immutable release tags:
 
-- Cloud release: `ghcr.io/axedras/xscanner:cloud-vX.Y.Z`
-- Full release: `ghcr.io/axedras/xscanner:full-vX.Y.Z`
+- Versioned: `ghcr.io/axedras/xscanner:vX.Y.Z`
 
-And two moving "latest release channel" tags:
+And a moving "latest release channel" tag:
 
-- Cloud latest release: `ghcr.io/axedras/xscanner:cloud-release`
-- Full latest release: `ghcr.io/axedras/xscanner:full-release`
+- Latest release: `ghcr.io/axedras/xscanner:release`
 
 xScanner also publishes a Studio (nginx) image:
 

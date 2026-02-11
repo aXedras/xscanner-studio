@@ -92,32 +92,22 @@ class TestChatGPTVisionStrategy:
 
     @patch("requests.Session.post")
     def test_extract_returns_result(self, mock_post, strategy, mock_image_path):
-        # Mock Responses API format with function calling output
+        # Mock Responses API format with output_text shortcut
+        mock_data = {
+            "category": "bar",
+            "metal": "Gold",
+            "weight": 1000,
+            "weight_unit": "g",
+            "fineness": 999.9,
+            "serial_number": "AR95742",
+            "producer": "Valcambi",
+            "visible_damage": False,
+        }
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.raise_for_status = Mock()
         mock_response.json.return_value = {
-            "output": [
-                {
-                    "content": [
-                        {
-                            "type": "function_call",
-                            "arguments": json.dumps(
-                                {
-                                    "category": "bar",
-                                    "metal": "Gold",
-                                    "weight": 1000,
-                                    "weight_unit": "g",
-                                    "fineness": 999.9,
-                                    "serial_number": "AR95742",
-                                    "producer": "Valcambi",
-                                    "visible_damage": False,
-                                }
-                            ),
-                        }
-                    ]
-                }
-            ]
+            "output_text": json.dumps(mock_data),
         }
         mock_post.return_value = mock_response
 
@@ -145,8 +135,10 @@ class TestGeminiFlashStrategy:
     """Test Gemini Flash strategy without real API calls."""
 
     @pytest.fixture
-    def strategy(self):
-        """Create strategy with mock API key."""
+    def strategy(self, monkeypatch):
+        """Create strategy with mock API key and env vars."""
+        monkeypatch.setenv("CHATGPT_SYSTEM_PROMPT_FILE", "config/chatgpt_system_prompt_image.txt")
+        monkeypatch.setenv("CHATGPT_USER_PROMPT_FILE", "config/chatgpt_user_prompt_image.txt")
         return GeminiFlashStrategy(api_key="test-key")
 
     @pytest.fixture
@@ -201,8 +193,10 @@ class TestLoRAFinetunedStrategy:
     """Test LoRA fine-tuned strategy without real network calls."""
 
     @pytest.fixture
-    def strategy(self):
+    def strategy(self, monkeypatch):
         """Create strategy with mock configuration."""
+        monkeypatch.setenv("LORA_SYSTEM_PROMPT_FILE", "config/lora_system_prompt.txt")
+        monkeypatch.setenv("LORA_USER_PROMPT_FILE", "config/lora_user_prompt.txt")
         # LoRA strategy validates base URL at init; mock that in tests.
         with patch("requests.get") as mock_get:
             mock_get.return_value = Mock(status_code=200)

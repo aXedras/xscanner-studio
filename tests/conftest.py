@@ -58,13 +58,13 @@ def sample_config() -> AppConfig:
         lora=LoraConfig(
             base_url="https://fake-lora.example.com",
             system_prompt_file="config/lora_system_prompt.txt",
-            user_prompt_file="config/lora_user_prompt_extended.txt",
-            stage1_user_prompt_file="config/lora_user_prompt_extended.txt",
+            user_prompt_file="config/lora_user_prompt.txt",
+            stage1_user_prompt_file="config/lora_user_prompt.txt",
             stage2_user_prompt_file="config/lora_user_prompt_OCR.txt",
         ),
         chatgpt=ChatGptConfig(
-            stage2_system_prompt_file="config/system_prompt_image.txt",
-            stage2_user_prompt_file="config/chatgpt_prompt_image.txt",
+            stage2_system_prompt_file="config/chatgpt_system_prompt_image.txt",
+            stage2_user_prompt_file="config/chatgpt_user_prompt_image.txt",
         ),
         axedras=AxedrasConfig(
             base_url="https://instance1.acc.axedras.io",

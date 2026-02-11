@@ -2,7 +2,7 @@ services:
   xscanner-api-build:
     build:
       context: .
-      dockerfile: Dockerfile.${MODE:-cloud}
+      dockerfile: Dockerfile
     environment:
       # Release
       XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG-}
@@ -62,7 +62,7 @@ services:
     restart: unless-stopped
 
   xscanner-api-release:
-    image: ${XSCANNER_API_IMAGE:-ghcr.io/axedras/xscanner:full-release}
+    image: ${XSCANNER_API_IMAGE:-ghcr.io/axedras/xscanner:release}
     environment:
       # Release
       XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG-}

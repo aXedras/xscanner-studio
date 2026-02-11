@@ -42,6 +42,37 @@ def _remove_supabase_env(env: dict[str, str]) -> dict[str, str]:
     return cleaned
 
 
+# Required env vars for the server subprocess (strict config).
+_SERVER_ENV_DEFAULTS: dict[str, str] = {
+    "OPENAI_API_KEY": "test-integration",
+    "OPENAI_MODEL": "gpt-5.2",
+    "OPENAI_TEMPERATURE": "0.0",
+    "OPENAI_MAX_OUTPUT_TOKENS": "900",
+    "GOOGLE_API_KEY": "test-integration",
+    "GOOGLE_MODEL": "gemini-2.0-flash",
+    "LORA_BASE_URL": "https://fake.example.com",
+    "LORA_SYSTEM_PROMPT_FILE": "config/lora_system_prompt.txt",
+    "LORA_USER_PROMPT_FILE": "config/lora_user_prompt.txt",
+    "LORA_STAGE1_USER_PROMPT_FILE": "config/lora_user_prompt.txt",
+    "LORA_STAGE2_USER_PROMPT_FILE": "config/lora_user_prompt_OCR.txt",
+    "CHATGPT_SYSTEM_PROMPT_FILE": "config/chatgpt_system_prompt_image.txt",
+    "CHATGPT_USER_PROMPT_FILE": "config/chatgpt_user_prompt_image.txt",
+    "CHATGPT_STAGE2_SYSTEM_PROMPT_FILE": "config/chatgpt_system_prompt_image.txt",
+    "CHATGPT_STAGE2_USER_PROMPT_FILE": "config/chatgpt_user_prompt_image.txt",
+    "AXEDRAS_BASE_URL": "https://instance1.acc.axedras.io",
+    "AXEDRAS_KEYCLOAK_URL": "https://keycloak.acc.axedras.io",
+    "AXEDRAS_REALM": "instance1",
+    "AXEDRAS_USERNAME": "user",
+    "AXEDRAS_PASSWORD": "pass",
+    "AXEDRAS_CLIENT_ID": "axedras-api",
+    "SERVER_HOST": "0.0.0.0",
+    "SERVER_PORT": "8000",
+    "SERVER_WORKERS": "4",
+    "MAX_TEST_IMAGES": "10",
+    "STRATEGY_IMAGE_WORKERS": "0",
+}
+
+
 @pytest.fixture(scope="module")
 def free_port():
     """Get a free port for the test server."""
@@ -59,6 +90,7 @@ def server(free_port):
 
     env = _remove_supabase_env(
         {
+            **_SERVER_ENV_DEFAULTS,
             **os.environ,
             "PYTHONPATH": str(PROJECT_ROOT / "src"),
             "XSCANNER_DOTENV_OVERRIDE": "false",
@@ -125,6 +157,7 @@ def server_with_mock_error():
 
     env = _remove_supabase_env(
         {
+            **_SERVER_ENV_DEFAULTS,
             **os.environ,
             "PYTHONPATH": str(PROJECT_ROOT / "src"),
             "XSCANNER_DOTENV_OVERRIDE": "false",

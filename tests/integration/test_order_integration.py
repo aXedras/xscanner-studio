@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from tests.utils.env import set_required_env
 from xscanner.mockdata.order_extract import (
     build_order_extract_mock_name_from_upload_filename,
     get_order_extract_mock_path,
@@ -34,6 +35,7 @@ def test_order_extract_upload_parses_sample_pdf_without_persistence(
     monkeypatch.delenv("SUPABASE_SERVICE_ROLE_KEY", raising=False)
     # Ensure config is reloaded from the patched environment (lifespan also does this,
     # but only when the TestClient is used as a context manager).
+    set_required_env(monkeypatch)
     reload_config()
     import xscanner.server.persistence as persistence
 
@@ -170,6 +172,7 @@ def test_order_extract_upload_cloud_mock_works_without_openai_key(
     monkeypatch.delenv("SUPABASE_SERVICE_ROLE_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
+    set_required_env(monkeypatch)
     reload_config()
     import xscanner.server.persistence as persistence
 
@@ -238,6 +241,7 @@ def test_order_extract_upload_cloud_mock_uses_recorded_ai_response_when_present(
     monkeypatch.delenv("SUPABASE_SERVICE_ROLE_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
+    set_required_env(monkeypatch)
     reload_config()
     import xscanner.server.persistence as persistence
 
@@ -298,6 +302,7 @@ def test_order_extract_upload_image_cloud_can_mock_vision_and_ai_separately(
     monkeypatch.delenv("SUPABASE_SERVICE_ROLE_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
+    set_required_env(monkeypatch)
     reload_config()
     import xscanner.server.persistence as persistence
 
