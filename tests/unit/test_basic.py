@@ -9,12 +9,14 @@ def test_placeholder():
     assert xscanner is not None
 
 
-def test_config_loading():
+def test_config_loading(monkeypatch):
     """Test configuration module loads without error."""
-    from xscanner.server.config import AppConfig
+    from tests.utils.env import set_required_env
+    from xscanner.server.config import reload_config
 
-    # Test default config creation
-    config = AppConfig()
+    # Test config creation from env
+    set_required_env(monkeypatch)
+    config = reload_config()
     assert config.server.port == 8000
     assert config.openai.model == "gpt-5.2"
 

@@ -67,6 +67,10 @@ class TestChatGPTVisionStrategy:
         monkeypatch.setenv("OPENAI_API_KEY", "test-key")
         monkeypatch.setenv("OPENAI_MODEL", "gpt-5.2")
         monkeypatch.setenv("OPENAI_TEMPERATURE", "0.0")
+        monkeypatch.setenv("OPENAI_MAX_OUTPUT_TOKENS", "900")
+        monkeypatch.setenv("OPENAI_API_URL", "https://api.openai.com/v1/responses")
+        monkeypatch.setenv("CHATGPT_SYSTEM_PROMPT_FILE", "config/chatgpt_system_prompt_image.txt")
+        monkeypatch.setenv("CHATGPT_USER_PROMPT_FILE", "config/chatgpt_user_prompt_image.txt")
         return ChatGPTVisionStrategy()
 
     @pytest.fixture
@@ -88,7 +92,6 @@ class TestChatGPTVisionStrategy:
 
     @patch("requests.Session.post")
     def test_extract_returns_result(self, mock_post, strategy, mock_image_path):
-        """Extract method returns ExtractionResult with mocked Responses API response."""
         # Mock Responses API format with function calling output
         mock_response = Mock()
         mock_response.status_code = 200

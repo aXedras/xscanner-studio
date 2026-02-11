@@ -39,23 +39,20 @@ THIRD_PARTY_LOGGERS: tuple[str, ...] = (
 
 
 def setup_logging() -> None:
-    """Configure logging system from environment config.
-
-    Should be called once at application startup.
-    Creates rotating file handler and console handler for root logger.
-    """
     global _logging_configured
 
     if _logging_configured:
         return
 
-    from ..server.config import get_config
+    import logging
 
-    config = get_config()
-    log_level = getattr(logging, config.logging.level, logging.INFO)
+    from ..server.config import LoggingConfig
+
+    config = LoggingConfig.from_env()
+    log_level = getattr(logging, config.level, logging.INFO)
 
     # Create log directory if not exists
-    log_path = Path(config.logging.file)
+    log_path = Path(config.file)
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Root logger configuration
@@ -64,7 +61,7 @@ def setup_logging() -> None:
 
     # Rotating file handler (rotates when file reaches max_bytes)
     file_handler = RotatingFileHandler(
-        log_path, maxBytes=config.logging.max_bytes, backupCount=config.logging.backup_count
+        log_path, maxBytes=config.max_bytes, backupCount=config.backup_count
     )
     file_handler.setLevel(log_level)  # Use configured log level
     file_handler.setFormatter(
@@ -91,15 +88,7 @@ def setup_logging() -> None:
 
 
 def get_logger(name: str) -> logging.Logger:
-    """Get a logger with the specified name.
+    import logging
 
-    Automatically sets up logging if not already configured.
-
-    Args:
-        name: Name for the logger (usually module name or component name)
-
-    Returns:
-        Configured logger instance
-    """
     setup_logging()
     return logging.getLogger(name)

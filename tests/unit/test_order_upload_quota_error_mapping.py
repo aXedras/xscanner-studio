@@ -4,6 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 from PIL import Image
 
+from tests.utils.env import set_required_env
 from xscanner.lib.trace_tree import TraceTree
 from xscanner.server.server import app
 
@@ -18,6 +19,8 @@ def _make_png_bytes() -> bytes:
 def test_order_upload_maps_openai_insufficient_quota_to_http_429(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    set_required_env(monkeypatch)
+
     class _StubResult:
         def __init__(self) -> None:
             trace = TraceTree.start(name="order.process")
@@ -65,6 +68,8 @@ def test_order_upload_maps_openai_insufficient_quota_to_http_429(
 def test_order_upload_maps_openai_rate_limit_to_http_429(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    set_required_env(monkeypatch)
+
     class _StubResult:
         def __init__(self) -> None:
             trace = TraceTree.start(name="order.process")

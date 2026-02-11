@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+from tests.utils.env import set_required_env
 from xscanner.server.config import reload_config
 from xscanner.server.order.ai.vision_mock import VisionMarkerTextMock, vision_marker_text_mock
 from xscanner.server.order.service import OrderExtractionService
@@ -111,9 +112,13 @@ def test_order_service_aggregates_multiple_llm_calls_and_costs(monkeypatch) -> N
 
         return FakeImpl()
 
-    # Configure pricing via env vars (OpenAI only).
-    monkeypatch.setenv("OPENAI_PRICE_INPUT_PER_1M_USD", "1.0")
-    monkeypatch.setenv("OPENAI_PRICE_OUTPUT_PER_1M_USD", "2.0")
+    set_required_env(
+        monkeypatch,
+        pricing={
+            "OPENAI_PRICE_INPUT_PER_1M_USD": "1.0",
+            "OPENAI_PRICE_OUTPUT_PER_1M_USD": "2.0",
+        },
+    )
     reload_config()
 
     monkeypatch.setattr(

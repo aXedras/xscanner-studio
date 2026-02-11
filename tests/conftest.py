@@ -1,16 +1,43 @@
-"""Pytest configuration and shared fixtures for xScanner tests."""
+"""Pytest configuration and shared fixtures for xScanner tests.
 
-from collections.abc import Generator
-from pathlib import Path
+IMPORTANT: dotenv loading is disabled for ALL tests to ensure deterministic
+behavior.  Every test that needs an environment variable MUST set it
+explicitly (monkeypatch.setenv / patch.dict).  This mirrors CI where no
+.env.local file exists and prevents "works on my machine" surprises.
+"""
 
-import pytest
+from __future__ import annotations
 
-from xscanner.server.config import AppConfig, GoogleConfig, OpenAIConfig, ServerConfig
+import os
+
+# ── Disable dotenv BEFORE any xscanner import touches config.py ──────────
+os.environ["XSCANNER_DOTENV"] = "false"
+
+from collections.abc import Generator  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+import pytest  # noqa: E402
+
+from xscanner.server.config import (  # noqa: E402
+    AppConfig,
+    AxedrasConfig,
+    BenchmarkConfig,
+    ChatGptConfig,
+    GoogleConfig,
+    LoggingConfig,
+    LoraConfig,
+    OpenAIConfig,
+    ServerConfig,
+    SupabaseConfig,
+)
 
 
 @pytest.fixture
 def sample_config() -> AppConfig:
-    """Provide test configuration with mock values."""
+    """Provide test configuration with mock values.
+
+    Every required field is set explicitly — no defaults, no env vars.
+    """
     return AppConfig(
         openai=OpenAIConfig(
             api_key="test_openai_key",
@@ -26,7 +53,32 @@ def sample_config() -> AppConfig:
         server=ServerConfig(
             host="localhost",
             port=8000,
-            reload=False,
+            workers=4,
+        ),
+        lora=LoraConfig(
+            base_url="https://fake-lora.example.com",
+            system_prompt_file="config/lora_system_prompt.txt",
+            user_prompt_file="config/lora_user_prompt_extended.txt",
+            stage1_user_prompt_file="config/lora_user_prompt_extended.txt",
+            stage2_user_prompt_file="config/lora_user_prompt_OCR.txt",
+        ),
+        chatgpt=ChatGptConfig(
+            stage2_system_prompt_file="config/system_prompt_image.txt",
+            stage2_user_prompt_file="config/chatgpt_prompt_image.txt",
+        ),
+        axedras=AxedrasConfig(
+            base_url="https://instance1.acc.axedras.io",
+            keycloak_url="https://keycloak.acc.axedras.io",
+            realm="instance1",
+            username="test_user",
+            password="test_pass",
+            client_id="axedras-api",
+        ),
+        logging=LoggingConfig(),
+        supabase=SupabaseConfig(),
+        benchmark=BenchmarkConfig(
+            max_test_images=10,
+            strategy_image_workers=0,
         ),
     )
 
