@@ -45,6 +45,7 @@ def _remove_supabase_env(env: dict[str, str]) -> dict[str, str]:
 # Required env vars for the server subprocess (strict config).
 _SERVER_ENV_DEFAULTS: dict[str, str] = {
     "OPENAI_API_KEY": "test-integration",
+    "OPENAI_API_URL": "https://api.openai.com/v1/responses",
     "OPENAI_MODEL": "gpt-5.2",
     "OPENAI_TEMPERATURE": "0.0",
     "OPENAI_MAX_TOKENS": "16000",

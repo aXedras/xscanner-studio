@@ -13,6 +13,7 @@ def set_required_env(
     """Set required config environment variables for tests."""
     env_vars = {
         "OPENAI_API_KEY": "sk-test",
+        "OPENAI_API_URL": "https://api.openai.com/v1/responses",
         "OPENAI_MODEL": "gpt-5.2",
         "OPENAI_TEMPERATURE": "0.0",
         "OPENAI_MAX_TOKENS": "16000",
