@@ -28,6 +28,7 @@ export default function ExtractionDetailPage() {
   const [rejecting, setRejecting] = useState(false)
   const [active, setActive] = useState<ExtractionRow | null>(null)
   const [history, setHistory] = useState<ExtractionRow[]>([])
+  const [showRawJson, setShowRawJson] = useState(false)
   const isImmutable = Boolean(active && (active.status === 'validated' || active.status === 'rejected'))
   const [form, setForm] = useState<ExtractionCorrectionInput>({
     serial_number: null,
@@ -280,6 +281,31 @@ export default function ExtractionDetailPage() {
               language={i18n.language}
               t={(key: string) => t(key)}
             />
+
+            {active.extracted_data ? (
+              <div className="mt-4">
+                <button
+                  type="button"
+                  className="flex items-center gap-1 text-xs text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)] transition-colors"
+                  onClick={() => setShowRawJson(prev => !prev)}
+                >
+                  <svg
+                    className={`w-3 h-3 transition-transform ${showRawJson ? 'rotate-90' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                  {t('extraction.detail.rawJsonTitle')}
+                </button>
+                {showRawJson ? (
+                  <pre className="mt-2 p-3 rounded-md bg-gray-100 dark:bg-gray-800 text-xs overflow-auto max-h-96 border border-[color:var(--bg-card-border)]">
+                    {JSON.stringify(active.extracted_data, null, 2)}
+                  </pre>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
       )}
