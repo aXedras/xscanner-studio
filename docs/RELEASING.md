@@ -92,8 +92,8 @@ Notes:
 - In local mode (build), Studio is built locally because Vite configuration is baked at build time.
 
 Compose note:
-- Pre-prod uses one compose file with two API services (`xscanner-api-release` vs `xscanner-api-build`).
-- Deploy scripts start only one API service to avoid port conflicts.
+- Pre-prod uses one compose file with two services (`xscanner-api` + `xscanner-studio`).
+- Image tag is controlled by `XSCANNER_RELEASE_TAG` (defaults to `:latest`).
 
 Where the release is shown:
 - Studio footer shows the baked `VITE_XSCANNER_RELEASE_TAG`.

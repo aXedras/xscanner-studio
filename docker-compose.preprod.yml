@@ -1,8 +1,6 @@
 services:
-  xscanner-api-build:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  xscanner-api:
+    image: ghcr.io/axedras/xscanner:${XSCANNER_RELEASE_TAG:-latest}
     environment:
       # Release
       XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG-}
@@ -29,14 +27,9 @@ services:
       OPENAI_PRICE_OUTPUT_PER_1M_USD: ${OPENAI_PRICE_OUTPUT_PER_1M_USD:-}
 
       # Mock mode (optional)
-      # When requests are sent with `use_mock: true` and `strategy=cloud`, this forces which mock dataset is used.
       XSCANNER_MOCK_CLOUD_STRATEGY: ${XSCANNER_MOCK_CLOUD_STRATEGY:-}
 
       # Local strategy (LoRA server running externally)
-      # IMPORTANT: "localhost" here would point to the container itself.
-      # Provide a reachable URL, e.g.:
-      # - http://host.docker.internal:<port> (Docker Desktop)
-      # - https://<runpod-proxy> (hosted)
       LORA_BASE_URL: ${LORA_BASE_URL:-}
 
       # Optional integration
@@ -61,86 +54,9 @@ services:
       supabase: {}
     restart: unless-stopped
 
-  xscanner-api-release:
-    image: ${XSCANNER_API_IMAGE:-ghcr.io/axedras/xscanner:latest}
+  xscanner-studio:
+    image: ghcr.io/axedras/xscanner-studio:${XSCANNER_RELEASE_TAG:-latest}
     environment:
-      # Release
-      XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG-}
-
-      # Server
-      SERVER_HOST: 0.0.0.0
-      SERVER_PORT: 8000
-      SERVER_WORKERS: 2
-
-      # Persistence to local Supabase (internal Docker network)
-      SUPABASE_URL: ${SUPABASE_INTERNAL_URL}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
-      SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET:-extractions}
-
-      # Providers
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_MODEL: ${OPENAI_MODEL:-}
-      OPENAI_TEMPERATURE: ${OPENAI_TEMPERATURE:-}
-      OPENAI_MAX_OUTPUT_TOKENS: ${OPENAI_MAX_OUTPUT_TOKENS:-}
-      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
-
-      # Optional (cost estimation)
-      OPENAI_PRICE_INPUT_PER_1M_USD: ${OPENAI_PRICE_INPUT_PER_1M_USD:-}
-      OPENAI_PRICE_OUTPUT_PER_1M_USD: ${OPENAI_PRICE_OUTPUT_PER_1M_USD:-}
-
-      # Mock mode (optional)
-      # When requests are sent with `use_mock: true` and `strategy=cloud`, this forces which mock dataset is used.
-      XSCANNER_MOCK_CLOUD_STRATEGY: ${XSCANNER_MOCK_CLOUD_STRATEGY:-}
-
-      # Local strategy (LoRA server running externally)
-      # IMPORTANT: "localhost" here would point to the container itself.
-      # Provide a reachable URL, e.g.:
-      # - http://host.docker.internal:<port> (Docker Desktop)
-      # - https://<runpod-proxy> (hosted)
-      LORA_BASE_URL: ${LORA_BASE_URL:-}
-
-      # Optional integration
-      AXEDRAS_BASE_URL: ${AXEDRAS_BASE_URL:-}
-      AXEDRAS_KEYCLOAK_URL: ${AXEDRAS_KEYCLOAK_URL:-}
-      AXEDRAS_REALM: ${AXEDRAS_REALM:-}
-      AXEDRAS_CLIENT_ID: ${AXEDRAS_CLIENT_ID:-}
-      AXEDRAS_USERNAME: ${AXEDRAS_USERNAME:-}
-      AXEDRAS_PASSWORD: ${AXEDRAS_PASSWORD:-}
-
-      # Logging
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
-      LOG_FILE: /app/logs/xscanner.log
-    volumes:
-      - ./logs:/app/logs
-    ports:
-      - "8010:8000"
-    networks:
-      default:
-        aliases:
-          - xscanner-api
-      supabase: {}
-    restart: unless-stopped
-
-  xscanner-studio-build:
-    build:
-      context: ./studio
-      dockerfile: Dockerfile
-      args:
-        # Use nginx proxy to reach API without exposing a separate port
-        VITE_API_URL: /api
-        VITE_SUPABASE_URL: ${SUPABASE_PUBLIC_URL}
-        VITE_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
-        VITE_SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET:-extractions}
-        VITE_LOG_LEVEL: ${STUDIO_LOG_LEVEL:-info}
-        VITE_XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG-}
-    ports:
-      - "8090:80"
-    restart: unless-stopped
-
-  xscanner-studio-release:
-    image: ${XSCANNER_STUDIO_IMAGE:-ghcr.io/axedras/xscanner-studio:latest}
-    environment:
-      # Runtime public configuration (generated into /env.js at container start)
       VITE_API_URL: /api
       VITE_SUPABASE_URL: ${SUPABASE_PUBLIC_URL}
       VITE_SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}

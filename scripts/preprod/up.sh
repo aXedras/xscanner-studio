@@ -94,10 +94,6 @@ compute_short_sha() {
 if [ "$ORIGIN" != "main" ] && [ "$ORIGIN" != "local" ]; then
 	echo -e "${BLUE}Mode:${NC} release (API from GHCR image)"
 
-	if [ -z "${XSCANNER_API_IMAGE:-}" ]; then
-		:
-	fi
-
 	TAG="$(resolve_release_tag "$ORIGIN")" || rc=$?
 	if [ "${rc:-0}" -eq 2 ]; then
 		echo -e "${RED}Error:${NC} gh CLI not found in PATH, required for ORIGIN=latest." >&2
@@ -113,52 +109,41 @@ if [ "$ORIGIN" != "main" ] && [ "$ORIGIN" != "local" ]; then
 		exit 1
 	fi
 
-	if [ -z "${XSCANNER_API_IMAGE:-}" ]; then
-		export XSCANNER_API_IMAGE="ghcr.io/axedras/xscanner:${TAG}"
-	fi
-
-	# Always derive the release label from the resolved tag to avoid mismatches.
-	export XSCANNER_RELEASE_TAG="$TAG"
-	if [ -z "${XSCANNER_STUDIO_IMAGE:-}" ]; then
-		export XSCANNER_STUDIO_IMAGE="ghcr.io/axedras/xscanner-studio:${TAG}"
+	if [ -z "${XSCANNER_RELEASE_TAG:-}" ]; then
+		export XSCANNER_RELEASE_TAG="${TAG}"
 	fi
 
 	echo -e "${BLUE}Origin:${NC} ${ORIGIN}"
 	if [ -n "${TAG:-}" ]; then
 		echo -e "${BLUE}Release tag:${NC} ${TAG}"
 	fi
-	echo -e "${BLUE}API image:${NC} ${XSCANNER_API_IMAGE}"
-	echo -e "${BLUE}Actions:${NC} pull xscanner-api-release xscanner-studio-release; up -d xscanner-api-release xscanner-studio-release"
+	echo -e "${BLUE}API image:${NC} ghcr.io/axedras/xscanner:${XSCANNER_RELEASE_TAG}"
+	echo -e "${BLUE}Studio image:${NC} ghcr.io/axedras/xscanner-studio:${XSCANNER_RELEASE_TAG}"
+	echo -e "${BLUE}Actions:${NC} pull + up -d"
 
-	docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api-release xscanner-studio-release
+	docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api xscanner-studio
 
 	docker compose --env-file .env.preprod -f docker-compose.preprod.yml \
-		up -d xscanner-api-release xscanner-studio-release
+		up -d xscanner-api xscanner-studio
 elif [ "$ORIGIN" = "main" ]; then
 	echo -e "${BLUE}Mode:${NC} main (pull moving GHCR images)"
 
-	if [ -z "${XSCANNER_API_IMAGE:-}" ]; then
-		export XSCANNER_API_IMAGE="ghcr.io/axedras/xscanner:latest"
-	fi
-	if [ -z "${XSCANNER_STUDIO_IMAGE:-}" ]; then
-		export XSCANNER_STUDIO_IMAGE="ghcr.io/axedras/xscanner-studio:latest"
-	fi
+	# main = pull :latest (default, no XSCANNER_RELEASE_TAG needed)
 
 	# Derive label from latest release and the pulled image revision.
-	# Example: v0.1.1+gabc1234 (or v0.1.1+main if revision is unavailable)
 	latest_release_tag="$(preprod_latest_github_release_tag)"
 	if [ -z "$latest_release_tag" ]; then
 		latest_release_tag="main"
 	fi
 
 	echo -e "${BLUE}Origin:${NC} ${ORIGIN}"
-	echo -e "${BLUE}API image:${NC} ${XSCANNER_API_IMAGE}"
-	echo -e "${BLUE}Studio image:${NC} ${XSCANNER_STUDIO_IMAGE}"
-	echo -e "${BLUE}Actions:${NC} pull xscanner-api-release xscanner-studio-release; up -d xscanner-api-release xscanner-studio-release"
+	echo -e "${BLUE}API image:${NC} ghcr.io/axedras/xscanner:latest"
+	echo -e "${BLUE}Studio image:${NC} ghcr.io/axedras/xscanner-studio:latest"
+	echo -e "${BLUE}Actions:${NC} pull + up -d"
 
-	docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api-release xscanner-studio-release
+	docker compose --env-file .env.preprod -f docker-compose.preprod.yml pull xscanner-api xscanner-studio
 
-	revision="$(preprod_image_revision "$XSCANNER_API_IMAGE")"
+	revision="$(preprod_image_revision "ghcr.io/axedras/xscanner:latest")"
 	short_revision=""
 	if [ -n "$revision" ]; then
 		short_revision="${revision:0:7}"
@@ -174,7 +159,7 @@ elif [ "$ORIGIN" = "main" ]; then
 	echo -e "${BLUE}Release tag:${NC} ${XSCANNER_RELEASE_TAG}"
 
 	docker compose --env-file .env.preprod -f docker-compose.preprod.yml \
-		up -d xscanner-api-release xscanner-studio-release
+		up -d xscanner-api xscanner-studio
 else
 	echo -e "${BLUE}Mode:${NC} local (build from current worktree)"
 	version="$(compute_release_tag_from_pyproject "$REPO_ROOT" 2>/dev/null || true)"
@@ -194,10 +179,14 @@ else
 
 	echo -e "${BLUE}Origin:${NC} ${ORIGIN}"
 	echo -e "${BLUE}Release tag:${NC} ${XSCANNER_RELEASE_TAG}"
-	echo -e "${BLUE}API dockerfile:${NC} Dockerfile"
-	echo -e "${BLUE}Actions:${NC} up -d --build xscanner-api-build xscanner-studio-build"
+	echo -e "${BLUE}Actions:${NC} docker build + up -d"
+
+	# Build images locally and tag them so compose picks them up
+	docker build -t "ghcr.io/axedras/xscanner:${XSCANNER_RELEASE_TAG}" .
+	docker build -t "ghcr.io/axedras/xscanner-studio:${XSCANNER_RELEASE_TAG}" ./studio
+
 	docker compose --env-file .env.preprod -f docker-compose.preprod.yml \
-		up -d --build xscanner-api-build xscanner-studio-build
+		up -d xscanner-api xscanner-studio
 fi
 
 echo -e "${GREEN}✓ Compose is up${NC}"
