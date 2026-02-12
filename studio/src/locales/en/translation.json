@@ -3,7 +3,7 @@
     "nav": {
       "dashboard": "Dashboard",
       "extractions": "Extractions",
-      "orders": "Orders"
+      "orders": "Shipments"
     },
     "toast": {
       "save": {
@@ -16,7 +16,7 @@
       },
       "uploadNotPersisted": {
         "title": "Extraction completed (not saved)",
-        "description": "Extraction succeeded, but no order was persisted. Reason: {{reason}}.",
+        "description": "Extraction succeeded, but no shipment was persisted. Reason: {{reason}}.",
         "reasons": {
           "persistenceDisabled": "persistence disabled",
           "unknownIssuer": "unknown document issuer",
@@ -254,22 +254,22 @@
   },
   "order": {
     "history": {
-      "title": "Browse Orders",
-      "description": "Search and manage all your previous orders.",
+      "title": "Browse Shipments",
+      "description": "Search and manage all your previous shipments.",
       "action": "View All"
     },
     "documentType": {
       "invoice": "Invoice",
-      "orderConfirmation": "Order confirmation",
+      "orderConfirmation": "Shipment confirmation",
       "deliveryNote": "Delivery note",
       "unknown": "Unknown"
     },
     "upload": {
-      "title": "Upload Order",
-      "description": "Upload a PDF or images and extract structured order data.",
+      "title": "Upload Shipment",
+      "description": "Upload a PDF or images and extract structured shipment data.",
       "action": "Upload PDF & Extract",
       "actionImages": "Upload Images & Extract",
-      "processing": "Extracting order… this may take a moment.",
+      "processing": "Extracting shipment… this may take a moment.",
       "mode": "Upload",
       "modes": {
         "pdf": "PDF",
@@ -286,9 +286,9 @@
       "useMock": "Use mock data"
     },
     "list": {
-      "title": "Orders",
+      "title": "Shipments",
       "subtitle": "Quality control and corrections with full audit trail.",
-      "empty": "No orders found.",
+      "empty": "No shipments found.",
       "stats": {
         "pending": "Pending",
         "validated": "Validated",
@@ -305,15 +305,15 @@
       "documentNumber": "Document No.",
       "documentNumberErrorHash": "Error ({{hash}})",
       "documentDate": "Document Date",
-      "orderNumber": "Order No.",
+      "orderNumber": "Shipment No.",
       "strategyUsed": "Strategy",
       "confidence": "Confidence"
     },
     "detail": {
-      "title": "Order",
+      "title": "Shipment",
       "subtitle": "Original ID: {{originalId}}",
       "missingId": "Missing original id.",
-      "notFound": "Order not found.",
+      "notFound": "Shipment not found.",
       "warningsPanel": {
         "title": "Review required",
         "description": "This document was saved, but the extraction has parsing/processing warnings.",
@@ -321,17 +321,17 @@
       },
       "pdfTitle": "PDF",
       "pdfUnavailable": "PDF preview not available.",
-      "deleteConfirm": "Delete this order? It will be hidden from the list (soft delete).",
+      "deleteConfirm": "Delete this shipment? It will be hidden from the list (soft delete).",
       "sections": {
         "parties": "Parties",
-        "orderTerms": "Order terms",
-        "orderItems": "Order items"
+        "orderTerms": "Shipment terms",
+        "orderItems": "Shipment items"
       },
       "fields": {
         "sellerName": "Seller name",
         "buyerName": "Buyer name",
         "transactionType": "Transaction type",
-        "orderDate": "Order date",
+        "orderDate": "Shipment date",
         "valueDate": "Value date",
         "shippingDate": "Shipping date",
         "currency": "Currency",
@@ -341,7 +341,7 @@
         "totalAmount": "Total"
       },
       "items": {
-        "empty": "No order items stored.",
+        "empty": "No shipment items stored.",
         "fields": {
           "item": "Item",
           "serialNumber": "Serial-Nr.",

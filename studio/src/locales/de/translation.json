@@ -187,7 +187,7 @@
       "processing": "Extraktion läuft… das kann ein paar Sekunden dauern.",
       "aiStrategy": "KI Strategie",
       "strategyCloud": "Cloud",
-      "strategyLocal": "Local",
+      "strategyLocal": "Lokal",
       "useMock": "Mock-Daten verwenden",
       "registerOnBil": "Auf Bullion Integrity Ledger registrieren"
     },
@@ -199,7 +199,7 @@
     "fields": {
       "status": "Status",
       "strategy": "Strategie",
-      "confidence": "Confidence",
+      "confidence": "Konfidenz",
       "weightUnit": "Einheit",
       "error": "Fehler"
     },
@@ -222,13 +222,13 @@
       "strategyTitle": "Extraktionsstrategie",
       "processingTime": "Verarbeitungszeit",
       "processingTimeValue": "{{seconds}}s",
-      "rawJsonTitle": "Rohdaten (AI-Antwort)",
+      "rawJsonTitle": "Rohdaten (KI-Antwort)",
       "missingId": "Original-ID fehlt.",
       "notFound": "Extraktion nicht gefunden.",
       "imageAlt": "Bullion-Bild",
       "imageUnavailable": "Bildvorschau nicht verfügbar.",
       "bil": {
-        "title": "BIL Registration",
+        "title": "BIL Registrierung",
         "empty": "Keine Registrierungsversuche vorhanden.",
         "version": "Version",
         "source": "Quelle",
@@ -254,8 +254,8 @@
   },
   "order": {
     "history": {
-      "title": "Orders durchsuchen",
-      "description": "Durchsuche und verwalte alle deine bisherigen Orders.",
+      "title": "Lieferungen durchsuchen",
+      "description": "Durchsuche und verwalte alle deine bisherigen Lieferungen.",
       "action": "Zur Übersicht"
     },
     "documentType": {
@@ -265,11 +265,11 @@
       "unknown": "Unbekannt"
     },
     "upload": {
-      "title": "Order hochladen",
-      "description": "Lade ein PDF oder Bilder hoch und extrahiere strukturierte Order-Daten.",
+      "title": "Lieferung hochladen",
+      "description": "Lade ein PDF oder Bilder hoch und extrahiere strukturierte Lieferdaten.",
       "action": "PDF hochladen & extrahieren",
       "actionImages": "Bilder hochladen & extrahieren",
-      "processing": "Order wird extrahiert… das kann kurz dauern.",
+      "processing": "Lieferdaten werden extrahiert… das kann kurz dauern.",
       "mode": "Hochladen",
       "modes": {
         "pdf": "PDF",
@@ -286,9 +286,9 @@
       "useMock": "Mock-Daten verwenden"
     },
     "list": {
-      "title": "Orders",
+      "title": "Lieferungen",
       "subtitle": "Qualitätskontrolle und Korrekturen mit vollständigem Audit-Trail.",
-      "empty": "Keine Orders gefunden.",
+      "empty": "Keine Lieferungen gefunden.",
       "stats": {
         "pending": "Offen",
         "validated": "Validiert",
@@ -305,15 +305,15 @@
       "documentNumber": "Dokument-Nr.",
       "documentNumberErrorHash": "Fehler ({{hash}})",
       "documentDate": "Dokumentdatum",
-      "orderNumber": "Order-Nr.",
+      "orderNumber": "Lieferung-Nr.",
       "strategyUsed": "Strategie",
       "confidence": "Konfidenz"
     },
     "detail": {
-      "title": "Order",
+      "title": "Lieferung",
       "subtitle": "Original ID: {{originalId}}",
       "missingId": "Original ID fehlt.",
-      "notFound": "Order nicht gefunden.",
+      "notFound": "Lieferung nicht gefunden.",
       "warningsPanel": {
         "title": "Review erforderlich",
         "description": "Dieses Dokument wurde gespeichert, aber die Extraktion hat Parsing-/Processing-Warnungen.",
@@ -321,17 +321,17 @@
       },
       "pdfTitle": "PDF",
       "pdfUnavailable": "PDF-Vorschau nicht verfügbar.",
-      "deleteConfirm": "Order wirklich löschen? Sie wird aus der Liste entfernt (Soft-Delete).",
+      "deleteConfirm": "Lieferung wirklich löschen? Sie wird aus der Liste entfernt (Soft-Delete).",
       "sections": {
         "parties": "Parteien",
-        "orderTerms": "Order-Details",
-        "orderItems": "Order-Positionen"
+        "orderTerms": "Lieferungs-Details",
+        "orderItems": "Lieferungs-Positionen"
       },
       "fields": {
         "sellerName": "Verkäufer",
         "buyerName": "Käufer",
         "transactionType": "Transaktionstyp",
-        "orderDate": "Order-Datum",
+        "orderDate": "Lieferungs-Datum",
         "valueDate": "Valuta",
         "shippingDate": "Versanddatum",
         "currency": "Währung",
@@ -341,7 +341,7 @@
         "totalAmount": "Gesamt"
       },
       "items": {
-        "empty": "Keine Order-Positionen gespeichert.",
+        "empty": "Keine Lieferungs-Positionen gespeichert.",
         "fields": {
           "item": "Artikel",
           "serialNumber": "Serien-Nr.",
