@@ -11,7 +11,7 @@
         "description": "Changes saved successfully."
       },
       "upload": {
-        "title": "Extraction started",
+        "title": "BullionBar picture extraction started",
         "description": "The upload was processed and the result was saved."
       },
       "uploadNotPersisted": {

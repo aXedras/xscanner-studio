@@ -181,11 +181,11 @@
       "errors": "Fehler"
     },
     "upload": {
-      "title": "Hochladen & Extrahieren",
+      "title": "Barrenbild hochladen & extrahieren",
       "description": "Lade Bullion-Bilder hoch und extrahiere automatisch Metadaten mit KI.",
-      "action": "Neue Extraktion starten",
+      "action": "Neue Bild Extraktion starten",
       "processing": "Extraktion läuft… das kann ein paar Sekunden dauern.",
-      "aiStrategy": "AI Strategie",
+      "aiStrategy": "KI Strategie",
       "strategyCloud": "Cloud",
       "strategyLocal": "Local",
       "useMock": "Mock-Daten verwenden",
