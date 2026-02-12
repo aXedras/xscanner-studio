@@ -15,10 +15,8 @@ preprod_guard_unknown_env_var_names
 preprod_parse_args "$@"
 
 ORIGIN="${ORIGIN:-latest}"
-MODE="${MODE:-}"
 
 ORIGIN="$(preprod_normalize_origin "$ORIGIN")"
-MODE="$(preprod_normalize_mode "$MODE")"
 
 preprod_ensure_default_platform_for_pulls "$ORIGIN"
 
@@ -29,28 +27,14 @@ if [ -n "${XSCANNER_RELEASE_TAG:-}" ]; then
 	exit 2
 fi
 
-if [ -z "$MODE" ]; then
-	if [ "$ORIGIN" = "main" ] || [ "$ORIGIN" = "local" ]; then
-		MODE="cloud"
-	else
-		MODE="full"
-	fi
-fi
-
 echo -e "${BLUE}🚀 Pre-prod deploy${NC}"
-
-if [ "$MODE" != "cloud" ] && [ "$MODE" != "full" ]; then
-	echo -e "${RED}Error: invalid MODE (expected cloud|full): ${MODE}${NC}" >&2
-	exit 1
-fi
 
 if [ "$ORIGIN" = "local" ]; then
 	echo -e "${BLUE}Origin:${NC} local (deploy from current worktree, local build)"
-	echo -e "${BLUE}Mode:${NC} ${MODE}"
 
 	ORIGIN=local bash "$SCRIPT_DIR/check.sh"
 	bash "$SCRIPT_DIR/database-start.sh"
-	ORIGIN=local MODE="$MODE" bash "$SCRIPT_DIR/up.sh"
+	ORIGIN=local bash "$SCRIPT_DIR/up.sh"
 	bash "$SCRIPT_DIR/health.sh"
 
 	echo -e "${GREEN}✓ Deploy complete${NC}"
@@ -59,12 +43,11 @@ fi
 
 if [ "$ORIGIN" = "main" ]; then
 	echo -e "${BLUE}Origin:${NC} main (deploy by pulling GHCR images)"
-	echo -e "${BLUE}Mode:${NC} ${MODE}"
 
 	ORIGIN=main bash "$SCRIPT_DIR/check.sh"
 	bash "$SCRIPT_DIR/verify-ci-main.sh" --strict --latest
 	bash "$SCRIPT_DIR/database-start.sh"
-	ORIGIN=main MODE="$MODE" bash "$SCRIPT_DIR/up.sh"
+	ORIGIN=main bash "$SCRIPT_DIR/up.sh"
 	bash "$SCRIPT_DIR/health.sh"
 
 	echo -e "${GREEN}✓ Deploy complete${NC}"
@@ -90,7 +73,6 @@ else
 fi
 
 echo -e "${BLUE}Origin:${NC} ${ORIGIN}"
-echo -e "${BLUE}Mode:${NC} ${MODE}"
 echo -e "${BLUE}Release tag:${NC} ${TAG}"
 
 ORIGIN="$ORIGIN" bash "$SCRIPT_DIR/check.sh"
@@ -107,13 +89,12 @@ fi
 
 bash "$SCRIPT_DIR/verify-ci-sha.sh" --strict
 
-export XSCANNER_API_IMAGE="ghcr.io/axedras/xscanner:${MODE}-${TAG}"
+export XSCANNER_API_IMAGE="ghcr.io/axedras/xscanner:${TAG}"
 
 # Ensure the downstream scripts do not need gh for ORIGIN=latest.
 ORIGIN="release-${TAG}"
 
 export ORIGIN
-export MODE
 
 bash "$SCRIPT_DIR/database-start.sh"
 bash "$SCRIPT_DIR/up.sh"

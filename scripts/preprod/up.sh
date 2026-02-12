@@ -17,10 +17,8 @@ preprod_guard_unknown_env_var_names
 preprod_parse_args "$@"
 
 ORIGIN="${ORIGIN:-latest}"
-MODE="${MODE:-}"
 
 ORIGIN="$(preprod_normalize_origin "$ORIGIN")"
-MODE="$(preprod_normalize_mode "$MODE")"
 
 preprod_ensure_default_platform_for_pulls "$ORIGIN"
 
@@ -29,19 +27,6 @@ if [ -n "${XSCANNER_RELEASE_TAG:-}" ]; then
 	echo -e "${BLUE}Why:${NC} the pre-prod scripts derive it from ORIGIN to avoid mismatched labels." >&2
 	echo -e "${BLUE}Fix:${NC} unset XSCANNER_RELEASE_TAG and use ORIGIN=main|local|release-x.y.z." >&2
 	exit 2
-fi
-
-if [ -z "$MODE" ]; then
-	if [ "$ORIGIN" = "main" ] || [ "$ORIGIN" = "local" ]; then
-		MODE="cloud"
-	else
-		MODE="full"
-	fi
-fi
-
-if [ "$MODE" != "cloud" ] && [ "$MODE" != "full" ]; then
-	echo -e "${RED}Error: invalid MODE (expected cloud|full): ${MODE}${NC}" >&2
-	exit 1
 fi
 
 echo -e "${BLUE}🚀 Pre-prod up${NC}"
@@ -129,7 +114,7 @@ if [ "$ORIGIN" != "main" ] && [ "$ORIGIN" != "local" ]; then
 	fi
 
 	if [ -z "${XSCANNER_API_IMAGE:-}" ]; then
-		export XSCANNER_API_IMAGE="ghcr.io/axedras/xscanner:${MODE}-${TAG}"
+		export XSCANNER_API_IMAGE="ghcr.io/axedras/xscanner:${TAG}"
 	fi
 
 	# Always derive the release label from the resolved tag to avoid mismatches.
@@ -139,7 +124,6 @@ if [ "$ORIGIN" != "main" ] && [ "$ORIGIN" != "local" ]; then
 	fi
 
 	echo -e "${BLUE}Origin:${NC} ${ORIGIN}"
-	echo -e "${BLUE}Mode:${NC} ${MODE}"
 	if [ -n "${TAG:-}" ]; then
 		echo -e "${BLUE}Release tag:${NC} ${TAG}"
 	fi
@@ -154,10 +138,10 @@ elif [ "$ORIGIN" = "main" ]; then
 	echo -e "${BLUE}Mode:${NC} main (pull moving GHCR images)"
 
 	if [ -z "${XSCANNER_API_IMAGE:-}" ]; then
-		export XSCANNER_API_IMAGE="ghcr.io/axedras/xscanner:${MODE}"
+		export XSCANNER_API_IMAGE="ghcr.io/axedras/xscanner:latest"
 	fi
 	if [ -z "${XSCANNER_STUDIO_IMAGE:-}" ]; then
-		export XSCANNER_STUDIO_IMAGE="ghcr.io/axedras/xscanner-studio:main"
+		export XSCANNER_STUDIO_IMAGE="ghcr.io/axedras/xscanner-studio:latest"
 	fi
 
 	# Derive label from latest release and the pulled image revision.
@@ -168,7 +152,6 @@ elif [ "$ORIGIN" = "main" ]; then
 	fi
 
 	echo -e "${BLUE}Origin:${NC} ${ORIGIN}"
-	echo -e "${BLUE}Mode:${NC} ${MODE}"
 	echo -e "${BLUE}API image:${NC} ${XSCANNER_API_IMAGE}"
 	echo -e "${BLUE}Studio image:${NC} ${XSCANNER_STUDIO_IMAGE}"
 	echo -e "${BLUE}Actions:${NC} pull xscanner-api-release xscanner-studio-release; up -d xscanner-api-release xscanner-studio-release"
@@ -194,7 +177,6 @@ elif [ "$ORIGIN" = "main" ]; then
 		up -d xscanner-api-release xscanner-studio-release
 else
 	echo -e "${BLUE}Mode:${NC} local (build from current worktree)"
-	export MODE
 	version="$(compute_release_tag_from_pyproject "$REPO_ROOT" 2>/dev/null || true)"
 	sha="$(compute_short_sha "$REPO_ROOT")"
 	dirty=""
@@ -211,9 +193,8 @@ else
 	fi
 
 	echo -e "${BLUE}Origin:${NC} ${ORIGIN}"
-	echo -e "${BLUE}Mode:${NC} ${MODE}"
 	echo -e "${BLUE}Release tag:${NC} ${XSCANNER_RELEASE_TAG}"
-	echo -e "${BLUE}API dockerfile:${NC} Dockerfile.${MODE}"
+	echo -e "${BLUE}API dockerfile:${NC} Dockerfile"
 	echo -e "${BLUE}Actions:${NC} up -d --build xscanner-api-build xscanner-studio-build"
 	docker compose --env-file .env.preprod -f docker-compose.preprod.yml \
 		up -d --build xscanner-api-build xscanner-studio-build

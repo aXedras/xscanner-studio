@@ -450,23 +450,18 @@ preprod:
 	@echo ""
 	@echo "Options (apply to preprod-up and preprod-deploy):"
 	@echo "  - ORIGIN=main|local|latest|release-x.y.z (default: latest)"
-	@echo "  - MODE=cloud|full (default: cloud for ORIGIN=main/local; full for ORIGIN=latest/release-*)"
 	@echo ""
 	@echo "Notes:"
 	@echo "  - preprod-up: starts/recreates containers (no CI verification)"
 	@echo "  - preprod-deploy: includes checks + CI verification + healthcheck"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make preprod-deploy                         # ORIGIN=latest, MODE=full"
-	@echo "  make preprod-deploy MODE=cloud              # latest release, cloud image"
-	@echo "  make preprod-deploy ORIGIN=release-0.1.0    # pin release tag v0.1.0 (full)"
-	@echo "  make preprod-deploy ORIGIN=release-0.1.0 MODE=cloud"
-	@echo "  make preprod-deploy ORIGIN=main MODE=cloud  # pull moving GHCR images (cloud)"
-	@echo "  make preprod-deploy ORIGIN=main MODE=full   # pull moving GHCR images (full)"
-	@echo "  make preprod-deploy ORIGIN=local MODE=cloud # local build from current worktree (cloud)"
-	@echo "  make preprod-deploy ORIGIN=local MODE=full  # local build from current worktree (full)"
-	@echo "  make preprod-up ORIGIN=main MODE=cloud      # pull moving GHCR images (cloud)"
-	@echo "  make preprod-up ORIGIN=local MODE=cloud     # local build from current worktree (cloud)"
+	@echo "  make preprod-deploy                         # ORIGIN=latest"
+	@echo "  make preprod-deploy ORIGIN=release-0.1.0    # pin release tag v0.1.0"
+	@echo "  make preprod-deploy ORIGIN=main             # pull moving GHCR images"
+	@echo "  make preprod-deploy ORIGIN=local            # local build from current worktree"
+	@echo "  make preprod-up ORIGIN=main                 # pull moving GHCR images"
+	@echo "  make preprod-up ORIGIN=local                # local build from current worktree"
 	@echo ""
 	@echo "Env files:"
 	@echo "  .env.preprod.example -> .env.preprod (do not commit secrets)"
@@ -478,7 +473,7 @@ ifeq ($(OS),Windows_NT)
 endif
 	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
 		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
-		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest), not as positional args." >&2; \
 		exit 2; \
 	fi
 	@bash scripts/preprod/check.sh
@@ -490,7 +485,7 @@ ifeq ($(OS),Windows_NT)
 endif
 	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
 		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
-		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest), not as positional args." >&2; \
 		exit 2; \
 	fi
 	@bash scripts/preprod/update-main.sh
@@ -502,7 +497,7 @@ ifeq ($(OS),Windows_NT)
 endif
 	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
 		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
-		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest), not as positional args." >&2; \
 		exit 2; \
 	fi
 	@bash scripts/preprod/database-start.sh
@@ -515,7 +510,7 @@ ifeq ($(OS),Windows_NT)
 endif
 	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
 		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
-		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest), not as positional args." >&2; \
 		exit 2; \
 	fi
 	@bash scripts/preprod/down.sh
@@ -527,7 +522,7 @@ ifeq ($(OS),Windows_NT)
 endif
 	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
 		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
-		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest), not as positional args." >&2; \
 		exit 2; \
 	fi
 	@bash scripts/preprod/health.sh
@@ -539,7 +534,7 @@ ifeq ($(OS),Windows_NT)
 endif
 	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
 		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
-		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest), not as positional args." >&2; \
 		exit 2; \
 	fi
 	@bash scripts/preprod/status.sh
@@ -551,7 +546,7 @@ ifeq ($(OS),Windows_NT)
 endif
 	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
 		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
-		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest), not as positional args." >&2; \
 		exit 2; \
 	fi
 	@bash scripts/preprod/logs.sh
@@ -563,7 +558,7 @@ ifeq ($(OS),Windows_NT)
 endif
 	@if [ -n "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
 		echo "Error: unexpected argument(s): $(filter-out $@,$(MAKECMDGOALS))" >&2; \
-		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest MODE=full), not as positional args." >&2; \
+		echo "Tip: pass options as KEY=VALUE (e.g. ORIGIN=latest), not as positional args." >&2; \
 		exit 2; \
 	fi
 	@bash scripts/preprod/deploy.sh
@@ -571,7 +566,7 @@ endif
 # Guard against unknown make CLI overrides for preprod targets.
 # Example: `make preprod-up origin=main` would otherwise ignore `origin` and fall back to ORIGIN=latest.
 ifneq ($(filter preprod preprod-%,$(MAKECMDGOALS)),)
-PREPROD_ALLOWED_OVERRIDES := ORIGIN MODE PREPROD_API_URL PREPROD_HEALTH_MAX_ATTEMPTS LOG_LEVEL STUDIO_LOG_LEVEL
+PREPROD_ALLOWED_OVERRIDES := ORIGIN PREPROD_API_URL PREPROD_HEALTH_MAX_ATTEMPTS LOG_LEVEL STUDIO_LOG_LEVEL
 PREPROD_CMDLINE_VARS := $(sort $(foreach v,$(.VARIABLES),$(if $(filter command line,$(origin $(v))),$(v),)))
 PREPROD_UNKNOWN_KEYS := $(filter-out $(PREPROD_ALLOWED_OVERRIDES),$(PREPROD_CMDLINE_VARS))
 ifneq ($(strip $(PREPROD_UNKNOWN_KEYS)),)

@@ -10,52 +10,36 @@ preprod_guard_unknown_env_var_names() {
 		echo "Error: unknown parameter \"origin\". Did you mean ORIGIN=... ?" >&2
 		exit 2
 	fi
-	if [ -n "${mode-}" ] && [ -z "${MODE-}" ]; then
-		echo "Error: unknown parameter \"mode\". Did you mean MODE=cloud|full ?" >&2
-		exit 2
-	fi
 	if [ -n "${Origin-}" ] && [ -z "${ORIGIN-}" ]; then
 		echo "Error: unknown parameter \"Origin\". Did you mean ORIGIN=... ?" >&2
-		exit 2
-	fi
-	if [ -n "${Mode-}" ] && [ -z "${MODE-}" ]; then
-		echo "Error: unknown parameter \"Mode\". Did you mean MODE=cloud|full ?" >&2
 		exit 2
 	fi
 }
 
 preprod_parse_args() {
 	# Optional KEY=VALUE args.
-	# - Supports ORIGIN=... and MODE=...
+	# - Supports ORIGIN=...
 	# - Errors for unknown keys to avoid silent fallback to defaults.
-	# - Explicitly errors for common typo: origin=... / mode=...
+	# - Explicitly errors for common typo: origin=...
 	while [ "$#" -gt 0 ]; do
 		case "$1" in
 			origin=*)
 				echo 'Error: unknown parameter "origin". Did you mean ORIGIN=... ?' >&2
 				exit 2
 				;;
-			mode=*)
-				echo 'Error: unknown parameter "mode". Did you mean MODE=cloud|full ?' >&2
-				exit 2
-				;;
 			ORIGIN=*)
 				export ORIGIN="${1#ORIGIN=}"
-				shift
-				;;
-			MODE=*)
-				export MODE="${1#MODE=}"
 				shift
 				;;
 			*=*)
 				key="${1%%=*}"
 				echo "Error: unknown parameter \"${key}\"." >&2
-				echo 'Fix: use ORIGIN=... and MODE=... as environment variables or pass them as ORIGIN=... MODE=... args.' >&2
+				echo 'Fix: use ORIGIN=... as environment variable or pass it as ORIGIN=... arg.' >&2
 				exit 2
 				;;
 			*)
 				echo "Error: unexpected argument: $1" >&2
-				echo 'Fix: pass ORIGIN=... and MODE=... or use environment variables.' >&2
+				echo 'Fix: pass ORIGIN=... or use environment variables.' >&2
 				exit 2
 				;;
 		esac
@@ -132,30 +116,6 @@ preprod_normalize_origin() {
 	if [[ "$raw" =~ ^[Rr][Ee][Ll][Ee][Aa][Ss][Ee]- ]]; then
 		# Keep suffix as provided (git tags are case-sensitive).
 		echo "release-${raw:8}"
-		return 0
-	fi
-
-	echo "$raw"
-}
-
-preprod_normalize_mode() {
-	local raw="$1"
-
-	# Be tolerant to common shell/make typos like `MODE=full,`.
-	# We only want to error on unexpected parameter *names*.
-	raw="${raw%,}"
-
-	if [ -z "$raw" ]; then
-		echo ""
-		return 0
-	fi
-
-	if [[ "$raw" =~ ^[Cc][Ll][Oo][Uu][Dd]$ ]]; then
-		echo "cloud"
-		return 0
-	fi
-	if [[ "$raw" =~ ^[Ff][Uu][Ll][Ll]$ ]]; then
-		echo "full"
 		return 0
 	fi
 

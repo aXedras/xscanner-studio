@@ -10,7 +10,7 @@ This document defines the release flow for xScanner, the container image tags pr
 
 ## Images & tags
 
-xScanner publishes two API image flavors:
+xScanner publishes one API image:
 
 - **Latest**: `ghcr.io/axedras/xscanner:latest` (moving, updated on every push to main/develop)
 - **Branch**: `ghcr.io/axedras/xscanner:<branch>` (moving, e.g. `:main`, `:develop`)
@@ -27,7 +27,7 @@ And a moving "latest release channel" tag:
 
 xScanner also publishes a Studio (nginx) image:
 
-- **Studio (branch moving tags)**: `ghcr.io/axedras/xscanner-studio:main` and `ghcr.io/axedras/xscanner-studio:develop`
+- **Studio (moving tags)**: `ghcr.io/axedras/xscanner-studio:latest`, `ghcr.io/axedras/xscanner-studio:main`, `ghcr.io/axedras/xscanner-studio:develop`
 - **Studio (immutable release tag)**: `ghcr.io/axedras/xscanner-studio:vX.Y.Z`
 - **Studio (latest release channel)**: `ghcr.io/axedras/xscanner-studio:release`
 
@@ -78,21 +78,17 @@ Common overrides:
 # Deploy a specific release
 make preprod-deploy ORIGIN=release-X.Y.Z
 
-# Deploy a specific release (cloud image)
-make preprod-deploy ORIGIN=release-X.Y.Z MODE=cloud
-
-# Deploy from main (local build)
 # Deploy from main (pull moving GHCR images)
-make preprod-deploy ORIGIN=main MODE=cloud
+make preprod-deploy ORIGIN=main
 
 # Deploy from local worktree (build, allows uncommitted changes)
-make preprod-deploy ORIGIN=local MODE=cloud
+make preprod-deploy ORIGIN=local
 ```
 
 Notes:
 - In release mode, the deploy script checks out the release tag locally and pulls the API + Studio images from GHCR.
 - Studio runtime config is injected via container env vars at startup (no rebuild required).
-- In main mode, the deploy script pulls moving images from GHCR (API: `:cloud`/`:full`, Studio: `:main`).
+- In main mode, the deploy script pulls moving images from GHCR (API: `:latest`, Studio: `:latest`).
 - In local mode (build), Studio is built locally because Vite configuration is baked at build time.
 
 Compose note:
