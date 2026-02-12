@@ -1,61 +1,17 @@
 services:
   xscanner-api:
     image: ghcr.io/axedras/xscanner:${XSCANNER_RELEASE_TAG:-latest}
+    env_file: .env.preprod
     environment:
-      # Release
-      XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG-}
-
-      # Server
+      # Container-specific overrides (not in .env.preprod)
       SERVER_HOST: 0.0.0.0
       SERVER_PORT: 8000
       SERVER_WORKERS: 2
-
-      # Persistence to local Supabase (internal Docker network)
-      SUPABASE_URL: ${SUPABASE_INTERNAL_URL}
-      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
-      SUPABASE_STORAGE_BUCKET: ${SUPABASE_STORAGE_BUCKET:-extractions}
-
-      # Providers
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_MODEL: ${OPENAI_MODEL:-}
-      OPENAI_TEMPERATURE: ${OPENAI_TEMPERATURE:-}
-      OPENAI_MAX_TOKENS: ${OPENAI_MAX_TOKENS:-}
-      OPENAI_MAX_OUTPUT_TOKENS: ${OPENAI_MAX_OUTPUT_TOKENS:-}
-      OPENAI_API_URL: ${OPENAI_API_URL:-}
-      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
-      GOOGLE_MODEL: ${GOOGLE_MODEL:-}
-
-      # ChatGPT 2-stage prompt files
-      CHATGPT_SYSTEM_PROMPT_FILE: ${CHATGPT_SYSTEM_PROMPT_FILE:-}
-      CHATGPT_USER_PROMPT_FILE: ${CHATGPT_USER_PROMPT_FILE:-}
-      CHATGPT_STAGE2_SYSTEM_PROMPT_FILE: ${CHATGPT_STAGE2_SYSTEM_PROMPT_FILE:-}
-      CHATGPT_STAGE2_USER_PROMPT_FILE: ${CHATGPT_STAGE2_USER_PROMPT_FILE:-}
-
-      # Optional (cost estimation)
-      OPENAI_PRICE_INPUT_PER_1M_USD: ${OPENAI_PRICE_INPUT_PER_1M_USD:-}
-      OPENAI_PRICE_OUTPUT_PER_1M_USD: ${OPENAI_PRICE_OUTPUT_PER_1M_USD:-}
-
-      # Mock mode (optional)
-      XSCANNER_MOCK_CLOUD_STRATEGY: ${XSCANNER_MOCK_CLOUD_STRATEGY:-}
-
-      # Local strategy (LoRA server running externally)
-      LORA_BASE_URL: ${LORA_BASE_URL:-}
-      LORA_SYSTEM_PROMPT_FILE: ${LORA_SYSTEM_PROMPT_FILE:-}
-      LORA_USER_PROMPT_FILE: ${LORA_USER_PROMPT_FILE:-}
-      LORA_STAGE1_USER_PROMPT_FILE: ${LORA_STAGE1_USER_PROMPT_FILE:-}
-      LORA_STAGE2_USER_PROMPT_FILE: ${LORA_STAGE2_USER_PROMPT_FILE:-}
-
-      # Optional integration
-      AXEDRAS_BASE_URL: ${AXEDRAS_BASE_URL:-}
-      AXEDRAS_KEYCLOAK_URL: ${AXEDRAS_KEYCLOAK_URL:-}
-      AXEDRAS_REALM: ${AXEDRAS_REALM:-}
-      AXEDRAS_CLIENT_ID: ${AXEDRAS_CLIENT_ID:-}
-      AXEDRAS_USERNAME: ${AXEDRAS_USERNAME:-}
-      AXEDRAS_PASSWORD: ${AXEDRAS_PASSWORD:-}
-
-      # Logging
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
       LOG_FILE: /app/logs/xscanner.log
+      XSCANNER_RELEASE_TAG: ${XSCANNER_RELEASE_TAG-}
+
+      # Name mapping: app expects SUPABASE_URL, env file has SUPABASE_INTERNAL_URL
+      SUPABASE_URL: ${SUPABASE_INTERNAL_URL}
     volumes:
       - ./logs:/app/logs
     ports:
