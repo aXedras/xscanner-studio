@@ -30,14 +30,14 @@ export default function ExtractionMeta({ row, t, certificateId }: Props) {
         <div className="text-sm font-medium break-words">{row.strategy_used || '-'}</div>
       </div>
 
-      {row.processing_time != null ? (
+      {row.processing_time == null ? null : (
         <div className="mt-3">
           <div className="text-xs text-[color:var(--text-secondary)]">{t('extraction.detail.processingTime')}</div>
           <div className="text-sm font-medium">
             {t('extraction.detail.processingTimeValue', { seconds: row.processing_time.toFixed(1) })}
           </div>
         </div>
-      ) : null}
+      )}
     </div>
   )
 }
