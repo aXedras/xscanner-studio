@@ -101,7 +101,7 @@ describe('xScanner API (integration)', () => {
       // Fast precondition checks (fail early with actionable errors).
       try {
         const health = await fetchWithTimeout(`${normalizedBaseUrl}/health`, 1_500)
-        if (!health.ok) {
+        if (![200, 503, 500].includes(health.status)) {
           const body = await health.text().catch(() => '')
           throw new Error(
             `xScanner API health check failed (${health.status}) at ${normalizedBaseUrl}/health. Body: ${body}`

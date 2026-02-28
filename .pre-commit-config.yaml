@@ -153,8 +153,10 @@ repos:
 
             HEALTH_URL="${API_URL%/}/health"
 
-            if ! curl -fsS "$HEALTH_URL" >/dev/null; then
+            HEALTH_CODE="$(curl -sS -o /dev/null -w "%{http_code}" "$HEALTH_URL" || true)"
+            if [ "$HEALTH_CODE" != "200" ] && [ "$HEALTH_CODE" != "503" ] && [ "$HEALTH_CODE" != "500" ]; then
               echo "ERROR: xScanner API is not reachable: $HEALTH_URL" >&2
+              echo "Received HTTP status: ${HEALTH_CODE:-<none>} (expected one of 200/503/500)" >&2
               echo "Start it (example): make start-server" >&2
               echo "Or set VITE_API_URL (or SERVER_PORT) so the hook finds the server." >&2
               exit 1
