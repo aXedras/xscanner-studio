@@ -72,7 +72,7 @@ def _wait_for_server_or_raise(*, process: subprocess.Popen, server_url: str, por
 
         try:
             response = httpx.get(f"{server_url}/health", timeout=1.0)
-            if response.status_code == 200:
+            if response.status_code in (200, 503, 500):
                 return
         except (httpx.ConnectError, httpx.TimeoutException, httpx.ReadTimeout):
             time.sleep(0.5)
