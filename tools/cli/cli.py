@@ -466,7 +466,7 @@ Examples:
         default=None,
         help=(
             "Comma-separated list of strategies to benchmark (benchmark mode only). "
-            "Allowed: lora,lora-2stage,lora-2stage-v2,chatgpt-2stage,chatgpt-2stage-v2. "
+            "Allowed: chatgpt,chatgpt-2stage,gemini,lora,lora-2stage. "
             "Default: all available"
         ),
     )
