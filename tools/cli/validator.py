@@ -53,12 +53,19 @@ def _normalize_fineness(value) -> str:
         9999    → "9999"
         "999.9" → "9999"
     """
-    num = float(value)
+    raw_value = str(value).strip()
+    canonical_value = raw_value.replace(",", ".")
+
+    try:
+        num = float(canonical_value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"Invalid fineness value: {value!r}") from exc
+
     if num < 1:
         # Decimal format (0.9999) → multiply by 10000 and round
         return str(round(num * 10000))
     # Already in absolute format (999.9, 9999)
-    return str(value).replace(".", "").strip()
+    return canonical_value.replace(".", "").strip()
 
 
 def parse_filename_ground_truth(image_path: Path) -> dict[str, str] | None:
