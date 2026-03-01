@@ -138,6 +138,11 @@ Note: Studio has its own environment.
 
 - Studio runtime uses `.env.local` / `.env` in the repository root (Vite, `VITE_*`).
 - Studio tests (Vitest/Node) read from `process.env.*` and we load the Studio `.env*` files for tests too.
+
+CI note:
+- Integration tests are optional in CI and run only when explicitly triggered.
+- Trigger via PR label `ci:integration` or manual workflow dispatch with `run_integration=true`.
+- CI expects repository variable `XSCANNER_API_URL`.
 - The xScanner API server loads its own `.env`/`.env.local` independently (separate process).
 
 ---

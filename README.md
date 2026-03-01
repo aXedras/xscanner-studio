@@ -31,6 +31,10 @@ Quality gate:
 - If duplication is above 5%, `pre-commit` and `build` fail.
 - CI also uploads a `duplicate-report` artifact (`reports/jscpd/`) for PR review.
 
+CI integration tests (optional):
+- Trigger via PR label `ci:integration` or manual workflow dispatch (`run_integration=true`).
+- Requires repository variable `XSCANNER_API_URL` pointing to a reachable xScanner API.
+
 ## Repository Scope
 
 - This repository contains only the Studio frontend and Supabase resources.
