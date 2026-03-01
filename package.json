@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "help": "node scripts/help.mjs",
+    "hooks:install": "git config core.hooksPath .githooks && chmod +x .githooks/pre-commit",
+    "hooks:uninstall": "git config --unset core.hooksPath || true",
     "check": "node scripts/help-check.mjs",
     "check:fast": "npm run lint && npm run type-check && npm run test:unit",
     "check:all": "npm run format:check && npm run lint && npm run type-check && npm run i18n:all && npm run db:check && npm run build && npm run test:unit",

@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v npm >/dev/null 2>&1; then
+  echo "[hooks] npm is required for pre-commit checks." >&2
+  exit 1
+fi
+
+if [[ ! -f package.json ]]; then
+  echo "[hooks] package.json not found. Run this hook from repository root." >&2
+  exit 1
+fi
+
+echo "[hooks] Running pre-commit checks (check:fast)..."
+npm run check:fast

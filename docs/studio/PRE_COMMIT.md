@@ -2,6 +2,27 @@
 
 Use the repository root for all commands.
 
+## Git Hooks (recommended)
+
+Activate managed hooks from this repository:
+
+```bash
+make hooks-install
+```
+
+This configures `core.hooksPath=.githooks` and enables the tracked `pre-commit` hook.
+The hook runs:
+
+```bash
+npm run check:fast
+```
+
+Disable again (if needed):
+
+```bash
+make hooks-uninstall
+```
+
 ## Install
 
 ```bash

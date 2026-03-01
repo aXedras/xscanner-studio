@@ -6,6 +6,7 @@ Frontend repository for xScanner Studio (React + TypeScript + Vite) with local S
 
 ```bash
 npm install
+make hooks-install
 cp .env.example .env.local
 make start-all
 ```
@@ -17,6 +18,7 @@ Studio runs on `http://localhost:8084`.
 ```bash
 make build
 make lint
+make hooks-install
 make test-unit
 make test-integration
 make check-all

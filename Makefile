@@ -1,10 +1,12 @@
-.PHONY: help install build lint type-check format format-check test test-unit test-integration test-all check check-fast check-all ci db-check db-generate supabase-start supabase-stop supabase-status start start-studio start-all database-start database-stop studio-build studio-lint studio-type-check studio-test-unit studio-test-integration studio-check-all
+.PHONY: help install hooks-install hooks-uninstall build lint type-check format format-check test test-unit test-integration test-all check check-fast check-all ci db-check db-generate supabase-start supabase-stop supabase-status start start-studio start-all database-start database-stop studio-build studio-lint studio-type-check studio-test-unit studio-test-integration studio-check-all
 
 help:
 	@echo "xScanner Studio (Frontend + Supabase)"
 	@echo "  make install            # npm install"
 	@echo "  make build              # production build"
 	@echo "  make lint               # eslint"
+	@echo "  make hooks-install      # activate managed git hooks"
+	@echo "  make hooks-uninstall    # deactivate managed git hooks"
 	@echo "  make type-check         # typescript check"
 	@echo "  make test-unit          # vitest unit tests"
 	@echo "  make test-integration   # vitest integration tests"
@@ -16,6 +18,12 @@ help:
 
 install:
 	npm install
+
+hooks-install:
+	npm run hooks:install
+
+hooks-uninstall:
+	npm run hooks:uninstall
 
 build:
 	npm run build
