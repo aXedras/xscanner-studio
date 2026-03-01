@@ -33,6 +33,7 @@ Quality gate:
 
 CI integration tests (optional):
 - Trigger via PR label `ci:integration` or manual workflow dispatch (`run_integration=true`).
+- Manual workflow dispatch runs integration tests only from `main`.
 - Requires repository variable `XSCANNER_API_URL` pointing to a reachable xScanner API.
 
 ## Repository Scope

@@ -142,6 +142,7 @@ Note: Studio has its own environment.
 CI note:
 - Integration tests are optional in CI and run only when explicitly triggered.
 - Trigger via PR label `ci:integration` or manual workflow dispatch with `run_integration=true`.
+- Manual workflow dispatch for integration is restricted to `main`.
 - CI expects repository variable `XSCANNER_API_URL`.
 - The xScanner API server loads its own `.env`/`.env.local` independently (separate process).
 
