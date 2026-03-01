@@ -28,5 +28,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Duplicate report (jscpd)
+        run: npm run dup:report
+
+      - name: Upload duplicate report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: duplicate-report
+          path: reports/jscpd/
+          if-no-files-found: ignore
+
       - name: Full checks
         run: npm run check:all

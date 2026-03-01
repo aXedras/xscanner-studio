@@ -29,6 +29,7 @@ make supabase-stop
 Quality gate:
 - Duplicate code is checked with `jscpd` (max `5%` in `src/**/*.{ts,tsx}`).
 - If duplication is above 5%, `pre-commit` and `build` fail.
+- CI also uploads a `duplicate-report` artifact (`reports/jscpd/`) for PR review.
 
 ## Repository Scope
 

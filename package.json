@@ -13,6 +13,7 @@
     "dev": "vite",
     "build": "npm run dup:check && tsc -b && vite build",
     "dup:check": "jscpd --config .jscpd.json",
+    "dup:report": "jscpd --config .jscpd.json --reporters json --output reports/jscpd --threshold 100",
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
