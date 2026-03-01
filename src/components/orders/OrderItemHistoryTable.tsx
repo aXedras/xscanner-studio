@@ -1,18 +1,6 @@
-import { formatDateTimeShort } from '../../lib/utils/date'
-import { formatDecimal } from '../../lib/utils/number'
 import type { OrderItemRow } from '../../services/core/order/types'
-
-function formatActor(updatedBy: string | null, currentUserId: string, t: (key: string) => string): string {
-  if (!updatedBy) return t('order.detail.audit.system')
-  if (updatedBy === currentUserId) return t('order.detail.audit.you')
-  return `${updatedBy.slice(0, 8)}…`
-}
-
-function formatValue(value: string | number | null | undefined, language: string): string {
-  if (value === null || value === undefined) return '-'
-  if (typeof value === 'number') return formatDecimal(value, language, { maximumFractionDigits: 6 })
-  return value.trim() ? value : '-'
-}
+import { formatHistoryValue } from './historyTableFormatting'
+import { AuditHistoryTable } from './historyTableShared'
 
 function formatWeight(weight: string | null, unit: OrderItemRow['weight_unit']): string {
   const trimmed = (weight ?? '').trim()
@@ -35,8 +23,8 @@ function diffItemRows(
     prevValue: string | number | null | undefined,
     nextValue: string | number | null | undefined
   ) => {
-    const prev = formatValue(prevValue, language)
-    const next = formatValue(nextValue, language)
+    const prev = formatHistoryValue(prevValue, language)
+    const next = formatHistoryValue(nextValue, language)
     if (prev !== next) changes.push(`${label}: ${prev} → ${next}`)
   }
 
@@ -73,31 +61,12 @@ export function OrderItemHistoryTable(props: OrderItemHistoryTableProps) {
   const { history, currentUserId, language, t } = props
 
   return (
-    <div>
-      {history.length === 0 ? (
-        <div className="text-sm text-[color:var(--text-secondary)]">{t('order.detail.historyEmpty')}</div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="text-left">
-              <tr className="table-divider-strong">
-                <th className="py-2 pr-4 whitespace-nowrap w-[11.5rem]">{t('order.detail.audit.when')}</th>
-                <th className="py-2 pr-4 whitespace-nowrap w-[6.5rem]">{t('order.detail.audit.by')}</th>
-                <th className="py-2 w-full">{t('order.detail.audit.changes')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.map((v, index) => (
-                <tr key={v.id} className="table-divider">
-                  <td className="py-2 pr-4 whitespace-nowrap">{formatDateTimeShort(v.created_at, language)}</td>
-                  <td className="py-2 pr-4 whitespace-nowrap">{formatActor(v.updated_by, currentUserId, t)}</td>
-                  <td className="py-2">{diffItemRows(v, history[index + 1] ?? null, t, language)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+    <AuditHistoryTable
+      history={history}
+      currentUserId={currentUserId}
+      language={language}
+      t={t}
+      getChanges={(current, previous) => diffItemRows(current, previous, t, language)}
+    />
   )
 }
