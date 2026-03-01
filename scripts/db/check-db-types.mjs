@@ -3,7 +3,7 @@ import path from 'node:path'
 
 import { computeMigrationsHash } from './schema-hash.mjs'
 
-const repoRoot = path.resolve(process.cwd(), '..')
+const repoRoot = process.cwd()
 const migrationsDir = path.join(repoRoot, 'supabase', 'migrations')
 const typesFile = path.join(process.cwd(), 'src', 'lib', 'supabase', 'database.types.ts')
 
@@ -11,7 +11,7 @@ const { hash: expectedHash } = computeMigrationsHash({ migrationsDir })
 
 if (!fs.existsSync(typesFile)) {
   console.error('[db:types] Missing database types file:', typesFile)
-  console.error('Run: (cd studio && npm run db:types:generate)')
+  console.error('Run: npm run db:types:generate')
   process.exit(1)
 }
 
@@ -21,7 +21,7 @@ const foundHash = match?.[1]
 
 if (!foundHash) {
   console.error('[db:types] Could not find schema hash header in database.types.ts')
-  console.error('Run: (cd studio && npm run db:types:generate)')
+  console.error('Run: npm run db:types:generate')
   process.exit(1)
 }
 
@@ -29,7 +29,7 @@ if (foundHash !== expectedHash) {
   console.error('[db:types] Database types are out of date.')
   console.error(`Expected migrations hash: ${expectedHash}`)
   console.error(`Found in types file:     ${foundHash}`)
-  console.error('Run: (cd studio && npm run db:types:generate)')
+  console.error('Run: npm run db:types:generate')
   process.exit(1)
 }
 

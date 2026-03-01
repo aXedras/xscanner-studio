@@ -110,7 +110,7 @@ describe('xScanner API (integration)', () => {
       } catch (error) {
         throw new Error(
           `xScanner API not reachable at ${normalizedBaseUrl}. ` +
-            `Start the API and Supabase. Optionally configure studio/.env.local with VITE_API_URL. Root error: ${String(error)}`
+            `Start the API and Supabase. Optionally configure .env.local with VITE_API_URL. Root error: ${String(error)}`
         )
       }
 

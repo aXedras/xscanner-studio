@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { computeMigrationsHash } from './schema-hash.mjs'
 
-const repoRoot = path.resolve(process.cwd(), '..')
+const repoRoot = process.cwd()
 const migrationsDir = path.join(repoRoot, 'supabase', 'migrations')
 const outFile = path.join(process.cwd(), 'src', 'lib', 'supabase', 'database.types.ts')
 
