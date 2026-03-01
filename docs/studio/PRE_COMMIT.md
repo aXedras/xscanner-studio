@@ -17,6 +17,10 @@ The hook runs:
 npm run check:fast
 ```
 
+`check:fast` includes duplicate detection via `jscpd`.
+Policy: maximum `5%` duplication in `src/**/*.{ts,tsx}`.
+If duplication is above 5%, pre-commit fails.
+
 Disable again (if needed):
 
 ```bash

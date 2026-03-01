@@ -1,29 +1,15 @@
 {
   "$schema": "https://json.schemastore.org/jscpd.json",
-  "threshold": 6,
-  "reporters": ["console", "json"],
-  "output": "./reports/jscpd",
-  "ignore": [
-    "**/node_modules/**",
-    "**/venv/**",
-    "**/.venv/**",
-    "**/__pycache__/**",
-    "**/dist/**",
-    "**/build/**",
-    "**/*.egg-info/**",
-    "**/reports/**",
-    "**/tmp/**",
-    "**/logs/**",
-    "**/*.min.js",
-    "**/*.min.css",
-    "**/package-lock.json",
-    "**/supabase/.temp/**",
-    "**/strategy/archive/**"
-  ],
-  "format": ["python", "typescript", "tsx", "javascript", "jsx"],
+  "threshold": 5,
+  "reporters": ["console"],
+  "pattern": "src/**/*.{ts,tsx}",
   "absolute": false,
   "gitignore": true,
   "minLines": 10,
   "minTokens": 50,
-  "blame": false
+  "ignore": [
+    "**/*.d.ts",
+    "src/lib/supabase/database.types.ts",
+    "src/locales/**"
+  ]
 }

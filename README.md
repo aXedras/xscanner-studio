@@ -26,6 +26,10 @@ make supabase-start
 make supabase-stop
 ```
 
+Quality gate:
+- Duplicate code is checked with `jscpd` (max `5%` in `src/**/*.{ts,tsx}`).
+- If duplication is above 5%, `pre-commit` and `build` fail.
+
 ## Repository Scope
 
 - This repository contains only the Studio frontend and Supabase resources.
