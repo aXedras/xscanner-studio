@@ -30,6 +30,11 @@ Quality gate:
 - Duplicate code is checked with `jscpd` (max `5%` in `src/**/*.{ts,tsx}`).
 - If duplication is above 5%, `pre-commit` and `build` fail.
 - CI also uploads a `duplicate-report` artifact (`reports/jscpd/`) for PR review.
+- Direct Supabase runtime access in frontend UI layers is blocked by `npm run arch:check-no-direct-supabase` (included in `check:fast` and `check:all`).
+
+Architecture direction:
+- Studio is migrating to Variant B: frontend uses server APIs only, and persistence ownership moves fully to server side.
+- See `docs/studio/ADR-0001-frontend-server-persistence-boundary.md` and `docs/studio/MIGRATION_VARIANT_B_SERVER_OWNS_PERSISTENCE.md`.
 
 CI integration tests (optional):
 - Trigger via PR label `ci:integration` or manual workflow dispatch (`run_integration=true`).

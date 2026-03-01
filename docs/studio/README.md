@@ -6,6 +6,8 @@ Frontend documentation for **xScanner Studio** - the admin UI for bullion extrac
 
 - [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) – Component structure, routing, authentication flow
 - [SERVICE_ARCHITECTURE.md](SERVICE_ARCHITECTURE.md) – Supabase integration, API client, data layer
+- [ADR-0001-frontend-server-persistence-boundary.md](ADR-0001-frontend-server-persistence-boundary.md) – Decision: server-only persistence ownership
+- [MIGRATION_VARIANT_B_SERVER_OWNS_PERSISTENCE.md](MIGRATION_VARIANT_B_SERVER_OWNS_PERSISTENCE.md) – Incremental migration roadmap to Variant B
 - [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) – Brand colors, CSS classes, component patterns
 
 ## Development
