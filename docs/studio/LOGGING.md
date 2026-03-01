@@ -58,7 +58,7 @@ VITE_LOG_INGEST_PATH=/__studio_log
 STUDIO_LOG_INGEST_ENABLED=true
 STUDIO_LOG_INGEST_PATH=/__studio_log
 
-# Output file (relative to `studio/`)
+# Output file (relative to repository root)
 STUDIO_LOG_FILE=../logs/studio.log
 
 # Rolling config

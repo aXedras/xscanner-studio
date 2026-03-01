@@ -33,7 +33,7 @@ Frontend documentation for **xScanner Studio** - the admin UI for bullion extrac
 - **Error Red**: `#FF3B30`
 
 ### CSS Architecture
-All component styles are defined in `/studio/src/index.css` using:
+All component styles are defined in `/src/index.css` using:
 - Custom CSS properties for colors (RGB format)
 - `@layer components` for reusable classes
 - Glassmorphism, gradients, animations
@@ -50,7 +50,7 @@ All component styles are defined in `/studio/src/index.css` using:
 - **Error Page**: Catches routing errors and displays user-friendly message
 
 ### Data Layer
-- **Supabase Client**: `/studio/src/lib/supabase.ts`
+- **Supabase Client**: `/src/lib/supabase.ts`
 - **Database**: `extraction` table with bitemporal versioning (`is_active` flag)
 - **Database**: `bil_registration` table for BIL registration attempts (linked to `extraction.id`)
 - **Storage**: `extractions` bucket for bullion images
@@ -61,7 +61,7 @@ All component styles are defined in `/studio/src/index.css` using:
 ## File Structure
 
 ```
-studio/
+repo/
 ├── src/
 │   ├── components/        # React components
 │   │   ├── Header.tsx     # App header with navigation
@@ -92,7 +92,7 @@ make start-studio          # Start Vite dev server on :8084
 
 ### With All Services
 ```bash
-make start-all             # Starts Supabase, Server, Studio
+make start-all             # Starts Supabase and Studio
 ```
 
 ### Environment Variables
@@ -101,7 +101,7 @@ make start-all             # Starts Supabase, Server, Studio
 - `VITE_API_URL` - FastAPI server URL (http://localhost:8010)
 - `VITE_SUPABASE_STORAGE_BUCKET` - Optional. Storage bucket name (default: `extractions`)
 
-See `/studio/.env.local` for configuration.
+See `/.env.local` for configuration.
 
 ## Next Steps
 

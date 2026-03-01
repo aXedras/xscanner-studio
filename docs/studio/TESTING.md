@@ -116,7 +116,7 @@ Before writing any test:
 ### File Organization
 
 ```
-studio/
+repo/
 ├── src/
 │   └── ...
 └── tests/
@@ -127,7 +127,7 @@ studio/
     └── xScanner.test.ts
 ```
 
-Integration tests require real dependencies. Configure the API base URL via Studio env (`studio/.env.local`):
+Integration tests require real dependencies. Configure the API base URL via Studio env (`.env.local`):
 
 - `VITE_API_URL=http://localhost:8000`
 
@@ -136,7 +136,7 @@ Fallback behavior (no extra env vars):
 
 Note: Studio has its own environment.
 
-- Studio runtime uses `.env.local` / `.env` in `studio/` (Vite, `VITE_*`).
+- Studio runtime uses `.env.local` / `.env` in the repository root (Vite, `VITE_*`).
 - Studio tests (Vitest/Node) read from `process.env.*` and we load the Studio `.env*` files for tests too.
 - The xScanner API server loads its own `.env`/`.env.local` independently (separate process).
 
@@ -182,7 +182,7 @@ To record a full strategy-level mock fixture (no sub-step mocks required):
 - `make record-order-mock STRATEGY=cloud FILE=invoices/<your-file>.pdf`
 
 Example:
-- Set `VITE_API_URL` in `studio/.env.local`
+- Set `VITE_API_URL` in `.env.local`
 - Run: `npm run test:integration`
 
 ### Naming Convention

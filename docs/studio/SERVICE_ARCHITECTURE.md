@@ -186,7 +186,7 @@ The core operations are:
 
 The detail view uses a hook to load and group attempts by extraction version id:
 
-- `studio/src/pages/extractions/useBilRegistrationState.ts`
+- `src/pages/extractions/useBilRegistrationState.ts`
 
 It fetches attempts via `services.bilService.listRegistrationsByExtractionIds(...)`, groups by `extraction_id`, and exposes:
 
