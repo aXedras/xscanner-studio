@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useLocation, useOutletContext } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 import { useAppTranslation, I18N_SCOPES } from '../lib/i18n'
@@ -10,6 +10,7 @@ import { createErrorMessage } from '../ui/messages/fromError'
 import { OrderStatusCards } from './orders/OrderStatusCards'
 import { OrdersTable } from './orders/OrdersTable'
 import { isAllowedOrderStatusFilter, useOrdersPageState } from './orders/useOrdersPageState'
+import { useLoadPagedRows, useLoadStatusCounts, useStatusFilterFromUrl } from './shared/useListPageData'
 
 export default function OrdersPage() {
   const { t, i18n } = useAppTranslation(I18N_SCOPES.order)
@@ -32,11 +33,11 @@ export default function OrdersPage() {
   } | null>(null)
   const [countsBusy, setCountsBusy] = useState(false)
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const status = params.get('status')?.trim() ?? null
-    if (isAllowedOrderStatusFilter(status)) actions.setStatusFilters([status])
-  }, [actions, location.search])
+  useStatusFilterFromUrl({
+    search: location.search,
+    isAllowed: isAllowedOrderStatusFilter,
+    setStatusFilters: actions.setStatusFilters,
+  })
 
   const query: OrderListQuery = useMemo(
     () => ({
@@ -51,50 +52,31 @@ export default function OrdersPage() {
 
   const countsFilters = useMemo(() => ({ search: state.search }), [state.search])
 
-  useEffect(() => {
-    let isMounted = true
+  const onError = useCallback(
+    (error: unknown) => {
+      push(createErrorMessage(t, error))
+    },
+    [push, t]
+  )
 
-    const run = async () => {
-      setLoading(true)
-      try {
-        const result = await services.orderService.listActivePaged(query)
-        if (!isMounted) return
-        setRows(result.items)
-        setTotal(result.total)
-      } catch (error) {
-        push(createErrorMessage(t, error))
-      } finally {
-        if (isMounted) setLoading(false)
-      }
-    }
+  useLoadPagedRows({
+    query,
+    refreshKey: state.refreshKey,
+    load: services.orderService.listActivePaged,
+    onError,
+    setLoading,
+    setRows,
+    setTotal,
+  })
 
-    run()
-    return () => {
-      isMounted = false
-    }
-  }, [push, query, state.refreshKey, t])
-
-  useEffect(() => {
-    let isMounted = true
-
-    const run = async () => {
-      setCountsBusy(true)
-      try {
-        const nextCounts = await services.orderService.getActiveStatusCounts(countsFilters)
-        if (!isMounted) return
-        setCounts(nextCounts)
-      } catch (error) {
-        push(createErrorMessage(t, error))
-      } finally {
-        if (isMounted) setCountsBusy(false)
-      }
-    }
-
-    run()
-    return () => {
-      isMounted = false
-    }
-  }, [countsFilters, push, state.refreshKey, t])
+  useLoadStatusCounts({
+    filters: countsFilters,
+    refreshKey: state.refreshKey,
+    load: services.orderService.getActiveStatusCounts,
+    onError,
+    setBusy: setCountsBusy,
+    setCounts,
+  })
 
   const onToggleStatusCard = useCallback(
     (status: OrderStatus) => {

@@ -15,6 +15,7 @@ import {
   useExtractionsPagePersistence,
 } from './extractions/useExtractionsPagePersistence'
 import { useExtractionsPageMutations } from './extractions/useExtractionsPageMutations'
+import { useLoadPagedRows, useLoadStatusCounts, useStatusFilterFromUrl } from './shared/useListPageData'
 
 export default function ExtractionsPage() {
   const { t, i18n } = useAppTranslation(I18N_SCOPES.extraction)
@@ -40,17 +41,19 @@ export default function ExtractionsPage() {
   } | null>(null)
   const [countsBusy, setCountsBusy] = useState(false)
 
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const status = params.get('status')?.trim() ?? null
-    if (isAllowedStatusFilter(status)) actions.setStatusFilters([status])
+  useStatusFilterFromUrl({
+    search: location.search,
+    isAllowed: isAllowedStatusFilter,
+    setStatusFilters: actions.setStatusFilters,
+  })
 
+  useEffect(() => {
     if (location.hash === '#table') {
       requestAnimationFrame(() => {
         document.getElementById('extractions-table')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       })
     }
-  }, [actions, location.hash, location.search])
+  }, [location.hash])
 
   useExtractionsPagePersistence({
     storageKey: 'xscanner:studio:extractionsPage:v1',
@@ -82,50 +85,31 @@ export default function ExtractionsPage() {
     [state.createdAtFrom, state.createdAtTo, state.page, state.pageSize, state.search, state.sort, state.statusFilters]
   )
 
-  useEffect(() => {
-    let isMounted = true
+  const onError = useCallback(
+    (error: unknown) => {
+      push(createErrorMessage(t, error))
+    },
+    [push, t]
+  )
 
-    const run = async () => {
-      setLoading(true)
-      try {
-        const result = await services.extractionService.listActivePaged(query)
-        if (!isMounted) return
-        setRows(result.items)
-        setTotal(result.total)
-      } catch (error) {
-        push(createErrorMessage(t, error))
-      } finally {
-        if (isMounted) setLoading(false)
-      }
-    }
+  useLoadPagedRows({
+    query,
+    refreshKey: state.refreshKey,
+    load: services.extractionService.listActivePaged,
+    onError,
+    setLoading,
+    setRows,
+    setTotal,
+  })
 
-    run()
-    return () => {
-      isMounted = false
-    }
-  }, [push, query, state.refreshKey, t])
-
-  useEffect(() => {
-    let isMounted = true
-
-    const run = async () => {
-      setCountsBusy(true)
-      try {
-        const nextCounts = await services.extractionService.getActiveStatusCounts(countsFilters)
-        if (!isMounted) return
-        setCounts(nextCounts)
-      } catch (error) {
-        push(createErrorMessage(t, error))
-      } finally {
-        if (isMounted) setCountsBusy(false)
-      }
-    }
-
-    run()
-    return () => {
-      isMounted = false
-    }
-  }, [countsFilters, push, state.refreshKey, t])
+  useLoadStatusCounts({
+    filters: countsFilters,
+    refreshKey: state.refreshKey,
+    load: services.extractionService.getActiveStatusCounts,
+    onError,
+    setBusy: setCountsBusy,
+    setCounts,
+  })
 
   const { onRegister, onReject, onRejectMany } = useExtractionsPageMutations({
     userId: outlet.user.id,
