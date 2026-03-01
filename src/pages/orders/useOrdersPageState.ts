@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useReducer } from 'react'
+import { useMemo, useReducer } from 'react'
 import type { OrderListSortField, OrderStatus } from '../../services/core/order/types'
 import type { SortSpec } from '../../services/shared/persistence/query'
+import { mergeBaseListPageState, toggleFilterValue, useDebouncedSearchSync } from '../shared/listPageState'
 
 export type OrdersPageState = {
   statusFilters: OrderStatus[]
@@ -33,19 +34,7 @@ const initialState: OrdersPageState = {
 }
 
 function mergeInitialState(override?: Partial<OrdersPageState>): OrdersPageState {
-  if (!override) return initialState
-
-  return {
-    ...initialState,
-    ...override,
-    statusFilters: Array.isArray(override.statusFilters) ? override.statusFilters : initialState.statusFilters,
-    sort: override.sort ?? initialState.sort,
-    page: typeof override.page === 'number' ? override.page : initialState.page,
-    pageSize: typeof override.pageSize === 'number' ? override.pageSize : initialState.pageSize,
-    searchInput: typeof override.searchInput === 'string' ? override.searchInput : initialState.searchInput,
-    search: typeof override.search === 'string' ? override.search : initialState.search,
-    refreshKey: typeof override.refreshKey === 'number' ? override.refreshKey : initialState.refreshKey,
-  }
+  return mergeBaseListPageState(initialState, override)
 }
 
 function reducer(state: OrdersPageState, action: Action): OrdersPageState {
@@ -53,9 +42,7 @@ function reducer(state: OrdersPageState, action: Action): OrdersPageState {
     case 'SET_STATUS_FILTERS':
       return { ...state, statusFilters: action.value, page: 1 }
     case 'TOGGLE_STATUS_FILTER': {
-      const next = state.statusFilters.includes(action.value)
-        ? state.statusFilters.filter(s => s !== action.value)
-        : [...state.statusFilters, action.value]
+      const next = toggleFilterValue(state.statusFilters, action.value)
       return { ...state, statusFilters: next, page: 1 }
     }
     case 'SET_PAGE':
@@ -78,13 +65,11 @@ function reducer(state: OrdersPageState, action: Action): OrdersPageState {
 export function useOrdersPageState(initial?: Partial<OrdersPageState>) {
   const [state, dispatch] = useReducer(reducer, initial, mergeInitialState)
 
-  useEffect(() => {
-    if (state.searchInput === state.search) return
-    const handle = setTimeout(() => {
-      dispatch({ type: 'SET_SEARCH', value: state.searchInput })
-    }, 250)
-    return () => clearTimeout(handle)
-  }, [state.search, state.searchInput])
+  useDebouncedSearchSync({
+    searchInput: state.searchInput,
+    search: state.search,
+    onApply: value => dispatch({ type: 'SET_SEARCH', value }),
+  })
 
   const actions = useMemo(
     () => ({
