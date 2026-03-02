@@ -1,15 +1,25 @@
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
-import type { User } from '@supabase/supabase-js'
 import { Link } from 'react-router-dom'
 import { useAppTranslation, I18N_SCOPES } from '../lib/i18n'
 import { TopNavigation } from './layout/TopNavigation'
+import type { AuthSessionUser } from '../services/core/auth/types'
 
 interface HeaderProps {
-  user: User
+  user: AuthSessionUser
   title: string
   onSignOut: () => void
   logoutLabel: string
+}
+
+function getUserDisplayLabel(user: AuthSessionUser): string {
+  const displayName = (user.user_metadata?.display_name ?? '').trim()
+  if (displayName) return displayName
+
+  const email = (user.email ?? '').trim()
+  if (email) return email
+
+  return user.id
 }
 
 export default function Header({ user, title, onSignOut, logoutLabel }: HeaderProps) {
@@ -38,7 +48,7 @@ export default function Header({ user, title, onSignOut, logoutLabel }: HeaderPr
             <ThemeSwitcher />
             <div className="badge">
               <div className="icon-active animate-pulse"></div>
-              <span>{user.user_metadata?.display_name || user.email}</span>
+              <span>{getUserDisplayLabel(user)}</span>
             </div>
             <button onClick={onSignOut} className="btn btn-outline btn-icon" aria-label={logoutLabel}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

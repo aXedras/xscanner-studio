@@ -1,17 +1,17 @@
 import { Outlet } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
 import { useAppTranslation, I18N_SCOPES } from '../lib/i18n'
 import Header from './Header'
 import Footer from './Footer'
-import type { User } from '@supabase/supabase-js'
 import MessageCenter from './messages/MessageCenter'
 import { useUiMessages } from '../ui/messages/UiMessagesContext'
 import { createErrorMessage } from '../ui/messages/fromError'
 import ContentContainer from './layout/ContentContainer'
 import { NavigationHistoryProvider } from '../lib/router/NavigationHistoryProvider'
+import { services } from '../services'
+import type { AuthSessionUser } from '../services/core/auth/types'
 
 interface LayoutProps {
-  user: User
+  user: AuthSessionUser
   pageTitle: string
 }
 
@@ -21,7 +21,7 @@ export default function Layout({ user, pageTitle }: LayoutProps) {
 
   const handleSignOut = async () => {
     try {
-      await supabase.auth.signOut()
+      await services.authService.signOut()
     } catch (error) {
       push(createErrorMessage(t, error))
     }

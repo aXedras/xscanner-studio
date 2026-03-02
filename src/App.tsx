@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
-import type { Session } from '@supabase/supabase-js'
-import { supabase } from './lib/supabase'
 import { ThemeProvider } from './components/ThemeProvider'
 import { useAppTranslation, I18N_SCOPES } from './lib/i18n'
 import LoginDialog from './components/LoginDialog'
@@ -14,31 +12,61 @@ import OrderDetailPage from './pages/OrderDetailPage'
 import ErrorPage from './components/ErrorPage'
 import { UiMessagesProvider } from './ui/messages/UiMessagesProvider'
 import SuccessToastOverlay from './components/messages/SuccessToastOverlay'
+import { services } from './services'
+import { AUTH_SESSION_CHANGED_EVENT } from './services/core/auth/events'
+import type { AuthSessionUser } from './services/core/auth/types'
 import './lib/i18n' // Initialize i18n
+
+type BootstrapState = 'loading' | 'ready' | 'error'
 
 function App() {
   const { t } = useAppTranslation(I18N_SCOPES.extraction)
-  const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { t: tCommon } = useAppTranslation(I18N_SCOPES.common)
+  const [user, setUser] = useState<AuthSessionUser | null>(null)
+  const [bootstrapState, setBootstrapState] = useState<BootstrapState>('loading')
+  const [sessionErrorMessage, setSessionErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setLoading(false)
-    })
+    let isMounted = true
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
+    const refreshSession = async () => {
+      try {
+        const result = await services.authService.getSession()
+        if (!isMounted) return
+        setUser(result.session)
+        setSessionErrorMessage(null)
+        setBootstrapState('ready')
+      } catch (error) {
+        if (!isMounted) return
+        const message = error instanceof Error ? error.message : 'Unknown auth session error'
+        setUser(null)
+        setSessionErrorMessage(message)
+        setBootstrapState('error')
+      }
+    }
 
-    return () => subscription.unsubscribe()
+    const onAuthSessionChanged = () => {
+      void refreshSession()
+    }
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void refreshSession()
+      }
+    }
+
+    void refreshSession()
+    globalThis.addEventListener(AUTH_SESSION_CHANGED_EVENT, onAuthSessionChanged)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
+    return () => {
+      isMounted = false
+      globalThis.removeEventListener(AUTH_SESSION_CHANGED_EVENT, onAuthSessionChanged)
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
   }, [])
 
-  if (loading) {
+  if (bootstrapState === 'loading') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-slate-300"></div>
@@ -46,7 +74,29 @@ function App() {
     )
   }
 
-  if (!session) {
+  if (bootstrapState === 'error') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center px-6">
+        <div className="max-w-xl w-full p-6 rounded-xl bg-white/10 text-white border border-white/20">
+          <h1 className="text-xl font-semibold mb-2">{tCommon('common.error.title')}</h1>
+          <p className="text-sm text-slate-200 mb-4">{sessionErrorMessage ?? 'Session bootstrap failed.'}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setBootstrapState('loading')
+              setSessionErrorMessage(null)
+              globalThis.dispatchEvent(new Event(AUTH_SESSION_CHANGED_EVENT))
+            }}
+            className="btn btn-outline"
+          >
+            {tCommon('common.action.retry')}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
     return (
       <ThemeProvider defaultTheme="light">
         <UiMessagesProvider>
@@ -61,7 +111,7 @@ function App() {
   const router = createBrowserRouter([
     {
       path: '/',
-      element: <Layout user={session.user} pageTitle={t('extraction.title')} />,
+      element: <Layout user={user} pageTitle={t('extraction.title')} />,
       errorElement: <ErrorPage />,
       children: [
         {

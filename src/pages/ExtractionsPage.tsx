@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useLocation, useOutletContext } from 'react-router-dom'
-import type { User } from '@supabase/supabase-js'
 import { useAppTranslation, I18N_SCOPES } from '../lib/i18n'
 import { services } from '../services'
 import type { ExtractionListQuery, ExtractionRow, ExtractionStatus } from '../services/core/extraction/types'
@@ -16,12 +15,13 @@ import {
 } from './extractions/useExtractionsPagePersistence'
 import { useExtractionsPageMutations } from './extractions/useExtractionsPageMutations'
 import { useLoadPagedRows, useLoadStatusCounts, useStatusFilterFromUrl } from './shared/useListPageData'
+import type { AuthSessionUser } from '../services/core/auth/types'
 
 export default function ExtractionsPage() {
   const { t, i18n } = useAppTranslation(I18N_SCOPES.extraction)
   const { push } = useUiMessages()
   const location = useLocation()
-  const outlet = useOutletContext<{ user: User }>()
+  const outlet = useOutletContext<{ user: AuthSessionUser }>()
 
   const hasStatusParam = Boolean(new URLSearchParams(location.search).get('status')?.trim())
   const persisted = hasStatusParam ? null : loadExtractionsPagePersistedState('xscanner:studio:extractionsPage:v1')

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { ILogger } from '../../../../lib/utils/logging'
-import type { AuthResult, SignInInput, SignUpInput } from '../types'
+import type { AuthResult, AuthSessionResult, SignInInput, SignUpInput } from '../types'
 import type { IAuthRepository } from './IAuthRepository'
 import { logSupabaseFailure } from '../../../infrastructure/persistence/supabaseErrors'
 
@@ -71,6 +71,34 @@ export class SupabaseAuthRepository implements IAuthRepository {
     if (error) {
       this.logFailure('signOut failed', error)
       throw error
+    }
+  }
+
+  async getSession(): Promise<AuthSessionResult> {
+    this.logger.info('SupabaseAuthRepository', 'getSession')
+
+    const { data, error } = await this.supabase.auth.getSession()
+
+    if (error) {
+      this.logFailure('getSession failed', error)
+      throw error
+    }
+
+    const user = data.session?.user
+    if (!user) {
+      return { session: null }
+    }
+
+    const displayNameValue = (user.user_metadata as Record<string, unknown> | null | undefined)?.display_name
+
+    return {
+      session: {
+        id: user.id,
+        email: user.email ?? null,
+        user_metadata: {
+          display_name: typeof displayNameValue === 'string' ? displayNameValue : null,
+        },
+      },
     }
   }
 }

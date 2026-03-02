@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAppTranslation, I18N_SCOPES } from '../lib/i18n'
 import { Link, useNavigate, useOutletContext } from 'react-router-dom'
-import type { User } from '@supabase/supabase-js'
 import { UploadAndExtractPanel } from '../components/extractions/UploadAndExtractPanel'
 import { UploadAndExtractOrderPanel } from '../components/orders/UploadAndExtractOrderPanel'
 import { services } from '../services'
@@ -15,13 +14,14 @@ import {
   StatIconTotal,
   StatIconValidated,
 } from '../components/ui/StatCardIcons'
+import type { AuthSessionUser } from '../services/core/auth/types'
 
 export default function DashboardPage() {
   const { t } = useAppTranslation(I18N_SCOPES.extraction)
   const { t: tOrder } = useAppTranslation(I18N_SCOPES.order)
   const navigate = useNavigate()
   const { push } = useUiMessages()
-  const outlet = useOutletContext<{ user: User }>()
+  const outlet = useOutletContext<{ user: AuthSessionUser }>()
 
   const [countsLoading, setCountsLoading] = useState(true)
   const [counts, setCounts] = useState({ pending: 0, corrected: 0, validated: 0, rejected: 0, error: 0 })

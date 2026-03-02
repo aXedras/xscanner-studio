@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useOutletContext, useParams } from 'react-router-dom'
-import type { User } from '@supabase/supabase-js'
 import { useAppTranslation, I18N_SCOPES } from '../lib/i18n'
 import { services } from '../services'
 import { PageHeader } from '../components/layout/PageHeader'
@@ -15,12 +14,13 @@ import {
 } from '../components/orders/orderCanonicalFieldsForm'
 import { OrderDetailView } from '../components/orders/OrderDetailView'
 import { buildOrderDebugStrings } from '../components/orders/orderExtractionDebug'
+import type { AuthSessionUser } from '../services/core/auth/types'
 
 export default function OrderDetailPage() {
   const { t, i18n } = useAppTranslation(I18N_SCOPES.order)
   const { push } = useUiMessages()
   const navigate = useNavigate()
-  const outlet = useOutletContext<{ user: User }>()
+  const outlet = useOutletContext<{ user: AuthSessionUser }>()
   const params = useParams()
   const originalId = params.originalId?.trim() ?? ''
 

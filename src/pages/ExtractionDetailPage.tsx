@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams, useOutletContext } from 'react-router-dom'
-import type { User } from '@supabase/supabase-js'
 import { useAppTranslation, I18N_SCOPES } from '../lib/i18n'
 import { services } from '../services'
 import type { ExtractionCorrectionInput, ExtractionRow } from '../services/core/extraction/types'
@@ -16,12 +15,13 @@ import { useBilRegistrationState } from './extractions/useBilRegistrationState'
 import { useUiMessages } from '../ui/messages/UiMessagesContext'
 import { createErrorMessage } from '../ui/messages/fromError'
 import { PageHeader } from '../components/layout/PageHeader'
+import type { AuthSessionUser } from '../services/core/auth/types'
 
 export default function ExtractionDetailPage() {
   const { t, i18n } = useAppTranslation(I18N_SCOPES.extraction)
   const { push } = useUiMessages()
   const { originalId } = useParams()
-  const outlet = useOutletContext<{ user: User }>()
+  const outlet = useOutletContext<{ user: AuthSessionUser }>()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [registering, setRegistering] = useState(false)

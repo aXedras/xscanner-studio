@@ -43,7 +43,9 @@ export function AuditHistoryTable<T extends HistoryTableRow>({
               {history.map((entry, index) => (
                 <tr key={entry.id} className="table-divider">
                   <td className="py-2 pr-4 whitespace-nowrap">{formatDateTimeShort(entry.created_at, language)}</td>
-                  <td className="py-2 pr-4 whitespace-nowrap">{formatHistoryActor(entry.updated_by, currentUserId, t)}</td>
+                  <td className="py-2 pr-4 whitespace-nowrap">
+                    {formatHistoryActor(entry.updated_by, currentUserId, t)}
+                  </td>
                   <td className="py-2">{getChanges(entry, history[index + 1] ?? null)}</td>
                 </tr>
               ))}

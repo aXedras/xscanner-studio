@@ -1,6 +1,10 @@
 import { formatDecimal } from '../../lib/utils/number'
 
-export function formatHistoryActor(updatedBy: string | null, currentUserId: string, t: (key: string) => string): string {
+export function formatHistoryActor(
+  updatedBy: string | null,
+  currentUserId: string,
+  t: (key: string) => string
+): string {
   if (!updatedBy) return t('order.detail.audit.system')
   if (updatedBy === currentUserId) return t('order.detail.audit.you')
   return `${updatedBy.slice(0, 8)}…`

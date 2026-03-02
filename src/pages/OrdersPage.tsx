@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useLocation, useOutletContext } from 'react-router-dom'
-import type { User } from '@supabase/supabase-js'
 import { useAppTranslation, I18N_SCOPES } from '../lib/i18n'
 import { PageHeader } from '../components/layout/PageHeader'
 import { services } from '../services'
@@ -11,12 +10,13 @@ import { OrderStatusCards } from './orders/OrderStatusCards'
 import { OrdersTable } from './orders/OrdersTable'
 import { isAllowedOrderStatusFilter, useOrdersPageState } from './orders/useOrdersPageState'
 import { useLoadPagedRows, useLoadStatusCounts, useStatusFilterFromUrl } from './shared/useListPageData'
+import type { AuthSessionUser } from '../services/core/auth/types'
 
 export default function OrdersPage() {
   const { t, i18n } = useAppTranslation(I18N_SCOPES.order)
   const { push } = useUiMessages()
   const location = useLocation()
-  useOutletContext<{ user: User }>()
+  useOutletContext<{ user: AuthSessionUser }>()
 
   const { state, actions, derived } = useOrdersPageState()
 
