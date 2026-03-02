@@ -1,0 +1,157 @@
+openapi: 3.0.3
+info:
+  title: xScanner Studio Auth API
+  version: 1.0.0
+  description: |
+    OpenAPI contract draft for Variant B auth/session endpoints consumed by Studio.
+servers:
+  - url: /api/v1
+paths:
+  /auth/sign-in:
+    post:
+      summary: Sign in with email and password
+      operationId: signIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInRequest'
+      responses:
+        '200':
+          description: Sign-in accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResult'
+        '400':
+          description: Invalid request payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /auth/sign-up:
+    post:
+      summary: Sign up with email, password and display name
+      operationId: signUp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpRequest'
+      responses:
+        '200':
+          description: Sign-up accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResult'
+        '400':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /auth/sign-out:
+    post:
+      summary: Sign out current user session
+      operationId: signOut
+      responses:
+        '204':
+          description: Signed out successfully
+        '401':
+          description: Missing or invalid session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+  /auth/session:
+    get:
+      summary: Get current session snapshot
+      operationId: getSession
+      responses:
+        '200':
+          description: Session snapshot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '401':
+          description: No active session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorEnvelope'
+components:
+  schemas:
+    SignInRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 1
+    SignUpRequest:
+      type: object
+      required: [email, password, displayName]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 1
+        displayName:
+          type: string
+          minLength: 1
+    AuthResult:
+      type: object
+      required: [hasSession]
+      properties:
+        hasSession:
+          type: boolean
+    SessionResponse:
+      type: object
+      required: [session]
+      properties:
+        session:
+          nullable: true
+          type: object
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+              format: email
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              nullable: true
+            request_id:
+              type: string

@@ -21,6 +21,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  dependency-review:
+    name: Dependency review (PR)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Dependency review
+        uses: actions/dependency-review-action@v4
+
   studio-checks:
     name: Studio checks
     runs-on: ubuntu-latest
@@ -52,6 +64,56 @@ jobs:
 
       - name: Full checks
         run: npm run check:all
+
+  dependency-audit:
+    name: Dependency audit (npm)
+    needs: studio-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit (high/critical)
+        run: npm run security:audit
+
+  owasp-dependency-check:
+    name: OWASP dependency-check
+    needs: studio-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run OWASP dependency-check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: xscanner-studio
+          path: .
+          format: HTML
+          out: reports
+          args: >-
+            --failOnCVSS 7
+            --enableRetired
+
+      - name: Upload OWASP report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-dependency-check-report
+          path: reports/
+          if-no-files-found: ignore
 
   integration-tests:
     name: Integration tests (optional)

@@ -8,6 +8,11 @@ Frontend documentation for **xScanner Studio** - the admin UI for bullion extrac
 - [SERVICE_ARCHITECTURE.md](SERVICE_ARCHITECTURE.md) – Supabase integration, API client, data layer
 - [ADR-0001-frontend-server-persistence-boundary.md](ADR-0001-frontend-server-persistence-boundary.md) – Decision: server-only persistence ownership
 - [MIGRATION_VARIANT_B_SERVER_OWNS_PERSISTENCE.md](MIGRATION_VARIANT_B_SERVER_OWNS_PERSISTENCE.md) – Incremental migration roadmap to Variant B
+- [API_CONTRACT_BACKLOG_VARIANT_B.md](API_CONTRACT_BACKLOG_VARIANT_B.md) – Contract-first endpoint mapping from current frontend repositories/services
+- [SERVER_REPO_PLAYBOOK_VARIANT_B.md](SERVER_REPO_PLAYBOOK_VARIANT_B.md) – Implementation checklist for the server repository
+- [CONTRACT_TEST_CHECKLIST_VARIANT_B.md](CONTRACT_TEST_CHECKLIST_VARIANT_B.md) – Concrete contract-test checklist for server endpoint delivery
+- [SERVER_API_IMPLEMENTATION_ORDER_VARIANT_B.md](SERVER_API_IMPLEMENTATION_ORDER_VARIANT_B.md) – API-by-API implementation order with frontend request/response expectations
+- [openapi/auth-v1.yaml](openapi/auth-v1.yaml) – OpenAPI contract draft for auth/session endpoints
 - [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) – Brand colors, CSS classes, component patterns
 
 ## Development
