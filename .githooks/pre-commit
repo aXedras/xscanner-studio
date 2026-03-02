@@ -11,5 +11,5 @@ if [[ ! -f package.json ]]; then
   exit 1
 fi
 
-echo "[hooks] Running pre-commit checks (check:fast)..."
-npm run check:fast
+echo "[hooks] Running pre-commit checks (check:pre-commit)..."
+npm run check:pre-commit

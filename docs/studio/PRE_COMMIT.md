@@ -14,10 +14,18 @@ This configures `core.hooksPath=.githooks` and enables the tracked `pre-commit` 
 The hook runs:
 
 ```bash
-npm run check:fast
+npm run check:pre-commit
 ```
 
-`check:fast` includes duplicate detection via `jscpd`.
+`check:pre-commit` enforces:
+
+- `prettier --check` formatting gate
+- duplicate detection via `jscpd`
+- architecture guard: no direct UI Supabase runtime access
+- architecture guard: Supabase DB calls (`supabase.from(...)` / `supabase.rpc(...)`) only in repository/persistence layers
+- i18n key consistency checks across language files
+- ESLint + TypeScript + unit tests
+
 Policy: maximum `5%` duplication in `src/**/*.{ts,tsx}`.
 If duplication is above 5%, pre-commit fails.
 

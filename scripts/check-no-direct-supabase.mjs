@@ -6,10 +6,7 @@ import path from 'node:path'
 const ROOT = process.cwd()
 const SRC_DIR = path.join(ROOT, 'src')
 
-const ALLOWED_FILE_EXCEPTIONS = new Map([
-  ['src/App.tsx', 'Temporary: auth session bootstrap until server session endpoint is in place.'],
-  ['src/components/Layout.tsx', 'Temporary: auth sign-out delegation not migrated yet.'],
-])
+const ALLOWED_FILE_EXCEPTIONS = new Map([])
 
 const ALLOWED_PREFIXES = ['src/services/', 'src/lib/supabase/']
 const SCAN_EXTENSIONS = new Set(['.ts', '.tsx'])
@@ -95,9 +92,11 @@ async function run() {
     for (const violation of violations) {
       process.stderr.write(` - ${violation.file}: ${violation.reason}\n`)
     }
-    process.stderr.write('\nAllowed temporary exceptions:\n')
-    for (const [file, note] of ALLOWED_FILE_EXCEPTIONS) {
-      process.stderr.write(` - ${file}: ${note}\n`)
+    if (ALLOWED_FILE_EXCEPTIONS.size > 0) {
+      process.stderr.write('\nAllowed temporary exceptions:\n')
+      for (const [file, note] of ALLOWED_FILE_EXCEPTIONS) {
+        process.stderr.write(` - ${file}: ${note}\n`)
+      }
     }
     process.exit(1)
   }
