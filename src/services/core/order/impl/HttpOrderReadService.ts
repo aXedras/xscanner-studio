@@ -1,6 +1,6 @@
 import type { ILogger } from '../../../../lib/utils/logging'
 import type { HttpJsonClient } from '../../../infrastructure/http/httpClient'
-import type { IOrderService } from '../IOrderService'
+import type { IOrderService, StoragePreview } from '../IOrderService'
 import { isHttpNotFound } from '../../../shared/http/errors'
 import { toPagedResult } from '../../../shared/http/pagedResponse'
 import { buildPagedListQuery, buildStatusCountQuery, withQuery } from '../../../shared/http/queryParams'
@@ -15,13 +15,21 @@ import type {
   OrderStatusCounts,
   OrderUpdateInput,
 } from '../types'
-import type { StoragePreview } from '../../storage/IStorageService'
 
 type PagedOrderResponse = {
   items: OrderRow[]
   total: number
   page: number
   page_size: number
+}
+
+type StoragePreviewResponse = {
+  signed_url?: string | null
+  signedUrl?: string | null
+  preview_url?: string | null
+  previewUrl?: string | null
+  url?: string | null
+  src?: string | null
 }
 
 export class HttpOrderReadService implements IOrderService {
@@ -81,15 +89,40 @@ export class HttpOrderReadService implements IOrderService {
   }
 
   async attributePersistedSnapshot(orderId: string, actorId: string): Promise<void> {
-    await this.fallback.attributePersistedSnapshot(orderId, actorId)
+    const id = orderId.trim()
+    const updatedBy = actorId.trim()
+    if (!id || !updatedBy) return
+
+    await this.client.postJson<unknown>(`/api/v1/orders/${encodeURIComponent(id)}/attribute-persisted-snapshot`, {
+      updatedBy,
+    })
   }
 
   async updateOrder(orderId: string, patch: OrderUpdateInput): Promise<OrderRow> {
-    return await this.fallback.updateOrder(orderId, patch)
+    const id = orderId.trim()
+    return await this.client.patchJson<OrderRow>(`/api/v1/orders/${encodeURIComponent(id)}`, patch)
   }
 
   async resolveOriginalIdByOrderId(orderId: string): Promise<string | null> {
-    return await this.fallback.resolveOriginalIdByOrderId(orderId)
+    const id = orderId.trim()
+    if (!id) return null
+
+    try {
+      const response = await this.client.getJson<{ original_id: string | null }>(
+        `/api/v1/orders/${encodeURIComponent(id)}/resolve-original-id`
+      )
+
+      if (response.original_id && response.original_id.trim()) {
+        return response.original_id
+      }
+    } catch (error) {
+      this.logger.warn('HttpOrderReadService', 'resolveOriginalIdByOrderId via API failed', {
+        orderId: id,
+        error,
+      })
+    }
+
+    return await this.fallback.resolveOriginalIdByOrderId(id)
   }
 
   async listActiveItems(orderId: string): Promise<OrderItemRow[]> {
@@ -117,6 +150,35 @@ export class HttpOrderReadService implements IOrderService {
   }
 
   async getPdfPreviewSrc(storagePath: string): Promise<StoragePreview | null> {
-    return await this.fallback.getPdfPreviewSrc(storagePath)
+    const trimmed = storagePath.trim()
+    if (!trimmed) return null
+
+    try {
+      const requestPath = withQuery(
+        '/api/v1/storage/preview',
+        new URLSearchParams({ storage_path: trimmed }).toString()
+      )
+      const response = await this.client.getJson<StoragePreviewResponse>(requestPath)
+
+      const src =
+        response.signed_url ??
+        response.signedUrl ??
+        response.preview_url ??
+        response.previewUrl ??
+        response.url ??
+        response.src ??
+        null
+
+      if (src && src.trim()) {
+        return { src }
+      }
+    } catch (error) {
+      this.logger.warn('HttpOrderReadService', 'getPdfPreviewSrc via API failed', {
+        storagePath: trimmed,
+        error,
+      })
+    }
+
+    return await this.fallback.getPdfPreviewSrc(trimmed)
   }
 }

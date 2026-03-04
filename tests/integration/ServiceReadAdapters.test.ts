@@ -76,7 +76,6 @@ describe('Service read adapters (integration with mocked API)', () => {
     })
 
     const services = ServiceFactory.getInstance({
-      supabase: {} as never,
       logger,
     })
 
@@ -133,7 +132,6 @@ describe('Service read adapters (integration with mocked API)', () => {
     })
 
     const services = ServiceFactory.getInstance({
-      supabase: {} as never,
       logger,
     })
 

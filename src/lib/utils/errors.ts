@@ -43,7 +43,7 @@ const getStringMessage = (error: unknown): string | undefined => {
 const getNumberStatus = (error: unknown): number | undefined => {
   const errorLike = toErrorLike(error)
   if (!errorLike) return undefined
-  // Supabase (Storage) often uses `statusCode` (sometimes as string).
+  // Some backends return `statusCode` (sometimes as string).
   if (typeof errorLike.statusCode === 'number') return errorLike.statusCode
   if (typeof errorLike.statusCode === 'string') {
     const parsed = Number(errorLike.statusCode)

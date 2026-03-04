@@ -92,10 +92,21 @@ export default function ExtractionsPage() {
     [push, t]
   )
 
+  const loadPagedExtractions = useCallback((nextQuery: ExtractionListQuery) => {
+    return services.extractionService.listActivePaged(nextQuery)
+  }, [])
+
+  const loadExtractionStatusCounts = useCallback(
+    (filters: { search?: string; createdAtFrom?: string; createdAtTo?: string }) => {
+      return services.extractionService.getActiveStatusCounts(filters)
+    },
+    []
+  )
+
   useLoadPagedRows({
     query,
     refreshKey: state.refreshKey,
-    load: services.extractionService.listActivePaged,
+    load: loadPagedExtractions,
     onError,
     setLoading,
     setRows,
@@ -105,7 +116,7 @@ export default function ExtractionsPage() {
   useLoadStatusCounts({
     filters: countsFilters,
     refreshKey: state.refreshKey,
-    load: services.extractionService.getActiveStatusCounts,
+    load: loadExtractionStatusCounts,
     onError,
     setBusy: setCountsBusy,
     setCounts,

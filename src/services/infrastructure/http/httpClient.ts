@@ -49,6 +49,7 @@ type HttpClientOptions = {
   logger: ILogger
   name?: string
   defaultHeaders?: Record<string, string>
+  credentials?: RequestCredentials
   timeoutMs?: number
   maxSnippetChars?: number
 }
@@ -61,6 +62,7 @@ type RequestOptions = {
 export type HttpJsonClient = {
   getJson<TResponse>(path: string, options?: RequestOptions): Promise<TResponse>
   postJson<TResponse>(path: string, body: unknown, options?: RequestOptions): Promise<TResponse>
+  patchJson<TResponse>(path: string, body: unknown, options?: RequestOptions): Promise<TResponse>
   postFormData<TResponse>(path: string, formData: FormData, options?: RequestOptions): Promise<TResponse>
 }
 
@@ -135,6 +137,7 @@ export function createHttpJsonClient(options: HttpClientOptions): HttpJsonClient
     logger,
     name = 'HttpJsonClient',
     defaultHeaders = {},
+    credentials = 'same-origin',
     timeoutMs = 30_000,
     maxSnippetChars = 2_000,
   } = options
@@ -163,6 +166,7 @@ export function createHttpJsonClient(options: HttpClientOptions): HttpJsonClient
           method: input.method,
           headers: { ...defaultHeaders, ...(input.headers ?? {}) },
           body: input.body,
+          credentials,
         },
       })
     } catch (error) {
@@ -243,6 +247,21 @@ export function createHttpJsonClient(options: HttpClientOptions): HttpJsonClient
       const payloadSnippet = safeJsonSnippet(body, maxSnippetChars)
       return await request<TResponse>({
         method: 'POST',
+        path,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(requestOptions?.headers ?? {}),
+        },
+        body: JSON.stringify(body),
+        payloadSnippet,
+        timeoutMs: requestOptions?.timeoutMs,
+      })
+    },
+
+    async patchJson<TResponse>(path: string, body: unknown, requestOptions?: RequestOptions): Promise<TResponse> {
+      const payloadSnippet = safeJsonSnippet(body, maxSnippetChars)
+      return await request<TResponse>({
+        method: 'PATCH',
         path,
         headers: {
           'Content-Type': 'application/json',

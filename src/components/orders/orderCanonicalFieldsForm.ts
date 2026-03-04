@@ -24,7 +24,7 @@ export type OrderCanonicalFieldsForm = {
 
 function toDateInputValue(value: string | null): string {
   if (!value) return ''
-  // Supabase returns DATE as "YYYY-MM-DD" already.
+  // API returns DATE as "YYYY-MM-DD" already.
   return value
 }
 

@@ -1,6 +1,6 @@
 import type { ILogger } from '../../../../lib/utils/logging'
 import type { HttpJsonClient } from '../../../infrastructure/http/httpClient'
-import type { IBilService } from '../IBilService'
+import type { IBilService } from '../IBullionIntegrityLedgerService'
 import type { BilRegistrationRow, RegisterOnBilInput, RegisterOnBilResponse } from '../types'
 
 export class HttpBilReadService implements IBilService {

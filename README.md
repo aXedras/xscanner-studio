@@ -34,7 +34,7 @@ Quality gate:
 
 Architecture direction:
 - Studio is migrating to Variant B: frontend uses server APIs only, and persistence ownership moves fully to server side.
-- See `docs/studio/ADR-0001-frontend-server-persistence-boundary.md` and `docs/studio/MIGRATION_VARIANT_B_SERVER_OWNS_PERSISTENCE.md`.
+- See `docs/studio/ADR-0001-frontend-server-persistence-boundary.md` and `docs/studio/SERVICE_ARCHITECTURE.md`.
 
 CI integration tests (optional):
 - Trigger via PR label `ci:integration` or manual workflow dispatch (`run_integration=true`).

@@ -10,7 +10,7 @@ export interface SignUpInput {
 }
 
 export interface AuthResult {
-  // Supabase may return a session immediately, or null when email confirmation is required.
+  // Backend may return a session immediately, or null when email confirmation is required.
   hasSession: boolean
 }
 

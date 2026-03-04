@@ -83,9 +83,24 @@ const resources = {
   },
 }
 
+const I18N_STORAGE_KEY = 'xscanner:studio:language'
+
+function getInitialLanguage(): 'de' | 'en' | undefined {
+  if (globalThis.window === undefined) return undefined
+
+  const saved = globalThis.localStorage.getItem(I18N_STORAGE_KEY)
+  if (!saved) return undefined
+
+  const normalized = saved.toLowerCase()
+  if (normalized.startsWith('de')) return 'de'
+  if (normalized.startsWith('en')) return 'en'
+  return undefined
+}
+
 i18n.use(initReactI18next).init({
   resources,
   supportedLngs: ['de', 'en'],
+  lng: getInitialLanguage(),
   fallbackLng: 'de',
   // Avoid i18next debug logs in the browser console.
   debug: false,
@@ -94,5 +109,11 @@ i18n.use(initReactI18next).init({
     escapeValue: false,
   },
 })
+
+if (globalThis.window !== undefined) {
+  i18n.on('languageChanged', lng => {
+    globalThis.localStorage.setItem(I18N_STORAGE_KEY, lng)
+  })
+}
 
 export default i18n

@@ -3,7 +3,8 @@
     "nav": {
       "dashboard": "Dashboard",
       "extractions": "Extraktionen",
-      "orders": "Orders"
+      "orders": "Orders",
+      "settings": "Einstellungen"
     },
     "toast": {
       "save": {
@@ -141,6 +142,34 @@
       "zoomOut": "Verkleinern",
       "zoom": "Zoom",
       "hint": "Mausrad zum Zoomen, ziehen zum Verschieben (wenn gezoomt), Esc zum Schließen."
+    },
+    "systemStatus": {
+      "title": "Systemstatus",
+      "badgeLabel": "Systemstatus: {{status}}",
+      "endpoint": "Endpoint",
+      "lastUpdated": "Zuletzt aktualisiert",
+      "rows": {
+        "backend": "Backend API",
+        "aiModel": "KI-Modell"
+      },
+      "labels": {
+        "up": "Verfügbar",
+        "degraded": "Degradiert",
+        "busy": "Beschäftigt",
+        "down": "Nicht verfügbar"
+      }
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "subtitle": "Konfiguriere lokale Studio-Runtime-Optionen.",
+      "backendUrl": "Backend API URL",
+      "backendHint": "Wird für API-Requests und Health-Checks verwendet.",
+      "save": "Speichern und neu laden",
+      "reset": "Auf Standard zurücksetzen",
+      "recoverDefaultApi": "Backend-URL auf Standard zurücksetzen",
+      "defaultInfo": "Standard: {{url}}",
+      "invalidUrl": "Bitte gib eine gültige absolute URL ein (z. B. http://localhost:9000).",
+      "unreachableUrl": "{{url}}/health{{status}} ist nicht erreichbar. URL wurde nicht gespeichert."
     }
   },
   "auth": {
@@ -158,7 +187,9 @@
     },
     "fields": {
       "email": "E-Mail",
-      "password": "Passwort"
+      "password": "Passwort",
+      "showPassword": "Passwort anzeigen",
+      "hidePassword": "Passwort verbergen"
     },
     "errors": {
       "invalidCredentials": "E-Mail oder Passwort ist falsch.",

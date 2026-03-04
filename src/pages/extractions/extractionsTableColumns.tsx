@@ -64,7 +64,7 @@ export function createExtractionsTableColumns({
     cellClassName: 'w-10 pr-2',
     cell: row => {
       const id = String(row.original_id)
-      const disabled = isFinalStatus(row.status) || busyIds.has(id) || bulkBusy
+      const disabled = busyIds.has(id) || bulkBusy
       return (
         <input
           type="checkbox"

@@ -1,6 +1,6 @@
 import { useMemo, useReducer } from 'react'
 import type { OrderListSortField, OrderStatus } from '../../services/core/order/types'
-import type { SortSpec } from '../../services/shared/persistence/query'
+import type { SortSpec } from '../../services/shared/query/types'
 import { mergeBaseListPageState, toggleFilterValue, useDebouncedSearchSync } from '../shared/listPageState'
 
 export type OrdersPageState = {

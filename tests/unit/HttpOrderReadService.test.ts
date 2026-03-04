@@ -21,6 +21,7 @@ function createClient() {
   return {
     getJson: vi.fn(),
     postJson: vi.fn(),
+    patchJson: vi.fn(),
     postFormData: vi.fn(),
   } satisfies HttpJsonClient
 }
@@ -126,12 +127,72 @@ describe('HttpOrderReadService', () => {
     const logger = createLogger()
 
     const row = { id: 'order-1' }
-    fallback.updateOrder.mockResolvedValueOnce(row as never)
+    client.patchJson.mockResolvedValueOnce(row as never)
 
     const service = new HttpOrderReadService({ client, fallback, logger })
     const result = await service.updateOrder('order-1', { status: 'validated' })
 
-    expect(fallback.updateOrder).toHaveBeenCalledWith('order-1', { status: 'validated' })
+    expect(client.patchJson).toHaveBeenCalledWith('/api/v1/orders/order-1', { status: 'validated' })
     expect(result).toEqual(row)
+  })
+
+  test('requests storage preview URL via API and maps response URL', async () => {
+    const client = createClient()
+    const fallback = createFallback()
+    const logger = createLogger()
+
+    client.getJson.mockResolvedValueOnce({ src: 'https://cdn.example/file.pdf?sig=1', mode: 'signed' })
+
+    const service = new HttpOrderReadService({ client, fallback, logger })
+    const preview = await service.getPdfPreviewSrc('orders/a/b.pdf')
+
+    expect(client.getJson).toHaveBeenCalledWith('/api/v1/storage/preview?storage_path=orders%2Fa%2Fb.pdf')
+    expect(preview).toEqual({ src: 'https://cdn.example/file.pdf?sig=1' })
+  })
+
+  test('resolves original id by searching orders API with order id', async () => {
+    const client = createClient()
+    const fallback = createFallback()
+    const logger = createLogger()
+
+    client.getJson.mockResolvedValueOnce({ original_id: 'orig-456' })
+
+    const service = new HttpOrderReadService({ client, fallback, logger })
+    const result = await service.resolveOriginalIdByOrderId('order-123')
+
+    expect(client.getJson).toHaveBeenCalledWith(
+      '/api/v1/orders/order-123/resolve-original-id'
+    )
+    expect(result).toBe('orig-456')
+  })
+
+  test('falls back when orders API cannot resolve original id', async () => {
+    const client = createClient()
+    const fallback = createFallback()
+    const logger = createLogger()
+
+    client.getJson.mockResolvedValueOnce({ original_id: null })
+    fallback.resolveOriginalIdByOrderId.mockResolvedValueOnce('orig-from-fallback')
+
+    const service = new HttpOrderReadService({ client, fallback, logger })
+    const result = await service.resolveOriginalIdByOrderId('order-404')
+
+    expect(result).toBe('orig-from-fallback')
+    expect(fallback.resolveOriginalIdByOrderId).toHaveBeenCalledWith('order-404')
+  })
+
+  test('calls attribution endpoint with updatedBy payload', async () => {
+    const client = createClient()
+    const fallback = createFallback()
+    const logger = createLogger()
+
+    client.postJson.mockResolvedValueOnce({ ok: true })
+
+    const service = new HttpOrderReadService({ client, fallback, logger })
+    await service.attributePersistedSnapshot('order-123', 'user-1')
+
+    expect(client.postJson).toHaveBeenCalledWith('/api/v1/orders/order-123/attribute-persisted-snapshot', {
+      updatedBy: 'user-1',
+    })
   })
 })

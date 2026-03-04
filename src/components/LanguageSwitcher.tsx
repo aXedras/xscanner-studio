@@ -12,7 +12,11 @@ export default function LanguageSwitcher() {
   const nextLang = currentLang === 'DE' ? 'EN' : 'DE'
 
   return (
-    <button onClick={toggleLanguage} className="btn btn-outline btn-icon" aria-label={`Switch language to ${nextLang}`}>
+    <button
+      onClick={toggleLanguage}
+      className="btn btn-outline btn-icon border-0"
+      aria-label={`Switch language to ${nextLang}`}
+    >
       {currentLang}
     </button>
   )

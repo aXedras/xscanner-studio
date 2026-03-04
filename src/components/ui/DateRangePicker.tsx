@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { DateRangeSpec } from '../../services/shared/persistence/query'
+import type { DateRangeSpec } from '../../services/shared/query/types'
 import { startOfUtcMonth } from './DateRangePickerCalendar'
 import { DateRangePickerCalendarView } from './DateRangePickerCalendarView'
 import { CalendarRangeIcon, CaretDownIcon } from './DateRangePickerIcons'

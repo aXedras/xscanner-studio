@@ -1,4 +1,3 @@
-import type { StoragePreview } from '../storage/IStorageService'
 import type {
   ExtractOrderFromUploadInput,
   OrderExtractResponse,
@@ -10,6 +9,11 @@ import type {
   OrderStatusCounts,
   OrderUpdateInput,
 } from './types'
+
+export type StoragePreview = {
+  src: string
+  revoke?: () => void
+}
 
 export interface IOrderService {
   extractFromUpload(input: ExtractOrderFromUploadInput): Promise<OrderExtractResponse>

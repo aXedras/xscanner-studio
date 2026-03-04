@@ -21,6 +21,7 @@ function createClient() {
   return {
     getJson: vi.fn(),
     postJson: vi.fn(),
+    patchJson: vi.fn(),
     postFormData: vi.fn(),
   } satisfies HttpJsonClient
 }
@@ -32,6 +33,7 @@ function createFallback() {
     getActiveStatusCounts: vi.fn(),
     getActiveByOriginalId: vi.fn(),
     getHistoryByOriginalId: vi.fn(),
+    getImagePreviewSrc: vi.fn(),
     extractFromUpload: vi.fn(),
     validateActive: vi.fn(),
     rejectActive: vi.fn(),
@@ -135,5 +137,19 @@ describe('HttpExtractionReadService', () => {
 
     expect(fallback.createCorrectionVersion).toHaveBeenCalled()
     expect(result).toEqual(row)
+  })
+
+  test('requests extraction image preview URL via API and maps response URL', async () => {
+    const client = createClient()
+    const fallback = createFallback()
+    const logger = createLogger()
+
+    client.getJson.mockResolvedValueOnce({ signed_url: 'https://cdn.example/extractions/a.jpg?sig=1' })
+
+    const service = new HttpExtractionReadService({ client, fallback, logger })
+    const preview = await service.getImagePreviewSrc('extractions/a.jpg')
+
+    expect(client.getJson).toHaveBeenCalledWith('/api/v1/storage/preview?storage_path=extractions%2Fa.jpg')
+    expect(preview).toEqual({ src: 'https://cdn.example/extractions/a.jpg?sig=1' })
   })
 })

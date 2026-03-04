@@ -1,119 +1,38 @@
-# Studio Documentation Index
+# Studio Documentation
 
-Frontend documentation for **xScanner Studio** - the admin UI for bullion extraction management.
+This folder contains technical documentation for **xScanner Studio** (frontend).
 
-## Architecture
+## Start Here (Active Docs)
 
-- [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) – Component structure, routing, authentication flow
-- [SERVICE_ARCHITECTURE.md](SERVICE_ARCHITECTURE.md) – Supabase integration, API client, data layer
-- [ADR-0001-frontend-server-persistence-boundary.md](ADR-0001-frontend-server-persistence-boundary.md) – Decision: server-only persistence ownership
-- [MIGRATION_VARIANT_B_SERVER_OWNS_PERSISTENCE.md](MIGRATION_VARIANT_B_SERVER_OWNS_PERSISTENCE.md) – Incremental migration roadmap to Variant B
-- [API_CONTRACT_BACKLOG_VARIANT_B.md](API_CONTRACT_BACKLOG_VARIANT_B.md) – Contract-first endpoint mapping from current frontend repositories/services
-- [SERVER_REPO_PLAYBOOK_VARIANT_B.md](SERVER_REPO_PLAYBOOK_VARIANT_B.md) – Implementation checklist for the server repository
-- [CONTRACT_TEST_CHECKLIST_VARIANT_B.md](CONTRACT_TEST_CHECKLIST_VARIANT_B.md) – Concrete contract-test checklist for server endpoint delivery
-- [SERVER_API_IMPLEMENTATION_ORDER_VARIANT_B.md](SERVER_API_IMPLEMENTATION_ORDER_VARIANT_B.md) – API-by-API implementation order with frontend request/response expectations
-- [openapi/auth-v1.yaml](openapi/auth-v1.yaml) – OpenAPI contract draft for auth/session endpoints
-- [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) – Brand colors, CSS classes, component patterns
+### Architecture & Design
 
-## Development
+- [UI_ARCHITECTURE.md](UI_ARCHITECTURE.md) – UI structure, routing, page composition
+- [SERVICE_ARCHITECTURE.md](SERVICE_ARCHITECTURE.md) – service layer, adapters, runtime wiring
+- [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) – design tokens, component styling conventions
+- [ADR-0001-frontend-server-persistence-boundary.md](ADR-0001-frontend-server-persistence-boundary.md) – architectural decision record
 
-- [LOGGING.md](LOGGING.md) – Logger abstraction, structured logging, best practices
-- [TESTING.md](TESTING.md) – Test strategy, Vitest setup, component testing
-- [I18N.md](I18N.md) – Internationalization with i18next, scoped translations
-- [PRE_COMMIT.md](PRE_COMMIT.md) – Pre-commit hooks, code quality automation
+### Engineering Practices
 
-## Tech Stack
+- [TESTING.md](TESTING.md) – testing strategy and commands
+- [LOGGING.md](LOGGING.md) – logging standards and usage
+- [I18N.md](I18N.md) – translation structure and i18n workflow
+- [PRE_COMMIT.md](PRE_COMMIT.md) – local quality gates and hooks
+- [DOCS_CONVENTIONS.md](DOCS_CONVENTIONS.md) – lightweight writing template and document lifecycle rules
 
-- **Framework**: React 18 + TypeScript
-- **Build Tool**: Vite 7
-- **Styling**: Tailwind CSS 3.3
-- **UI Components**: Custom components based on xApp design system
-- **Backend**: Supabase (Auth + PostgreSQL + Storage)
-- **API Integration**: FastAPI server on port 8010
+### API Contracts
 
-## Key Concepts
+- [openapi/auth-v1.yaml](openapi/auth-v1.yaml) – auth/session API contract used by Studio
 
-### Brand Colors (xApp Design System)
-- **Primary Gold**: `#C4A053`
-- **Success Green**: `#5CB85C`
-- **Warning Orange**: `#F39C12`
-- **Error Red**: `#FF3B30`
+## History
 
-### CSS Architecture
-All component styles are defined in `/src/index.css` using:
-- Custom CSS properties for colors (RGB format)
-- `@layer components` for reusable classes
-- Glassmorphism, gradients, animations
+- Historical Variant-B migration docs were removed on 2026-03-04.
+- Reason: reduce documentation noise and stale handoff artifacts.
+- If needed, use git history for legacy rollout context.
+- Current source of truth: active docs in this folder + `openapi/auth-v1.yaml`.
 
-### Authentication Flow
-1. User lands on Login page (Supabase Auth UI)
-2. After login → Dashboard with persistent Layout (Header + Footer)
-3. Navigation via React Router (client-side routing)
-4. Logout clears session and returns to Login
+## Practical Rule of Thumb
 
-### UI Structure
-- **Layout Component**: Wraps all authenticated pages with Header and Footer
-- **Pages**: Rendered in Layout's main content area
-- **Error Page**: Catches routing errors and displays user-friendly message
-
-### Data Layer
-- **Supabase Client**: `/src/lib/supabase.ts`
-- **Database**: `extraction` table with bitemporal versioning (`is_active` flag)
-- **Database**: `bil_registration` table for BIL registration attempts (linked to `extraction.id`)
-- **Storage**: `extractions` bucket for bullion images
-- **Migrations**: `/supabase/migrations/`
-
-**Versioning rule (audit trail):** UI corrections create a new row (new `id`) with the same `original_id` and set the previous active row to `is_active=false`.
-
-## File Structure
-
-```
-repo/
-├── src/
-│   ├── components/        # React components
-│   │   ├── Header.tsx     # App header with navigation
-│   │   ├── Footer.tsx     # App footer
-│   │   ├── Layout.tsx     # Wrapper for all pages
-│   │   ├── LoginDialog.tsx
-│   │   └── ErrorPage.tsx  # Error boundary page
-│   ├── pages/             # Route components
-│   │   ├── DashboardPage.tsx
-│   │   ├── ExtractionsPage.tsx
-│   │   └── ExtractionDetailPage.tsx
-│   ├── lib/               # Utilities
-│   │   └── supabase.ts    # Supabase client
-│   ├── App.tsx            # Router setup + auth
-│   ├── index.css          # Component classes + styling
-│   └── main.tsx           # Entry point
-├── vite.config.ts         # Vite config (port 8084)
-├── tailwind.config.js     # Tailwind config (brand colors)
-└── package.json           # Dependencies
-```
-
-## Development Workflow
-
-### Start Studio
-```bash
-make start-studio          # Start Vite dev server on :8084
-```
-
-### With All Services
-```bash
-make start-all             # Starts Supabase and Studio
-```
-
-### Environment Variables
-- `VITE_SUPABASE_URL` - Supabase API URL (http://localhost:56321)
-- `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key
-- `VITE_API_URL` - FastAPI server URL (http://localhost:8010)
-- `VITE_SUPABASE_STORAGE_BUCKET` - Optional. Storage bucket name (default: `extractions`)
-
-See `/.env.local` for configuration.
-
-## Next Steps
-
-1. ✅ Authentication & Welcome Page
-2. ✅ Extraction List View (active rows)
-3. ✅ Extraction Detail/Edit View (creates new DB row per correction)
-4. 🔄 Image Upload to Supabase Storage (UI-driven uploads)
-5. 🔄 FastAPI Integration (start new extraction from Studio)
+- Building or changing frontend behavior: start with `UI_ARCHITECTURE.md` + `SERVICE_ARCHITECTURE.md`
+- Changing quality/dev workflow: use `TESTING.md`, `LOGGING.md`, `PRE_COMMIT.md`
+- Checking auth API behavior: use `openapi/auth-v1.yaml`
+- Investigating old rationale: inspect git history

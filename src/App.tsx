@@ -9,12 +9,14 @@ import ExtractionsPage from './pages/ExtractionsPage'
 import ExtractionDetailPage from './pages/ExtractionDetailPage'
 import OrdersPage from './pages/OrdersPage'
 import OrderDetailPage from './pages/OrderDetailPage'
+import SettingsPage from './pages/SettingsPage'
 import ErrorPage from './components/ErrorPage'
 import { UiMessagesProvider } from './ui/messages/UiMessagesProvider'
 import SuccessToastOverlay from './components/messages/SuccessToastOverlay'
 import { services } from './services'
 import { AUTH_SESSION_CHANGED_EVENT } from './services/core/auth/events'
 import type { AuthSessionUser } from './services/core/auth/types'
+import { DEFAULT_API_BASE_URL, setApiBaseUrlOverride } from './lib/runtimeEnv'
 import './lib/i18n' // Initialize i18n
 
 type BootstrapState = 'loading' | 'ready' | 'error'
@@ -91,6 +93,16 @@ function App() {
           >
             {tCommon('common.action.retry')}
           </button>
+          <button
+            type="button"
+            onClick={() => {
+              setApiBaseUrlOverride(DEFAULT_API_BASE_URL)
+              globalThis.location.reload()
+            }}
+            className="btn btn-outline ml-2"
+          >
+            {tCommon('common.settings.recoverDefaultApi')}
+          </button>
         </div>
       </div>
     )
@@ -133,6 +145,10 @@ function App() {
         {
           path: 'orders/:originalId',
           element: <OrderDetailPage />,
+        },
+        {
+          path: 'settings',
+          element: <SettingsPage />,
         },
       ],
     },

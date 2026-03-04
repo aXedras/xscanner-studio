@@ -8,7 +8,7 @@ export default function ThemeSwitcher() {
   }
 
   return (
-    <button onClick={toggleTheme} className="btn btn-outline btn-icon" aria-label="Toggle theme">
+    <button onClick={toggleTheme} className="btn btn-outline btn-icon border-0" aria-label="Toggle theme">
       {theme === 'light' ? (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path

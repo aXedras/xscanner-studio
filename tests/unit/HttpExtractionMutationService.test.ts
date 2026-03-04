@@ -19,6 +19,7 @@ function createClient() {
   return {
     getJson: vi.fn(),
     postJson: vi.fn(),
+    patchJson: vi.fn(),
     postFormData: vi.fn(),
   } satisfies HttpJsonClient
 }
@@ -30,6 +31,7 @@ function createFallback() {
     getActiveStatusCounts: vi.fn(),
     getActiveByOriginalId: vi.fn(),
     getHistoryByOriginalId: vi.fn(),
+    getImagePreviewSrc: vi.fn(),
     extractFromUpload: vi.fn(),
     validateActive: vi.fn(),
     rejectActive: vi.fn(),

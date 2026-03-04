@@ -117,9 +117,9 @@ export default function DashboardPage() {
           actorId={outlet.user.id}
           onResult={async ({ result }) => {
             if (!result.order_id) return
-            const originalId = await services.orderService.resolveOriginalIdByOrderId(result.order_id)
-            if (!originalId) return
-            navigate(`/orders/${originalId}`)
+            const resolvedOriginalId = await services.orderService.resolveOriginalIdByOrderId(result.order_id)
+            const targetOriginalId = resolvedOriginalId ?? result.order_id
+            navigate(`/orders/${targetOriginalId}`)
           }}
         />
 

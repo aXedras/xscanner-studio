@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { TFunction } from 'i18next'
 import { DataTable } from '../../components/tables/DataTable'
-import type { SortSpec } from '../../services/shared/persistence/query'
+import type { SortSpec } from '../../services/shared/query/types'
 import type { ExtractionListSortField, ExtractionRow, ExtractionStatus } from '../../services/core/extraction/types'
 import { ExtractionsTableFilters } from './ExtractionsTableFilters'
 import { createExtractionsTableColumns } from './extractionsTableColumns'
@@ -78,11 +78,14 @@ export function ExtractionsTable({
   const [busyIds, setBusyIds] = useState<Set<string>>(new Set())
   const [bulkBusy, setBulkBusy] = useState(false)
 
+  const rejectableIds = useMemo(() => {
+    return rows.filter(r => !isFinalStatus(r.status)).map(r => String(r.original_id))
+  }, [rows])
+
+  const rejectableIdSet = useMemo(() => new Set(rejectableIds), [rejectableIds])
+
   const selectableIdsOnPage = useMemo(() => {
-    return rows
-      .filter(r => !isFinalStatus(r.status))
-      .map(r => String(r.original_id))
-      .filter(id => !busyIds.has(id))
+    return rows.map(r => String(r.original_id)).filter(id => !busyIds.has(id))
   }, [busyIds, rows])
 
   const selectedIds = useMemo(() => Array.from(selected), [selected])
@@ -92,10 +95,11 @@ export function ExtractionsTable({
     let count = 0
     for (const id of selected) {
       if (busyIds.has(id)) continue
+      if (!rejectableIdSet.has(id)) continue
       count += 1
     }
     return count
-  }, [busyIds, selected])
+  }, [busyIds, rejectableIdSet, selected])
 
   const allSelectedOnPage = selectableIdsOnPage.length > 0 && selectableIdsOnPage.every(id => selected.has(id))
   const someSelectedOnPage = selectableIdsOnPage.some(id => selected.has(id))

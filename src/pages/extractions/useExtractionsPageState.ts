@@ -1,6 +1,6 @@
 import { useMemo, useReducer } from 'react'
 import type { ExtractionListSortField, ExtractionStatus } from '../../services/core/extraction/types'
-import type { SortSpec } from '../../services/shared/persistence/query'
+import type { SortSpec } from '../../services/shared/query/types'
 import { mergeBaseListPageState, toggleFilterValue, useDebouncedSearchSync } from '../shared/listPageState'
 
 export type ExtractionsPageState = {

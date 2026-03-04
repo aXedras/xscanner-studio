@@ -43,8 +43,6 @@ export default function ExtractionDetailPage() {
 
   useEffect(() => {
     let isMounted = true
-    let revoke: (() => void) | undefined
-
     const run = async () => {
       if (!active) {
         if (isMounted) setImageUrl(null)
@@ -52,11 +50,9 @@ export default function ExtractionDetailPage() {
       }
 
       try {
-        const result = await services.storageService.getImagePreviewSrc(active.storage_path)
+        const preview = await services.extractionService.getImagePreviewSrc(active.storage_path)
         if (!isMounted) return
-
-        revoke = result?.revoke
-        setImageUrl(result?.src ?? null)
+        setImageUrl(preview?.src ?? null)
       } catch (error) {
         if (!isMounted) return
         setImageUrl(null)
@@ -67,7 +63,6 @@ export default function ExtractionDetailPage() {
     run()
     return () => {
       isMounted = false
-      revoke?.()
     }
   }, [active, push, t])
 

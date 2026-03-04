@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { SortSpec } from '../../services/shared/persistence/query'
+import type { SortSpec } from '../../services/shared/query/types'
 
 export type DataTableColumn<Row, SortField extends string> = {
   key: string

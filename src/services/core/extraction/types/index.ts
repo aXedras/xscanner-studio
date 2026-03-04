@@ -1,7 +1,8 @@
-import type { Json, Tables, TablesInsert, TablesUpdate } from '../../../../lib/supabase/database.types'
-import type { PageSpec, SortSpec } from '../../../shared/persistence/query'
+import type { PageSpec, SortSpec } from '../../../shared/query/types'
 
-export type ExtractionStatus = Tables<'extraction'>['status']
+export type JsonValue = string | number | boolean | null | { [key: string]: JsonValue | undefined } | JsonValue[]
+
+export type ExtractionStatus = 'pending' | 'validated' | 'corrected' | 'rejected' | 'error'
 
 export function getExtractionStatusLabelKey(status: ExtractionStatus): string {
   switch (status) {
@@ -22,20 +23,55 @@ export function getExtractionStatusLabelKey(status: ExtractionStatus): string {
   }
 }
 
-export type ExtractedData = { [key: string]: Json | undefined }
+export type ExtractedData = { [key: string]: JsonValue | undefined }
 
-export type BilRegistrationRow = Tables<'bil_registration'>
-
-export type ExtractionRow = Omit<Tables<'extraction'>, 'extracted_data'> & {
-  extracted_data: ExtractedData
+export type BilRegistrationRow = {
+  id: string
+  extraction_id: string
+  trigger_source: string
+  success: boolean
+  certificate_id: string | null
+  processing_time: number | null
+  error: string | null
+  error_details: JsonValue | null
+  http_status: number | null
+  endpoint: string | null
+  payload_sent: JsonValue | null
+  payload_received: JsonValue | null
+  created_at: string
 }
 
-export type ExtractionCreateInput = Omit<TablesInsert<'extraction'>, 'extracted_data' | 'status'> & {
+export type ExtractionRow = {
+  id: string
+  original_id: string
+  updated_by: string | null
+  storage_path: string
+  image_filename: string | null
+  strategy_used: string
+  confidence: number | null
+  processing_time: number | null
+  serial_number: string | null
+  metal: string | null
+  weight: string | null
+  weight_unit: string | null
+  fineness: string | null
+  producer: string | null
+  extracted_data: ExtractedData
+  status: ExtractionStatus
+  error: string | null
+  is_active: boolean
+  created_at: string
+}
+
+export type ExtractionCreateInput = Partial<ExtractionRow> & {
+  original_id: string
+  storage_path: string
+  strategy_used: string
   extracted_data?: ExtractedData
   status?: ExtractionStatus
 }
 
-export type ExtractionUpdateInput = TablesUpdate<'extraction'>
+export type ExtractionUpdateInput = Partial<ExtractionRow>
 
 export interface ExtractionCorrectionInput {
   serial_number: string | null

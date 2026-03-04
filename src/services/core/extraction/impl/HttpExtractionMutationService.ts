@@ -1,7 +1,7 @@
 import type { ILogger } from '../../../../lib/utils/logging'
 import type { HttpJsonClient } from '../../../infrastructure/http/httpClient'
-import type { PagedResult } from '../../../shared/persistence/query'
-import type { IExtractionService } from '../IExtractionService'
+import type { PagedResult } from '../../../shared/query/types'
+import type { IExtractionService, StoragePreview } from '../IExtractionService'
 import type {
   ExtractFromUploadInput,
   ExtractResponse,
@@ -73,6 +73,10 @@ export class HttpExtractionMutationService implements IExtractionService {
 
   async getHistoryByOriginalId(originalId: string): Promise<ExtractionRow[]> {
     return await this.fallback.getHistoryByOriginalId(originalId)
+  }
+
+  async getImagePreviewSrc(storagePath: string): Promise<StoragePreview | null> {
+    return await this.fallback.getImagePreviewSrc(storagePath)
   }
 
   async extractFromUpload(input: ExtractFromUploadInput): Promise<ExtractResponse> {

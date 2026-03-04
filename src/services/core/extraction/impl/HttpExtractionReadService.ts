@@ -1,10 +1,10 @@
 import type { ILogger } from '../../../../lib/utils/logging'
 import type { HttpJsonClient } from '../../../infrastructure/http/httpClient'
-import type { PagedResult } from '../../../shared/persistence/query'
+import type { PagedResult } from '../../../shared/query/types'
 import { isHttpNotFound } from '../../../shared/http/errors'
 import { toPagedResult } from '../../../shared/http/pagedResponse'
 import { buildPagedListQuery, buildStatusCountQuery, withQuery } from '../../../shared/http/queryParams'
-import type { IExtractionService } from '../IExtractionService'
+import type { IExtractionService, StoragePreview } from '../IExtractionService'
 import type {
   ExtractFromUploadInput,
   ExtractResponse,
@@ -19,6 +19,15 @@ type PagedExtractionResponse = {
   total: number
   page: number
   page_size: number
+}
+
+type StoragePreviewResponse = {
+  signed_url?: string | null
+  signedUrl?: string | null
+  preview_url?: string | null
+  previewUrl?: string | null
+  url?: string | null
+  src?: string | null
 }
 
 export class HttpExtractionReadService implements IExtractionService {
@@ -67,6 +76,32 @@ export class HttpExtractionReadService implements IExtractionService {
       if (isHttpNotFound(error)) return []
       throw error
     }
+  }
+
+  async getImagePreviewSrc(storagePath: string): Promise<StoragePreview | null> {
+    const trimmed = storagePath.trim()
+    if (!trimmed) return null
+
+    const requestPath = withQuery('/api/v1/storage/preview', new URLSearchParams({ storage_path: trimmed }).toString())
+    const response = await this.client.getJson<StoragePreviewResponse>(requestPath)
+
+    const src =
+      response.signed_url ??
+      response.signedUrl ??
+      response.preview_url ??
+      response.previewUrl ??
+      response.url ??
+      response.src ??
+      null
+
+    if (src?.trim()) {
+      return { src }
+    }
+
+    this.logger.warn('HttpExtractionReadService', 'getImagePreviewSrc returned empty preview URL', {
+      storagePath: trimmed,
+    })
+    return null
   }
 
   async listActive(): Promise<ExtractionRow[]> {

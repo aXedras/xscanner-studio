@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { TFunction } from 'i18next'
 import { DataTable } from '../../components/tables/DataTable'
-import type { SortSpec } from '../../services/shared/persistence/query'
+import type { SortSpec } from '../../services/shared/query/types'
 import type { OrderListSortField, OrderRow } from '../../services/core/order/types'
 import { createOrdersTableColumns } from './ordersTableColumns'
 

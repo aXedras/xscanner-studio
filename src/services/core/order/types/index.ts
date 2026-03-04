@@ -1,5 +1,4 @@
-import type { Tables, TablesInsert, TablesUpdate } from '../../../../lib/supabase/database.types'
-import type { PageSpec, SortSpec } from '../../../shared/persistence/query'
+import type { PageSpec, SortSpec } from '../../../shared/query/types'
 
 export type OrderStrategyChoice = 'manual' | 'cloud' | 'local' | 'auto'
 
@@ -38,9 +37,19 @@ export type OrderExtractResponse = {
   error: string | null
 }
 
-export type OrderStatus = Tables<'order'>['status']
+export type OrderStatus = 'pending' | 'validated' | 'corrected' | 'rejected' | 'error' | 'closed'
 
-export type OrderDocumentType = Tables<'order'>['document_type']
+export type OrderDocumentType = 'invoice' | 'order_confirmation' | 'delivery_note' | 'unknown'
+
+export type BullionMetal = 'gold' | 'silver' | 'platinum' | 'palladium' | 'unknown'
+export type BullionWeightUnit = 'g' | 'kg' | 'oz' | 'lb' | 'unknown'
+export type BullionForm = 'bar' | 'coin' | 'round' | 'unknown'
+
+export const ORDER_ENUMS = {
+  bullion_metal: ['gold', 'silver', 'platinum', 'palladium', 'unknown'] as const,
+  bullion_weight_unit: ['g', 'kg', 'oz', 'lb', 'unknown'] as const,
+  bullion_form: ['bar', 'coin', 'round', 'unknown'] as const,
+} as const
 
 export function getOrderStatusLabelKey(status: OrderStatus): string {
   switch (status) {
@@ -80,13 +89,77 @@ export function getOrderDocumentTypeLabelKey(documentType: OrderDocumentType): s
   }
 }
 
-export type OrderRow = Tables<'order'>
-export type OrderCreateInput = TablesInsert<'order'>
-export type OrderUpdateInput = TablesUpdate<'order'>
+export type OrderRow = {
+  id: string
+  original_id: string
+  updated_by: string | null
+  storage_path: string
+  pdf_filename: string | null
+  document_issuer: string
+  document_type: OrderDocumentType
+  document_number: string
+  document_date: string
+  order_number: string | null
+  order_date: string | null
+  value_date: string | null
+  shipping_date: string | null
+  transaction_type: string | null
+  seller_name: string | null
+  buyer_name: string | null
+  currency: string | null
+  shipping_charges_amount: number | null
+  other_charges_amount: number | null
+  subtotal_amount: number | null
+  total_amount: number | null
+  strategy_used: string
+  confidence: number | null
+  processing_time: number | null
+  extracted_data: Record<string, unknown>
+  status: OrderStatus
+  error: string | null
+  is_active: boolean
+  created_at: string
+}
 
-export type OrderItemRow = Tables<'order_item'>
-export type OrderItemCreateInput = TablesInsert<'order_item'>
-export type OrderItemUpdateInput = TablesUpdate<'order_item'>
+export type OrderCreateInput = Partial<OrderRow> & {
+  original_id: string
+  storage_path: string
+  document_issuer: string
+  document_type: OrderDocumentType
+  document_number: string
+  document_date: string
+}
+
+export type OrderUpdateInput = Partial<OrderRow>
+
+export type OrderItemRow = {
+  id: string
+  order_id: string
+  original_id: string
+  updated_by: string | null
+  serial_number: string | null
+  item: string | null
+  description: string | null
+  quantity: string | null
+  item_price: number | null
+  total_price: number | null
+  metal: BullionMetal
+  weight: string | null
+  weight_unit: BullionWeightUnit
+  fineness: string | null
+  producer: string | null
+  form: BullionForm
+  raw: Record<string, unknown>
+  is_active: boolean
+  created_at: string
+}
+
+export type OrderItemCreateInput = Partial<OrderItemRow> & {
+  order_id: string
+  original_id: string
+}
+
+export type OrderItemUpdateInput = Partial<OrderItemRow>
 
 export type OrderListSortField =
   | 'created_at'

@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest'
 import { HttpBilReadService } from '../../src/services/core/extraction/impl/HttpBilReadService'
 import type { HttpJsonClient } from '../../src/services/infrastructure/http/httpClient'
-import type { IBilService } from '../../src/services/core/extraction/IBilService'
+import type { IBilService } from '../../src/services/core/extraction/IBullionIntegrityLedgerService'
 
 function createLogger() {
   return {
@@ -20,6 +20,7 @@ function createClient() {
   return {
     getJson: vi.fn(),
     postJson: vi.fn(),
+    patchJson: vi.fn(),
     postFormData: vi.fn(),
   } satisfies HttpJsonClient
 }

@@ -57,6 +57,7 @@ describe('httpClient (unit, black-box)', () => {
     const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit]
     expect(url).toBe('http://x.test/hello')
     expect(init.method).toBe('GET')
+    expect(init.credentials).toBe('same-origin')
   })
 
   test('postJson sends JSON body and content-type header', async () => {

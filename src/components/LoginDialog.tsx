@@ -10,6 +10,7 @@ export default function LoginDialog() {
   const [mode, setMode] = useState<'sign_in' | 'sign_up'>('sign_in')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [displayName, setDisplayName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { push, clear } = useUiMessages()
@@ -144,16 +145,50 @@ export default function LoginDialog() {
               <label className="block text-sm font-medium text-[color:var(--text-secondary)] mb-1">
                 {t('auth.fields.password')}
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full rounded-md border border-[color:var(--bg-card-border)] bg-[color:var(--bg-primary)] text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-gold)] focus:border-[color:var(--color-gold)]"
-                placeholder="••••••••"
-                autoComplete={mode === 'sign_in' ? 'current-password' : 'new-password'}
-                disabled={isSubmitting}
-                required
-              />
+              <div className="relative">
+                <input
+                  type={isPasswordVisible ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="w-full rounded-md border border-[color:var(--bg-card-border)] bg-[color:var(--bg-primary)] text-[color:var(--text-primary)] placeholder:text-[color:var(--text-muted)] px-3 py-2 pr-11 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-gold)] focus:border-[color:var(--color-gold)]"
+                  placeholder="••••••••"
+                  autoComplete={mode === 'sign_in' ? 'current-password' : 'new-password'}
+                  disabled={isSubmitting}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsPasswordVisible(prev => !prev)}
+                  className="absolute inset-y-0 right-0 flex items-center px-3 text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] focus:outline-none"
+                  aria-label={isPasswordVisible ? t('auth.fields.hidePassword') : t('auth.fields.showPassword')}
+                  aria-pressed={isPasswordVisible}
+                  disabled={isSubmitting}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    className="h-5 w-5"
+                    aria-hidden="true"
+                  >
+                    {isPasswordVisible ? (
+                      <>
+                        <path d="M3 3l18 18" />
+                        <path d="M10.58 10.58a2 2 0 0 0 2.84 2.84" />
+                        <path d="M9.88 5.09A10.94 10.94 0 0 1 12 5c5.05 0 9.27 3.11 10.5 7.5a11.8 11.8 0 0 1-3.08 4.68" />
+                        <path d="M6.61 6.61A11.83 11.83 0 0 0 1.5 12.5C2.73 16.89 6.95 20 12 20c1.67 0 3.25-.34 4.67-.95" />
+                      </>
+                    ) : (
+                      <>
+                        <path d="M1.5 12.5C2.73 8.11 6.95 5 12 5s9.27 3.11 10.5 7.5C21.27 16.89 17.05 20 12 20S2.73 16.89 1.5 12.5z" />
+                        <circle cx="12" cy="12.5" r="3" />
+                      </>
+                    )}
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <button type="submit" className="btn w-full" disabled={isSubmitting}>

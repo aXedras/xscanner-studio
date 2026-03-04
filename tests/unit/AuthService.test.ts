@@ -1,7 +1,8 @@
 import { describe, expect, test, vi } from 'vitest'
 
 import type { HttpJsonClient } from '../../src/services/infrastructure/http/httpClient'
-import { HttpAuthRepository } from '../../src/services/core/auth/repository/HttpAuthRepository'
+import { AuthService } from '../../src/services/core/auth/impl/AuthService'
+import { AUTH_SESSION_CHANGED_EVENT } from '../../src/services/core/auth/events'
 
 function createLogger() {
   return {
@@ -20,18 +21,19 @@ function createClient() {
   return {
     getJson: vi.fn(),
     postJson: vi.fn(),
+    patchJson: vi.fn(),
     postFormData: vi.fn(),
   } satisfies HttpJsonClient
 }
 
-describe('HttpAuthRepository', () => {
+describe('AuthService', () => {
   test('posts sign-in payload and returns auth result', async () => {
     const client = createClient()
     const logger = createLogger()
     client.postJson.mockResolvedValueOnce({ hasSession: true })
 
-    const repository = new HttpAuthRepository({ client, logger })
-    const result = await repository.signInWithPassword({
+    const service = new AuthService({ client, logger })
+    const result = await service.signIn({
       email: ' user@example.com ',
       password: 'secret',
     })
@@ -48,8 +50,8 @@ describe('HttpAuthRepository', () => {
     const logger = createLogger()
     client.postJson.mockResolvedValueOnce({ hasSession: false })
 
-    const repository = new HttpAuthRepository({ client, logger })
-    const result = await repository.signUpWithPassword({
+    const service = new AuthService({ client, logger })
+    const result = await service.signUp({
       email: 'person@example.com',
       password: 'secret',
       displayName: '  Jane Doe  ',
@@ -63,13 +65,28 @@ describe('HttpAuthRepository', () => {
     expect(result).toEqual({ hasSession: false })
   })
 
+  test('emits auth session changed event after successful sign-in even when hasSession is false', async () => {
+    const client = createClient()
+    const logger = createLogger()
+    client.postJson.mockResolvedValueOnce({ hasSession: false })
+    const dispatchSpy = vi.spyOn(globalThis, 'dispatchEvent')
+
+    const service = new AuthService({ client, logger })
+    await service.signIn({
+      email: 'user@example.com',
+      password: 'secret',
+    })
+
+    expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({ type: AUTH_SESSION_CHANGED_EVENT }))
+  })
+
   test('posts sign-out request', async () => {
     const client = createClient()
     const logger = createLogger()
     client.postJson.mockResolvedValueOnce(undefined)
 
-    const repository = new HttpAuthRepository({ client, logger })
-    await repository.signOut()
+    const service = new AuthService({ client, logger })
+    await service.signOut()
 
     expect(client.postJson).toHaveBeenCalledWith('/api/v1/auth/sign-out', {})
   })
@@ -85,8 +102,8 @@ describe('HttpAuthRepository', () => {
       },
     })
 
-    const repository = new HttpAuthRepository({ client, logger })
-    const result = await repository.getSession()
+    const service = new AuthService({ client, logger })
+    const result = await service.getSession()
 
     expect(client.getJson).toHaveBeenCalledWith('/api/v1/auth/session')
     expect(result).toEqual({

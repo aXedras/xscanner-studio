@@ -1,4 +1,4 @@
-import type { SortSpec } from '../../services/shared/persistence/query'
+import type { SortSpec } from '../../services/shared/query/types'
 import { DataTablePaginationControls } from './DataTablePaginationControls'
 import type { DataTableProps } from './DataTableTypes'
 

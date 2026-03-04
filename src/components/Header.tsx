@@ -1,4 +1,5 @@
 import LanguageSwitcher from './LanguageSwitcher'
+import SystemStatusBadge from './SystemStatusBadge'
 import ThemeSwitcher from './ThemeSwitcher'
 import { Link } from 'react-router-dom'
 import { useAppTranslation, I18N_SCOPES } from '../lib/i18n'
@@ -26,7 +27,7 @@ export default function Header({ user, title, onSignOut, logoutLabel }: HeaderPr
   const { t } = useAppTranslation(I18N_SCOPES.common)
 
   return (
-    <nav className="nav">
+    <nav className="nav relative z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-[1fr_auto_1fr] items-center h-16 gap-4">
           <div className="flex items-center gap-6 min-w-0">
@@ -44,6 +45,7 @@ export default function Header({ user, title, onSignOut, logoutLabel }: HeaderPr
           </div>
 
           <div className="flex items-center gap-3 justify-self-end">
+            <SystemStatusBadge />
             <LanguageSwitcher />
             <ThemeSwitcher />
             <div className="badge">

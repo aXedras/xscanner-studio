@@ -1,4 +1,4 @@
-import type { PagedResult } from '../persistence/query'
+import type { PagedResult } from '../query/types'
 
 type RawPagedResponse<T> = {
   items: T[]

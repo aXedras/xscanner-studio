@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 
 import type { ILogger } from '../../src/lib/utils/logging'
 import { ServiceFactory } from '../../src/services/factory/ServiceFactory'
@@ -24,23 +24,25 @@ describe('ServiceFactory API adapter configuration', () => {
   beforeEach(() => {
     resetServiceFactorySingleton()
     globalThis.window.__ENV__ = {}
+    vi.unstubAllEnvs()
   })
 
   afterEach(() => {
     resetServiceFactorySingleton()
     globalThis.window.__ENV__ = {}
+    vi.unstubAllEnvs()
   })
 
-  test('throws when API adapter is enabled but VITE_API_URL is missing', () => {
+  test('uses default API base URL when VITE_API_URL is missing', () => {
+    vi.stubEnv('VITE_API_URL', '')
     globalThis.window.__ENV__ = {
       VITE_USE_AUTH_API: 'true',
     }
 
     expect(() =>
       ServiceFactory.getInstance({
-        supabase: {} as never,
         logger: createNoopLogger(),
       })
-    ).toThrow('VITE_API_URL is required when API adapters are enabled.')
+    ).not.toThrow()
   })
 })

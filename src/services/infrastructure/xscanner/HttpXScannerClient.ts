@@ -9,10 +9,9 @@ import type {
 import type { ExtractOrderFromUploadInput, OrderExtractResponse } from '../../core/order/types'
 import { createHttpJsonClient } from '../http/httpClient'
 
-import { getRuntimeEnv } from '../../../lib/runtimeEnv'
+import { getApiBaseUrl } from '../../../lib/runtimeEnv'
 
-const DEFAULT_API_BASE_URL =
-  (getRuntimeEnv('VITE_API_URL') as string) || (import.meta.env.VITE_API_URL as string) || 'http://localhost:8000'
+const DEFAULT_API_BASE_URL = getApiBaseUrl()
 
 const EXTRACT_UPLOAD_TIMEOUT_MS = 300_000
 

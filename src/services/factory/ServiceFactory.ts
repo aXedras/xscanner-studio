@@ -1,29 +1,34 @@
 import type { IAuthService } from '../core/auth/IAuthService'
 import { AuthService } from '../core/auth/impl/AuthService'
-import { HttpAuthRepository } from '../core/auth/repository/HttpAuthRepository'
-import { SupabaseAuthRepository } from '../core/auth/repository/SupabaseAuthRepository'
 import type { IExtractionService } from '../core/extraction/IExtractionService'
-import { ExtractionService } from '../core/extraction/impl/ExtractionService'
+import type { IBilService } from '../core/extraction/IBullionIntegrityLedgerService'
 import { HttpBilReadService } from '../core/extraction/impl/HttpBilReadService'
 import { HttpExtractionMutationService } from '../core/extraction/impl/HttpExtractionMutationService'
 import { HttpExtractionReadService } from '../core/extraction/impl/HttpExtractionReadService'
-import { SupabaseExtractionRepository } from '../core/extraction/repository/SupabaseExtractionRepository'
-import type { IBilService } from '../core/extraction/IBilService'
-import { BilService } from '../core/extraction/impl/BilService'
-import { SupabaseBilRegistrationRepository } from '../core/extraction/repository/SupabaseBilRegistrationRepository'
-import type { IStorageService } from '../core/storage/IStorageService'
-import { StorageService } from '../core/storage/impl/StorageService'
-import type { IOrderService } from '../core/order/IOrderService'
+import type { IOrderService, StoragePreview } from '../core/order/IOrderService'
 import { HttpOrderReadService } from '../core/order/impl/HttpOrderReadService'
-import { OrderService } from '../core/order/impl/OrderService'
-import { SupabaseOrderRepository } from '../core/order/repository/SupabaseOrderRepository'
-import { SupabaseOrderItemRepository } from '../core/order/repository/SupabaseOrderItemRepository'
 import type { IXScannerClient } from '../core/xscanner/IXScannerClient'
+import type {
+  ExtractFromUploadInput,
+  ExtractResponse,
+  ExtractionRow,
+  ExtractionStatusCounts,
+  RegisterOnBilInput,
+  RegisterOnBilResponse,
+} from '../core/extraction/types'
+import type {
+  ExtractOrderFromUploadInput,
+  OrderExtractResponse,
+  OrderItemRow,
+  OrderRow,
+  OrderStatusCounts,
+} from '../core/order/types'
+import { createHttpJsonClient, joinUrl } from '../infrastructure/http/httpClient'
 import { HttpXScannerClient } from '../infrastructure/xscanner/HttpXScannerClient'
-import { createHttpJsonClient } from '../infrastructure/http/httpClient'
+import type { PagedResult } from '../shared/query/types'
+import { getApiBaseUrl, getRuntimeEnv } from '../../lib/runtimeEnv'
 import type { ILogger } from '../../lib/utils/logging'
 import type { ServiceContainer } from './ServiceContainer'
-import { getRuntimeEnv } from '../../lib/runtimeEnv'
 
 function isEnabled(value: string | undefined): boolean {
   const normalized = (value ?? '').trim().toLowerCase()
@@ -53,12 +58,11 @@ function readEnvVar(name: string): string | undefined {
 }
 
 function requireApiBaseUrl(): string {
-  const raw = readEnvVar('VITE_API_URL')
-  const trimmed = (raw ?? '').trim()
-  if (!trimmed) {
-    throw new Error('VITE_API_URL is required when API adapters are enabled.')
-  }
-  return trimmed
+  return getApiBaseUrl()
+}
+
+function unsupported(method: string): never {
+  throw new Error(`${method} is not available in API-only mode yet.`)
 }
 
 export class ServiceFactory {
@@ -67,7 +71,6 @@ export class ServiceFactory {
   private readonly _authService: IAuthService
   private readonly _extractionService: IExtractionService
   private readonly _bilService: IBilService
-  private readonly _storageService: IStorageService
   private readonly _orderService: IOrderService
   private readonly _xscannerClient: IXScannerClient
   private readonly _logger: ILogger
@@ -80,112 +83,129 @@ export class ServiceFactory {
     const useBilReadApi = isEnabled(readEnvVar('VITE_USE_BIL_READ_API'))
     const useExtractionsMutationApi = isEnabled(readEnvVar('VITE_USE_EXTRACTIONS_MUTATION_API'))
 
-    const usesApiAdapter =
-      useAuthApi || useOrdersReadApi || useExtractionsReadApi || useBilReadApi || useExtractionsMutationApi
-
-    const apiBaseUrl = usesApiAdapter ? requireApiBaseUrl() : null
+    const apiBaseUrl = requireApiBaseUrl()
 
     const createApiClient = (name: string) => {
-      if (!apiBaseUrl) {
-        throw new Error(`API client '${name}' cannot be created without a configured API base URL.`)
-      }
-
       return createHttpJsonClient({
         baseUrl: apiBaseUrl,
         logger: container.logger,
         name,
+        credentials: 'include',
       })
     }
 
-    const authRepository = useAuthApi
-      ? new HttpAuthRepository({
-          client: createApiClient('AuthApiClient'),
-          logger: container.logger,
-        })
-      : new SupabaseAuthRepository(container.supabase, container.logger)
-
-    this._authService = new AuthService(authRepository, container.logger)
-
-    if (useAuthApi) {
-      container.logger.info('ServiceFactory', 'Auth API adapter enabled', { baseUrl: apiBaseUrl })
+    const resolvePreviewSrc = (storagePath: string): StoragePreview | null => {
+      const trimmed = storagePath.trim()
+      if (!trimmed) return null
+      const src = /^https?:\/\//i.test(trimmed) ? trimmed : joinUrl(apiBaseUrl, trimmed)
+      return { src }
     }
 
-    this._storageService = new StorageService(container.supabase, container.logger)
+    this._authService = new AuthService({
+      client: createApiClient('AuthApiClient'),
+      logger: container.logger,
+    })
 
-    this._xscannerClient = new HttpXScannerClient(container.logger)
+    this._xscannerClient = new HttpXScannerClient(container.logger, apiBaseUrl)
 
-    const orderRepository = new SupabaseOrderRepository(container.supabase, container.logger)
-    const orderItemRepository = new SupabaseOrderItemRepository(container.supabase, container.logger)
-
-    const orderServiceBase = new OrderService(
-      orderRepository,
-      orderItemRepository,
-      this._xscannerClient,
-      this._storageService,
-      container.logger
-    )
-
-    this._orderService = useOrdersReadApi
-      ? new HttpOrderReadService({
-          client: createApiClient('OrdersReadApiClient'),
-          fallback: orderServiceBase,
-          logger: container.logger,
-        })
-      : orderServiceBase
-
-    if (useOrdersReadApi) {
-      container.logger.info('ServiceFactory', 'Orders read API adapter enabled', { baseUrl: apiBaseUrl })
+    const bilServiceBase: IBilService = {
+      listRegistrationsByExtractionId: async (): Promise<import('../core/extraction/types').BilRegistrationRow[]> => [],
+      listRegistrationsByExtractionIds: async (): Promise<
+        import('../core/extraction/types').BilRegistrationRow[]
+      > => [],
+      registerOnBil: async (input: RegisterOnBilInput): Promise<RegisterOnBilResponse> => {
+        return await this._xscannerClient.registerOnBil(input)
+      },
     }
 
-    const extractionRepository = new SupabaseExtractionRepository(container.supabase, container.logger)
-    const bilRegistrationRepository = new SupabaseBilRegistrationRepository(container.supabase, container.logger)
+    this._bilService = new HttpBilReadService({
+      client: createApiClient('BilReadApiClient'),
+      fallback: bilServiceBase,
+      logger: container.logger,
+    })
 
-    const bilServiceBase = new BilService(bilRegistrationRepository, this._xscannerClient, container.logger)
-
-    this._bilService = useBilReadApi
-      ? new HttpBilReadService({
-          client: createApiClient('BilReadApiClient'),
-          fallback: bilServiceBase,
-          logger: container.logger,
-        })
-      : bilServiceBase
-
-    const extractionServiceBase = new ExtractionService(
-      extractionRepository,
-      this._xscannerClient,
-      this._bilService,
-      container.logger
-    )
-
-    const extractionReadService = useExtractionsReadApi
-      ? new HttpExtractionReadService({
-          client: createApiClient('ExtractionsReadApiClient'),
-          fallback: extractionServiceBase,
-          logger: container.logger,
-        })
-      : extractionServiceBase
-
-    if (useExtractionsReadApi) {
-      container.logger.info('ServiceFactory', 'Extractions read API adapter enabled', { baseUrl: apiBaseUrl })
+    const extractionReadClient = createApiClient('ExtractionsReadApiClient')
+    const extractionServiceBase: IExtractionService = {
+      listActive: async (): Promise<ExtractionRow[]> => {
+        const response = await extractionReadClient.getJson<{ items: ExtractionRow[] }>(
+          '/api/v1/extractions?page=1&page_size=200&sort_field=created_at&sort_direction=desc'
+        )
+        return response.items ?? []
+      },
+      listActivePaged: async (): Promise<PagedResult<ExtractionRow>> =>
+        unsupported('extractionService.listActivePaged'),
+      getActiveStatusCounts: async (): Promise<ExtractionStatusCounts> =>
+        unsupported('extractionService.getActiveStatusCounts'),
+      getActiveByOriginalId: async (): Promise<ExtractionRow | null> =>
+        unsupported('extractionService.getActiveByOriginalId'),
+      getHistoryByOriginalId: async (): Promise<ExtractionRow[]> =>
+        unsupported('extractionService.getHistoryByOriginalId'),
+      getImagePreviewSrc: async () => unsupported('extractionService.getImagePreviewSrc'),
+      extractFromUpload: async (input: ExtractFromUploadInput): Promise<ExtractResponse> => {
+        return await this._xscannerClient.extractFromUpload(input)
+      },
+      validateActive: async (): Promise<ExtractionRow> => unsupported('extractionService.validateActive'),
+      rejectActive: async (): Promise<ExtractionRow> => unsupported('extractionService.rejectActive'),
+      createCorrectionVersion: async (): Promise<ExtractionRow> =>
+        unsupported('extractionService.createCorrectionVersion'),
     }
 
-    if (useBilReadApi) {
-      container.logger.info('ServiceFactory', 'BIL read API adapter enabled', { baseUrl: apiBaseUrl })
+    const extractionReadService = new HttpExtractionReadService({
+      client: extractionReadClient,
+      fallback: extractionServiceBase,
+      logger: container.logger,
+    })
+
+    this._extractionService = new HttpExtractionMutationService({
+      client: createApiClient('ExtractionsMutationApiClient'),
+      fallback: extractionReadService,
+      logger: container.logger,
+    })
+
+    const orderServiceBase: IOrderService = {
+      extractFromUpload: async (input: ExtractOrderFromUploadInput): Promise<OrderExtractResponse> => {
+        return await this._xscannerClient.extractOrderFromUpload(input)
+      },
+      extractFromUploadDebug: async (input: ExtractOrderFromUploadInput): Promise<OrderExtractResponse> => {
+        return await this._xscannerClient.extractOrderFromUploadDebug(input)
+      },
+      attributePersistedSnapshot: async (): Promise<void> => {},
+      listActivePaged: async (): Promise<{
+        items: OrderRow[]
+        total: number
+        page: number
+        pageSize: number
+      }> => unsupported('orderService.listActivePaged'),
+      getActiveStatusCounts: async (): Promise<OrderStatusCounts> => unsupported('orderService.getActiveStatusCounts'),
+      findActiveByOriginalId: async (): Promise<OrderRow | null> => unsupported('orderService.findActiveByOriginalId'),
+      findHistoryByOriginalId: async (): Promise<OrderRow[]> => unsupported('orderService.findHistoryByOriginalId'),
+      updateOrder: async (): Promise<OrderRow> => unsupported('orderService.updateOrder'),
+      resolveOriginalIdByOrderId: async (): Promise<string | null> => null,
+      listActiveItems: async (): Promise<OrderItemRow[]> => [],
+      listActiveItemsByOriginalId: async (): Promise<OrderItemRow[]> => [],
+      findItemHistoryByOriginalId: async (): Promise<OrderItemRow[]> => [],
+      createItem: async (): Promise<OrderItemRow> => unsupported('orderService.createItem'),
+      updateItem: async (): Promise<OrderItemRow> => unsupported('orderService.updateItem'),
+      deleteItem: async (): Promise<void> => unsupported('orderService.deleteItem'),
+      getPdfPreviewSrc: async (storagePath: string): Promise<StoragePreview | null> => {
+        return resolvePreviewSrc(storagePath)
+      },
     }
 
-    this._extractionService = useExtractionsMutationApi
-      ? new HttpExtractionMutationService({
-          client: createApiClient('ExtractionsMutationApiClient'),
-          fallback: extractionReadService,
-          logger: container.logger,
-        })
-      : extractionReadService
+    this._orderService = new HttpOrderReadService({
+      client: createApiClient('OrdersReadApiClient'),
+      fallback: orderServiceBase,
+      logger: container.logger,
+    })
 
-    if (useExtractionsMutationApi) {
-      container.logger.info('ServiceFactory', 'Extractions mutation API adapter enabled', {
-        baseUrl: apiBaseUrl,
-      })
-    }
+    container.logger.info('ServiceFactory', 'API-only services configured', {
+      baseUrl: apiBaseUrl,
+      useOrdersReadApi,
+      useExtractionsReadApi,
+      useBilReadApi,
+      useExtractionsMutationApi,
+      useAuthApi,
+    })
   }
 
   static getInstance(container: ServiceContainer): ServiceFactory {
@@ -203,10 +223,6 @@ export class ServiceFactory {
 
   get bilService(): IBilService {
     return this._bilService
-  }
-
-  get storageService(): IStorageService {
-    return this._storageService
   }
 
   get orderService(): IOrderService {

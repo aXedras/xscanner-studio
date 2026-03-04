@@ -59,10 +59,18 @@ export default function OrdersPage() {
     [push, t]
   )
 
+  const loadPagedOrders = useCallback((nextQuery: OrderListQuery) => {
+    return services.orderService.listActivePaged(nextQuery)
+  }, [])
+
+  const loadOrderStatusCounts = useCallback((filters: { search?: string }) => {
+    return services.orderService.getActiveStatusCounts(filters)
+  }, [])
+
   useLoadPagedRows({
     query,
     refreshKey: state.refreshKey,
-    load: services.orderService.listActivePaged,
+    load: loadPagedOrders,
     onError,
     setLoading,
     setRows,
@@ -72,7 +80,7 @@ export default function OrdersPage() {
   useLoadStatusCounts({
     filters: countsFilters,
     refreshKey: state.refreshKey,
-    load: services.orderService.getActiveStatusCounts,
+    load: loadOrderStatusCounts,
     onError,
     setBusy: setCountsBusy,
     setCounts,

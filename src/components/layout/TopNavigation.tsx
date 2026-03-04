@@ -11,11 +11,12 @@ type Props = {
   t: TFunction
 }
 
-export function TopNavigation({ t }: Props) {
+export function TopNavigation({ t }: Readonly<Props>) {
   const items: NavItem[] = [
     { to: '/', label: t('common.nav.dashboard'), end: true },
     { to: '/extractions', label: t('common.nav.extractions') },
     { to: '/orders', label: t('common.nav.orders') },
+    { to: '/settings', label: t('common.nav.settings') },
   ]
 
   return (

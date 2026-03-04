@@ -3,7 +3,8 @@
     "nav": {
       "dashboard": "Dashboard",
       "extractions": "Extractions",
-      "orders": "Shipments"
+      "orders": "Shipments",
+      "settings": "Settings"
     },
     "toast": {
       "save": {
@@ -141,6 +142,34 @@
       "zoomOut": "Zoom out",
       "zoom": "Zoom",
       "hint": "Mouse wheel to zoom, drag to pan when zoomed, Esc to close."
+    },
+    "systemStatus": {
+      "title": "System Status",
+      "badgeLabel": "System status: {{status}}",
+      "endpoint": "Endpoint",
+      "lastUpdated": "Last updated",
+      "rows": {
+        "backend": "Backend API",
+        "aiModel": "AI Model"
+      },
+      "labels": {
+        "up": "Up",
+        "degraded": "Degraded",
+        "busy": "Busy",
+        "down": "Down"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Configure local Studio runtime options.",
+      "backendUrl": "Backend API URL",
+      "backendHint": "Used for API requests and health checks.",
+      "save": "Save and reload",
+      "reset": "Reset to default",
+      "recoverDefaultApi": "Reset backend URL to default",
+      "defaultInfo": "Default: {{url}}",
+      "invalidUrl": "Please enter a valid absolute URL (for example: http://localhost:9000).",
+      "unreachableUrl": "Could not reach {{url}}/health{{status}}. URL was not saved."
     }
   },
   "auth": {
@@ -158,7 +187,9 @@
     },
     "fields": {
       "email": "Email",
-      "password": "Password"
+      "password": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
     },
     "errors": {
       "invalidCredentials": "Email or password is incorrect.",

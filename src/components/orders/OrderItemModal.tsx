@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { OrderItemRow, OrderItemUpdateInput } from '../../services/core/order/types'
-import { Constants } from '../../lib/supabase/database.types'
+import { ORDER_ENUMS } from '../../services/core/order/types'
 import { ActionIconButton } from '../ui/ActionIconButton'
 import { EditIcon, RegisterIcon, RejectIcon } from '../ui/ActionIcons'
 import { Modal } from '../ui/Modal'
@@ -217,7 +217,7 @@ export function OrderItemModal({
               disabled={isFieldDisabled}
               onChange={e => setDraft(prev => ({ ...prev, metal: e.target.value as Draft['metal'] }))}
             >
-              {Constants.public.Enums.bullion_metal.map(value => (
+              {ORDER_ENUMS.bullion_metal.map(value => (
                 <option key={value} value={value}>
                   {value}
                 </option>
@@ -233,7 +233,7 @@ export function OrderItemModal({
               disabled={isFieldDisabled}
               onChange={e => setDraft(prev => ({ ...prev, form: e.target.value as Draft['form'] }))}
             >
-              {Constants.public.Enums.bullion_form.map(value => (
+              {ORDER_ENUMS.bullion_form.map(value => (
                 <option key={value} value={value}>
                   {value}
                 </option>
@@ -261,7 +261,7 @@ export function OrderItemModal({
               disabled={isFieldDisabled}
               onChange={e => setDraft(prev => ({ ...prev, weightUnit: e.target.value as Draft['weightUnit'] }))}
             >
-              {Constants.public.Enums.bullion_weight_unit.map(value => (
+              {ORDER_ENUMS.bullion_weight_unit.map(value => (
                 <option key={value} value={value}>
                   {value}
                 </option>

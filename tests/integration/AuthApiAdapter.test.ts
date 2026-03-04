@@ -66,7 +66,6 @@ describe('Auth API adapter (integration with mocked API)', () => {
     })
 
     const services = ServiceFactory.getInstance({
-      supabase: {} as never,
       logger,
     })
 
@@ -111,7 +110,6 @@ describe('Auth API adapter (integration with mocked API)', () => {
     })
 
     const services = ServiceFactory.getInstance({
-      supabase: {} as never,
       logger,
     })
 

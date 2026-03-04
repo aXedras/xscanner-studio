@@ -6,7 +6,12 @@ import type {
   ExtractionRow,
   ExtractionStatusCounts,
 } from './types'
-import type { PagedResult } from '../../shared/persistence/query'
+import type { PagedResult } from '../../shared/query/types'
+
+export type StoragePreview = {
+  src: string
+  revoke?: () => void
+}
 
 export interface IExtractionService {
   listActive(): Promise<ExtractionRow[]>
@@ -18,6 +23,7 @@ export interface IExtractionService {
   }): Promise<ExtractionStatusCounts>
   getActiveByOriginalId(originalId: string): Promise<ExtractionRow | null>
   getHistoryByOriginalId(originalId: string): Promise<ExtractionRow[]>
+  getImagePreviewSrc(storagePath: string): Promise<StoragePreview | null>
 
   extractFromUpload(input: ExtractFromUploadInput): Promise<ExtractResponse>
 
