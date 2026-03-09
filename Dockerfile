@@ -32,6 +32,11 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Runtime config injection
 COPY env.template.js /usr/share/nginx/html/env.template.js
 COPY docker-entrypoint.d/99-env.sh /docker-entrypoint.d/99-env.sh
-RUN chmod +x /docker-entrypoint.d/99-env.sh
+RUN chmod +x /docker-entrypoint.d/99-env.sh \
+	&& mkdir -p /var/cache/nginx /var/run /var/log/nginx /run \
+	&& touch /usr/share/nginx/html/env.js \
+	&& chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/run /var/log/nginx /run
 
-EXPOSE 80
+USER nginx
+
+EXPOSE 8080
