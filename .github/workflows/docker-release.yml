@@ -25,6 +25,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version || steps.version_local.outputs.version }}
       existing: ${{ steps.version.outputs.existing || steps.version_local.outputs.existing }}
+      image_name: ${{ steps.image.outputs.name }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -48,6 +49,10 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Compute image name
+        id: image
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
 
       - name: Compute release version
         if: env.ACT != 'true'
@@ -143,8 +148,8 @@ jobs:
           file: ${{ github.workspace }}/Dockerfile
           push: true
           tags: |
-            ${{ format('ghcr.io/{0}:{1}', github.repository, steps.version.outputs.version) }}
-            ${{ format('ghcr.io/{0}:latest', github.repository) }}
+            ${{ format('{0}:{1}', steps.image.outputs.name, steps.version.outputs.version) }}
+            ${{ format('{0}:latest', steps.image.outputs.name) }}
           labels: |
             org.opencontainers.image.title=xscanner-studio
             org.opencontainers.image.description=xScanner Studio frontend
@@ -179,5 +184,5 @@ jobs:
           prerelease: false
           body: |
             Container images published to GHCR:
-            - ghcr.io/${{ github.repository }}:${{ needs.docker-image.outputs.version }}
-            - ghcr.io/${{ github.repository }}:latest
+            - ${{ needs.docker-image.outputs.image_name }}:${{ needs.docker-image.outputs.version }}
+            - ${{ needs.docker-image.outputs.image_name }}:latest
