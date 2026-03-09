@@ -268,7 +268,7 @@ jobs:
 
       - name: Log in to GHCR with GITHUB_TOKEN
         if: steps.registry_auth.outputs.use_pat != 'true'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ steps.registry_auth.outputs.username }}
@@ -276,7 +276,7 @@ jobs:
 
       - name: Log in to GHCR with PAT
         if: steps.registry_auth.outputs.use_pat == 'true'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ steps.registry_auth.outputs.username }}
