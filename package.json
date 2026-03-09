@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "autoprefixer": "^10.4.23",
-    "i18next": "^25.7.4",
+    "i18next": "^25.8.14",
     "postcss": "^8.5.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
