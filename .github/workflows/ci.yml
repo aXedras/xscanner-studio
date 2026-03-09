@@ -177,7 +177,7 @@ jobs:
         run: npm run security:audit
 
       - name: Run Trivy filesystem scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: fs
           scan-ref: .
@@ -186,6 +186,8 @@ jobs:
           ignore-unfixed: true
           severity: HIGH,CRITICAL
           scanners: vuln,secret,misconfig
+          version: v0.69.3
+          token-setup-trivy: ${{ github.token }}
 
   docker-image:
     name: Docker image build/release
@@ -265,13 +267,15 @@ jobs:
             VITE_XSCANNER_RELEASE_TAG=${{ github.event.release.tag_name || github.ref_name || github.sha }}
 
       - name: Run Trivy image scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.35.0
         with:
           image-ref: xscanner-studio:ci
           format: table
           exit-code: '1'
           ignore-unfixed: true
           severity: HIGH,CRITICAL
+          version: v0.69.3
+          token-setup-trivy: ${{ github.token }}
 
       - name: Log in to GHCR with GITHUB_TOKEN
         if: steps.registry_auth.outputs.use_pat != 'true'
