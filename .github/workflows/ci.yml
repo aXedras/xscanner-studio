@@ -1,17 +1,13 @@
-name: Studio CI
+name: Studio CI/CD
 
 on:
   push:
     branches: [main, develop]
   pull_request:
     branches: [main]
+  release:
+    types: [published]
   workflow_dispatch:
-    inputs:
-      run_integration:
-        description: 'Run integration tests (requires vars.XSCANNER_API_URL)'
-        required: false
-        default: false
-        type: boolean
 
 permissions:
   contents: read
@@ -21,13 +17,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  studio-checks:
-    name: Studio checks
+  lint:
+    name: Lint and static checks
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Load CI env file (.env.ci)
+        run: grep -vE '^\s*(#|$)' .env.ci >> "$GITHUB_ENV"
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -39,76 +38,275 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Duplicate report (jscpd)
-        run: npm run dup:report
+      - name: Run formatting check
+        run: npm run format:check
 
-      - name: Upload duplicate report artifact
-        if: always() && env.ACT != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: duplicate-report
-          path: reports/jscpd/
-          if-no-files-found: ignore
+      - name: Run i18n checks
+        run: npm run i18n:all
 
-      - name: Full checks
-        run: npm run check:all
+      - name: Run ESLint
+        run: npm run lint
 
-  docker-build:
-    name: Docker build verification
-    needs: studio-checks
+      - name: Run TypeScript checks
+        run: npm run type-check
+
+  build:
+    name: Frontend build
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    needs: lint
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Load CI env file (.env.ci)
+        run: grep -vE '^\s*(#|$)' .env.ci >> "$GITHUB_ENV"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload built frontend
+        uses: actions/upload-artifact@v4
+        with:
+          name: studio-dist
+          path: dist/
+          if-no-files-found: error
+
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Load CI env file (.env.ci)
+        run: grep -vE '^\s*(#|$)' .env.ci >> "$GITHUB_ENV"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+  e2e-tests:
+    name: Playwright mocked e2e
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 25
+    env:
+      PLAYWRIGHT_USE_PREVIEW: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Load CI env file (.env.ci)
+        run: grep -vE '^\s*(#|$)' .env.ci >> "$GITHUB_ENV"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download built frontend
+        uses: actions/download-artifact@v4
+        with:
+          name: studio-dist
+          path: dist/
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: ignore
+
+  security:
+    name: Security checks
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Load CI env file (.env.ci)
+        run: grep -vE '^\s*(#|$)' .env.ci >> "$GITHUB_ENV"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm run security:audit
+
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
+          scanners: vuln,secret,misconfig
+
+  docker-image:
+    name: Docker image build/release
+    runs-on: ubuntu-latest
+    needs: [build, unit-tests, e2e-tests, security]
+    if: github.event_name != 'pull_request'
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Load CI env file (.env.ci)
+        run: grep -vE '^\s*(#|$)' .env.ci >> "$GITHUB_ENV"
+
+      - name: Compute image name
+        id: image
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Compute image tags
+        id: tags
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          image_name='${{ steps.image.outputs.name }}'
+          release_tag=''
+
+          if [ '${{ github.event_name }}' = 'release' ]; then
+            release_tag='${{ github.event.release.tag_name }}'
+          fi
+
+          {
+            echo 'tags<<EOF'
+            echo "${image_name}:latest"
+            if [ '${{ github.event_name }}' = 'push' ]; then
+              echo "${image_name}:${GITHUB_REF_NAME}"
+            fi
+            if [ -n "${release_tag}" ]; then
+              echo "${image_name}:${release_tag}"
+              echo "${image_name}:release"
+            fi
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Select GHCR credentials
+        id: registry_auth
+        shell: bash
+        env:
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          if [ -n "${GHCR_TOKEN}" ]; then
+            echo "username=${GHCR_USERNAME:-${GITHUB_REPOSITORY_OWNER}}" >> "$GITHUB_OUTPUT"
+            echo 'use_pat=true' >> "$GITHUB_OUTPUT"
+          else
+            echo "username=${GITHUB_REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
+            echo 'use_pat=false' >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
+      - name: Build Docker image locally
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
-          push: false
-          tags: xscanner-studio:ci-check
+          load: true
+          tags: xscanner-studio:ci
           build-args: |
-            VITE_API_URL=${{ vars.XSCANNER_API_URL || 'http://localhost:8080' }}
-            VITE_XSCANNER_API_URL=${{ vars.XSCANNER_API_URL || 'http://localhost:8080' }}
-            VITE_LOG_LEVEL=info
-            VITE_XSCANNER_RELEASE_TAG=ci-${{ github.sha }}
+            VITE_API_URL=${{ env.VITE_API_URL }}
+            VITE_XSCANNER_API_URL=${{ env.VITE_XSCANNER_API_URL }}
+            VITE_LOG_LEVEL=${{ env.VITE_LOG_LEVEL }}
+            VITE_XSCANNER_RELEASE_TAG=${{ github.event.release.tag_name || github.ref_name || github.sha }}
 
-  integration-tests:
-    name: Integration tests (optional)
-    needs: studio-checks
-    if: >-
-      (github.event_name == 'workflow_dispatch' && github.ref_name == 'main' && inputs.run_integration == true) ||
-      (github.event_name == 'pull_request' && contains(join(github.event.pull_request.labels.*.name, ','), 'ci:integration'))
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      VITE_API_URL: ${{ vars.XSCANNER_API_URL }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Run Trivy image scan
+        uses: aquasecurity/trivy-action@0.28.0
         with:
-          node-version-file: .nvmrc
-          cache: npm
-          cache-dependency-path: package-lock.json
+          image-ref: xscanner-studio:ci
+          format: table
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: HIGH,CRITICAL
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Log in to GHCR with GITHUB_TOKEN
+        if: steps.registry_auth.outputs.use_pat != 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ steps.registry_auth.outputs.username }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Ensure integration API URL is configured
+      - name: Log in to GHCR with PAT
+        if: steps.registry_auth.outputs.use_pat == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ steps.registry_auth.outputs.username }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Tag publish images
+        shell: bash
         run: |
-          if [ -z "${VITE_API_URL}" ]; then
-            echo "vars.XSCANNER_API_URL is not set." >&2
-            echo "Set it in repository variables before enabling integration runs." >&2
-            exit 1
-          fi
+          set -euo pipefail
+          while IFS= read -r tag; do
+            [ -n "$tag" ] || continue
+            docker tag xscanner-studio:ci "$tag"
+          done <<'EOF'
+          ${{ steps.tags.outputs.tags }}
+          EOF
 
-      - name: Run integration tests
-        run: npm run test:integration
+      - name: Push publish images
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r tag; do
+            [ -n "$tag" ] || continue
+            docker push "$tag"
+          done <<'EOF'
+          ${{ steps.tags.outputs.tags }}
+          EOF
